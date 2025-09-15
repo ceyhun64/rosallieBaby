@@ -77,8 +77,8 @@ export default function MostVisited() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
+        <CarouselPrevious className={"ms-10"} />
+        <CarouselNext className={"me-10"} />
       </Carousel>
     </section>
   );
