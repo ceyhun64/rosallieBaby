@@ -17,7 +17,7 @@ export default function ProductCard({ product }) {
         {/* Ürün Resmi */}
         <div
           className={`relative w-full ${
-            isMobile ? "h-65" : "h-120"
+            isMobile ? "h-55" : "h-120"
           } overflow-hidden rounded-t-lg`}
         >
           <Image
