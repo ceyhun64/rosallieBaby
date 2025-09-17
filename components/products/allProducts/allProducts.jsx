@@ -96,17 +96,16 @@ const products = [
 
 export default function AllProducts() {
   return (
-    <div className="flex p-4 md:p-8">
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-4">
-          <Label className="text-3xl font-semibold">All Products</Label>
-          <span className="text-gray-600 text-lg">
-            ({products.length} products)
-          </span>
-        </div>
-
-        <ProductToolbar products={products} />
+    <div className="p-4 md:p-8">
+      {/* Başlık + ürün sayısı */}
+      <div className="flex items-center gap-2 mb-4">
+        <Label className="text-3xl font-semibold">All Products</Label>
+        <span className="text-gray-600 text-lg">
+          ({products.length} products)
+        </span>
       </div>
+
+      <ProductToolbar products={products} />
     </div>
   );
 }
