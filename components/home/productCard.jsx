@@ -73,13 +73,13 @@ export default function ProductCard({ product }) {
             <div
               className={`${
                 isMobile
-                  ? "flex flex-col items-start"
+                  ? "flex flex-col items-start ms-3"
                   : "flex items-center space-x-2"
               }`}
             >
               <span
                 className={`${
-                  isMobile ? "text-xs" : "text-sm"
+                  isMobile ? "text-xs" : "text-sm "
                 } text-gray-400 line-through`}
               >
                 ₺{product.oldPrice.toFixed(2)}
