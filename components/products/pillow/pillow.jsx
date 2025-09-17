@@ -1,7 +1,9 @@
+"use client"
 import React from "react";
 import ProductToolbar from "./productToolBar";
 import { Label } from "@/components/ui/label";
 import Breadcrumb from "@/components/layout/breadcrumb";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Örnek ürün verileri
 const products = [
@@ -90,13 +92,14 @@ const products = [
 ];
 
 export default function Pillow() {
+  const isMobile = useIsMobile();
   return (
     <div className="p-4 md:p-8">
       {/* Breadcrumb */}
       <Breadcrumb />
       {/* Başlık + ürün sayısı */}
       <div className="flex items-center gap-2 mb-4">
-        <Label className="text-3xl font-semibold">Pillow</Label>
+        <Label className={`text-3xl font-semibold ${isMobile ? "text-xl" : "text-3xl"}`}>Pillow</Label>
         <span className="text-gray-600 text-lg">({products.length} products)</span>
       </div>
 

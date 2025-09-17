@@ -1,6 +1,8 @@
-import React from "react";
+"use client"
+import React, { use } from "react";
 import ProductToolbar from "./productToolBar";
 import { Label } from "@/components/ui/label"; // Başlık için Label ekledim
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const products = [
   {
@@ -95,11 +97,18 @@ const products = [
 ];
 
 export default function AllProducts() {
+  const isMobile = useIsMobile();
   return (
     <div className="p-4 md:p-8">
       {/* Başlık + ürün sayısı */}
       <div className="flex items-center gap-2 mb-4">
-        <Label className="text-3xl font-semibold">All Products</Label>
+        <Label
+          className={`text-3xl font-semibold ${
+            isMobile ? "text-xl" : "text-3xl"
+          }`}
+        >
+          All Products
+        </Label>
         <span className="text-gray-600 text-lg">
           ({products.length} products)
         </span>
