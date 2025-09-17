@@ -59,7 +59,7 @@ export default function MuslinSets() {
   const isMobile = useIsMobile();
   return (
     <section
-      className={`container mx-auto py-12 ${isMobile ? "px-0" : "px-5"} `}
+      className={`container mx-auto py-12 ${isMobile ? "px-1" : "px-5"} `}
     >
       <h2 className="text-center text-2xl mb-8">Named Muslin Sets</h2>
 

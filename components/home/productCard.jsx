@@ -17,7 +17,7 @@ export default function ProductCard({ product }) {
         {/* Ürün Resmi */}
         <div
           className={`relative w-full ${
-            isMobile ? "h-60" : "h-120"
+            isMobile ? "h-65" : "h-120"
           } overflow-hidden rounded-t-lg`}
         >
           <Image
@@ -54,26 +54,44 @@ export default function ProductCard({ product }) {
           >
             {product.description}
           </p>
-          <div className="flex items-center justify-center space-x-2">
+
+          <div
+            className={`flex ${
+              isMobile
+                ? "justify-between items-start px-6"
+                : "items-center justify-center space-x-2"
+            }`}
+          >
+            {/* İndirim yüzdesi */}
             {product.discount > 0 && (
-              <div className="bg-[#b3a89e] text-white rounded-full px-2 py-1 text-xs font-bold -mr-1">
+              <div className="bg-[#b3a89e] text-white rounded-lg px-2 py-2 text-xs font-bold">
                 %{product.discount}
               </div>
             )}
-            <span
+
+            {/* Fiyatlar */}
+            <div
               className={`${
-                isMobile ? "text-xs" : "text-sm"
-              } text-gray-400 line-through`}
+                isMobile
+                  ? "flex flex-col items-start"
+                  : "flex items-center space-x-2"
+              }`}
             >
-              ₺{product.oldPrice.toFixed(2)}
-            </span>
-            <span
-              className={`${
-                isMobile ? "text-sm" : "text-xl"
-              } font-bold text-black`}
-            >
-              ₺{product.price.toFixed(2)}
-            </span>
+              <span
+                className={`${
+                  isMobile ? "text-xs" : "text-sm"
+                } text-gray-400 line-through`}
+              >
+                ₺{product.oldPrice.toFixed(2)}
+              </span>
+              <span
+                className={`${
+                  isMobile ? "text-sm" : "text-xl"
+                } font-bold text-black`}
+              >
+                ₺{product.price.toFixed(2)}
+              </span>
+            </div>
           </div>
         </div>
       </div>

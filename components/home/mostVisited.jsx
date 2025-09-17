@@ -60,7 +60,7 @@ export default function MostVisited() {
 
   return (
     <section
-      className={`container mx-auto  ${isMobile ? "px-0 py-8" : "px-5 py-12"}`}
+      className={`container mx-auto  ${isMobile ? "px-1 py-8" : "px-5 py-12"}`}
     >
       <h2 className="text-center text-2xl mb-8">Most Visited</h2>
 
