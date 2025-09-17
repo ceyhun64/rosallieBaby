@@ -1,5 +1,4 @@
 import React from "react";
-import SearchAndFilter from "./searchAndFilter";
 import ProductToolbar from "./productToolBar";
 import { Label } from "@/components/ui/label"; // Başlık için Label ekledim
 
@@ -98,12 +97,6 @@ const products = [
 export default function AllProducts() {
   return (
     <div className="flex p-4 md:p-8">
-      {/* Left menu */}
-      <div className="w-64 mr-8 hidden md:block sticky top-0 h-fit self-start">
-        <SearchAndFilter />
-      </div>
-
-      {/* Right side */}
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-4">
           <Label className="text-3xl font-semibold">All Products</Label>
