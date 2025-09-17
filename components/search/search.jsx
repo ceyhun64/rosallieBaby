@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ProductCard from "./productCard";
 import { Input } from "@/components/ui/input";
-import { X } from "lucide-react"; // Kapatma ikonu
+import { X, Search, Trash } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 // Örnek ürün verileri
 const products = [
   {
@@ -92,40 +94,59 @@ const products = [
   },
 ];
 
-export default function Search() {
+export default function DefaultSearch() {
   const [query, setQuery] = useState("");
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   return (
     <div className="p-4 md:p-8">
-      {/* Üst Bar: Logo + Arama + Kapat */}
-      <div className="flex items-center justify-between mb-16 px-64">
-        {/* Logo */}
-        <Link className="text-xl text-teal-600 text-extrabold" href="/">
-          RosallieBaby.Com
-        </Link>
-        {/* Arama Input */}
-        <div className="flex-1 mx-4 ">
-          <Input
-            type="text"
-            placeholder="Search for products..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full"
-          />
-        </div>
+      {/* Üst Bar */}
+      <div className="flex items-center justify-between mb-8 md:mb-16 gap-4">
+        {/* Desktop: Logo */}
+        {!isMobile && (
+          <Link className="text-xl text-teal-600 font-extrabold" href="/">
+            RosallieBaby
+          </Link>
+        )}
 
-        {/* Kapatma Butonu */}
-        <button
-          onClick={() => router.back()} // bir önceki sayfaya gider
-          className="p-2 rounded hover:bg-gray-200 transition"
-        >
-          <X className="w-5 h-5 text-gray-600" />
-        </button>
+        <div className="flex items-center gap-2 w-full relative">
+          {/* Input + Clear button */}
+          <div className="flex-1 relative">
+            {/* Search ikonu */}
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+
+            <Input
+              type="text"
+              placeholder="Search for products..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-full pl-10 pr-10" // sol padding ikonu, sağ padding clear butonu
+            />
+
+            {/* Input içinde silme butonu */}
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 transition"
+              >
+                <Trash className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Inputun dışında hep sağda: sayfayı kapatma/back butonu */}
+          <button
+            onClick={() => router.back()}
+            className="p-2 rounded hover:bg-gray-200 transition"
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
       </div>
 
       {/* Ürün Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {products
           .filter((p) => p.name.toLowerCase().includes(query.toLowerCase()))
           .map((product) => (

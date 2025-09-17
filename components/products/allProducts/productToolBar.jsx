@@ -117,7 +117,7 @@ export default function ProductToolbar({ products }) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               type="text"
-              placeholder="Ne arıyorsunuz?"
+              placeholder="What are you looking for?"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-3 py-2 h-10"
@@ -283,7 +283,7 @@ export default function ProductToolbar({ products }) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               type="text"
-              placeholder="Ne arıyorsunuz?"
+              placeholder="What are you looking for?"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-3 py-2 h-10"

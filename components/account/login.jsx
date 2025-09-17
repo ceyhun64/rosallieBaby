@@ -5,6 +5,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Main login component
 export default function Login() {
@@ -13,7 +14,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginMessage, setLoginMessage] = useState("");
-
+const isMobile = useIsMobile();
   const handleLogin = (e) => {
     e.preventDefault();
     console.log("Email:", email, "Password:", password);
@@ -21,7 +22,11 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-white font-sans">
+    <div
+      className={`bg-white min-h-screen flex flex-col md:flex-row  font-sans  ${
+        isMobile ? "mt-30" : "mt-0"
+      }`}
+    >
       {/* Left side: Form */}
       <div className="flex flex-col justify-center items-center p-8 md:w-[30rem]">
         <div className="w-full max-w-sm">

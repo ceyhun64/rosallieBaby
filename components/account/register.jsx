@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Register page component
 export default function Register() {
@@ -13,8 +14,11 @@ export default function Register() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [marketingConsent, setMarketingConsent] = useState(false);
+
   const [registerMessage, setRegisterMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const isMobile = useIsMobile();
 
   const handleRegister = (e) => {
     e.preventDefault();
@@ -36,7 +40,11 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-white font-sans">
+    <div
+      className={`bg-white min-h-screen flex flex-col md:flex-row  font-sans  ${
+        isMobile ? "mt-10" : "mt-0"
+      }`}
+    >
       {/* Left side: Form */}
       <div className="flex flex-col justify-center items-center p-8 md:w-[30rem]">
         <div className="w-full max-w-sm">
@@ -117,6 +125,25 @@ export default function Register() {
                 </button>
               </div>
             </div>
+            {/* Ticari Elektronik İleti Onayı */}
+            <div className="flex items-start gap-2 mt-2">
+              <input
+                type="checkbox"
+                id="marketingConsent"
+                checked={marketingConsent}
+                onChange={(e) => setMarketingConsent(e.target.checked)}
+                className="mt-1"
+              />
+              <label
+                htmlFor="marketingConsent"
+                className="text-gray-500 text-sm"
+              >
+                I have read and agree to the{" "}
+                <strong>Commercial Electronic Message Consent</strong> text to
+                be informed about promotions. I want to receive commercial
+                electronic messages sent by you.
+              </label>
+            </div>
 
             <Button
               type="submit"
@@ -146,7 +173,6 @@ export default function Register() {
           </Button>
         </div>
       </div>
-
       {/* Right side: Image */}
       <div className="hidden md:flex flex-1 relative">
         <img
