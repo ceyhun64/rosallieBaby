@@ -1,37 +1,85 @@
-// components/Categories.jsx
-import React from "react";
+"use client";
+import React, { useRef, useState, useEffect } from "react";
 import CategoryCard from "./categoryCard";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-// Örnek kategori verileri
 const categories = [
   {
-    title: "Blankets",
+    title: "Hospital Outfit Sets",
     imageUrl: "/categories/category1.webp",
-    href: "/blankets",
+    href: "/all-products/hospital-outfit-set",
   },
   {
-    title: "Rompers",
+    title: "Toys",
     imageUrl: "/categories/category2.webp",
-    href: "/rompers",
+    href: "/all-products/toy",
   },
   {
     title: "Pillows",
     imageUrl: "/categories/category3.webp",
-    href: "/pillows",
+    href: "/all-products/pillow",
   },
 ];
 
 export default function Categories() {
+  const containerRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft;
+      const width = container.offsetWidth;
+      let index = Math.round(scrollLeft / width);
+
+      // Sonsuz döngü: en sona gelince başa dön
+      if (index >= categories.length) {
+        container.scrollTo({ left: 0, behavior: "smooth" });
+        index = 0;
+      }
+
+      setActiveIndex(index);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <section className="container mx-auto py-12 px-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+    <section
+      className={`${isMobile ? "px-0 py-5" : "px-12 py-12"} container mx-auto `}
+    >
+      <div
+        ref={containerRef}
+        className="md:grid md:grid-cols-3 md:gap-8 flex md:flex-none overflow-x-auto snap-x snap-mandatory relative scroll-smooth"
+      >
         {categories.map((category, index) => (
-          <CategoryCard
+          <div
             key={index}
-            title={category.title}
-            imageUrl={category.imageUrl}
-            href={category.href}
-          />
+            className="flex-none w-screen md:w-auto snap-start relative"
+          >
+            <CategoryCard
+              title={category.title}
+              imageUrl={category.imageUrl}
+              href={category.href}
+            />
+
+            {isMobile && index === activeIndex && (
+              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                {categories.map((_, dotIndex) => (
+                  <span
+                    key={dotIndex}
+                    className={`h-2 w-2 rounded-full transition-colors ${
+                      dotIndex === activeIndex ? "bg-black" : "bg-gray-400"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         ))}
       </div>
     </section>

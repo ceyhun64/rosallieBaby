@@ -2,25 +2,26 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Heroes() {
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   return (
     <section
-      className="relative w-full h-[80vh] cursor-pointer"
+      className={`relative w-full cursor-pointer ${
+        isMobile ? "h-[60vh]" : "h-[80vh]"
+      }`}
       onClick={() => router.push("/all-products")}
     >
-      {/* Background Image */}
       <Image
-        src="/heroes/heroes1.webp"
+        src={isMobile ? "/heroes/heroes2.webp" : "/heroes/heroes1.webp"}
         alt="Hero background"
         fill
         className="object-cover"
         priority
       />
-
-      {/* Optional Overlay for better visuals */}
     </section>
   );
 }

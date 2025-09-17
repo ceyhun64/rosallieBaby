@@ -1,4 +1,4 @@
-// components/ProductCarousel.jsx
+"use client";
 import React from "react";
 import ProductCard from "./productCard";
 import {
@@ -8,8 +8,9 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-// Example product data
+// Örnek ürün verisi
 const products = [
   {
     id: 1,
@@ -55,30 +56,46 @@ const products = [
 ];
 
 export default function MostVisited() {
+  const isMobile = useIsMobile();
+
   return (
-    <section className="container mx-auto py-12 px-5">
-      <h2 className="text-center text-4xl  font-['Arial'] mb-8">
-        Most Visited
-      </h2>
+    <section
+      className={`container mx-auto  ${isMobile ? "px-0 py-8" : "px-5 py-12"}`}
+    >
+      <h2 className="text-center text-2xl mb-8">Most Visited</h2>
 
       <Carousel
-        opts={{
-          align: "start",
-        }}
-        className="w-full px-4"
+        opts={{ align: "start" }}
+        className={`w-full ${isMobile ? "px-0 gap-2" : "px-4"}`}
       >
-        <CarouselContent className="-ml-1">
+        <CarouselContent className={`-ml-1 ${isMobile ? "space-x-2" : ""}`}>
           {products.map((product) => (
             <CarouselItem
               key={product.id}
-              className="pl-1 md:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+              className={`pl-1 ${
+                isMobile
+                  ? "basis-1/2" // Mobilde 2 ürün
+                  : "md:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+              }`}
             >
               <ProductCard product={product} />
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className={"ms-10"} />
-        <CarouselNext className={"me-10"} />
+
+        <CarouselPrevious
+          className={`absolute top-1/3 left-2 transform -translate-y-1/2 z-20 
+          bg-white text-black p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors`}
+        >
+          &#8249;
+        </CarouselPrevious>
+
+        <CarouselNext
+          className={`absolute top-1/3 right-2 transform -translate-y-1/2 z-20 
+          bg-white text-black p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors`}
+        >
+          &#8250;
+        </CarouselNext>
       </Carousel>
     </section>
   );

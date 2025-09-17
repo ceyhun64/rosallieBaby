@@ -21,7 +21,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumb from "@/components/layout/breadcrumb";
-import Bestseller from "../romper/bestseller";
+import Bestseller from "./bestseller";
+import CompletePurchase from "./completePurchase";
 
 const products = [
   {
@@ -36,7 +37,7 @@ const products = [
     ],
     description: `A perfect choice for newborn photos, the Astronaut Muslin Hospital Outfit 6-Piece Set offers a soft texture with 4 layers of muslin fabric to protect your baby's sensitive skin. Its elegant and comfortable design makes the first days unforgettable.
     Set contents:
-    Embroidered blanket
+    Embroidered toy
     Embroidered pillowcase
     Embroidered jumpsuit
     Hat
@@ -328,6 +329,8 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+      <CompletePurchase />
 
       <div className="mt-12 flex flex-col items-center text-center">
         <h2 className="text-xl font-medium text-green-800">

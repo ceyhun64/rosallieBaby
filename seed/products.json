@@ -1,0 +1,362 @@
+[
+  {
+    "id": 1,
+    "name": "Astronaut Muslin Hospital Outfit 8-Piece Set",
+    "mainImage": "/allProducts/product1main.webp",
+    "subImages": [
+      "/allProducts/product1sub1.webp",
+      "/allProducts/product1sub2.webp",
+      "/allProducts/product1sub3.webp",
+      "/allProducts/product1sub4.webp",
+      "/allProducts/product1sub5.webp",
+      "/allProducts/product1sub6.webp"
+    ],
+    "description": "Soft muslin outfit for newborns. Includes hat, gloves, bib, toy, jumpsuit, and pillowcase.",
+    "oldPrice": 2999,
+    "price": 2399,
+    "discount": 20,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 2,
+    "name": "Rocket Themed Baby Hospital Outfit 6-Piece Set",
+    "mainImage": "/allProducts/product2main.webp",
+    "subImages": [
+      "/allProducts/product2sub1.webp",
+      "/allProducts/product2sub2.webp",
+      "/allProducts/product2sub3.webp",
+      "/allProducts/product2sub4.webp",
+      "/allProducts/product2sub5.webp",
+      "/allProducts/product2sub6.webp"
+    ],
+    "description": "Cute rocket themed muslin set for baby’s first days. Includes pillowcase, toy, jumpsuit, hat, gloves, and bib.",
+    "oldPrice": 2799,
+    "price": 2199,
+    "discount": 21,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 3,
+    "name": "Starry Night Hospital Outfit 7-Piece Set",
+    "mainImage": "/allProducts/product3main.webp",
+    "subImages": [
+      "/allProducts/product3sub1.webp",
+      "/allProducts/product3sub2.webp",
+      "/allProducts/product3sub3.webp",
+      "/allProducts/product3sub4.webp",
+      "/allProducts/product3sub5.webp",
+      "/allProducts/product3sub6.webp"
+    ],
+    "description": "Soft and elegant starry night themed outfit for newborns.",
+    "oldPrice": 3199,
+    "price": 2499,
+    "discount": 22,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 4,
+    "name": "Galaxy Baby Hospital Outfit 5-Piece Set",
+    "mainImage": "/allProducts/product4main.webp",
+    "subImages": [
+      "/allProducts/product4sub1.webp",
+      "/allProducts/product4sub2.webp",
+      "/allProducts/product4sub3.webp",
+      "/allProducts/product4sub4.webp",
+      "/allProducts/product4sub5.webp",
+      "/allProducts/product4sub6.webp"
+    ],
+    "description": "Galaxy themed muslin hospital outfit for newborns. Soft and breathable.",
+    "oldPrice": 2899,
+    "price": 2299,
+    "discount": 21,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 5,
+    "name": "Rocket Ship Baby Hospital Set 6-Piece",
+    "mainImage": "/allProducts/product5main.webp",
+    "subImages": [
+      "/allProducts/product5sub1.webp",
+      "/allProducts/product5sub2.webp",
+      "/allProducts/product5sub3.webp",
+      "/allProducts/product5sub4.webp",
+      "/allProducts/product5sub5.webp",
+      "/allProducts/product5sub6.webp"
+    ],
+    "description": "Adorable rocket ship muslin outfit set for newborns.",
+    "oldPrice": 3099,
+    "price": 2499,
+    "discount": 19,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 6,
+    "name": "Moon Baby Hospital Outfit 7-Piece Set",
+    "mainImage": "/allProducts/product6main.webp",
+    "subImages": [
+      "/allProducts/product6sub1.webp",
+      "/allProducts/product6sub2.webp",
+      "/allProducts/product6sub3.webp",
+      "/allProducts/product6sub4.webp",
+      "/allProducts/product6sub5.webp",
+      "/allProducts/product6sub6.webp"
+    ],
+    "description": "Moon themed hospital outfit for babies. Soft muslin fabric for sensitive skin.",
+    "oldPrice": 3299,
+    "price": 2699,
+    "discount": 18,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 7,
+    "name": "Sunshine Baby Hospital Outfit 6-Piece",
+    "mainImage": "/allProducts/product7main.webp",
+    "subImages": [
+      "/allProducts/product7sub1.webp",
+      "/allProducts/product7sub2.webp",
+      "/allProducts/product7sub3.webp",
+      "/allProducts/product7sub4.webp",
+      "/allProducts/product7sub5.webp",
+      "/allProducts/product7sub6.webp"
+    ],
+    "description": "Sunshine themed muslin outfit for newborns. Includes 6 cozy pieces.",
+    "oldPrice": 2999,
+    "price": 2399,
+    "discount": 20,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 8,
+    "name": "Comet Baby Hospital Outfit 8-Piece Set",
+    "mainImage": "/allProducts/product8main.webp",
+    "subImages": [
+      "/allProducts/product8sub1.webp",
+      "/allProducts/product8sub2.webp",
+      "/allProducts/product8sub3.webp",
+      "/allProducts/product8sub4.webp",
+      "/allProducts/product8sub5.webp",
+      "/allProducts/product8sub6.webp"
+    ],
+    "description": "Comet themed hospital outfit set for newborns. Soft and stylish.",
+    "oldPrice": 3399,
+    "price": 2799,
+    "discount": 17,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 9,
+    "name": "Planet Baby Hospital Outfit 6-Piece",
+    "mainImage": "/allProducts/product9main.webp",
+    "subImages": [
+      "/allProducts/product9sub1.webp",
+      "/allProducts/product9sub2.webp",
+      "/allProducts/product9sub3.webp",
+      "/allProducts/product9sub4.webp",
+      "/allProducts/product9sub5.webp",
+      "/allProducts/product9sub6.webp"
+    ],
+    "description": "Planet themed muslin hospital outfit for babies.",
+    "oldPrice": 3199,
+    "price": 2599,
+    "discount": 18,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 10,
+    "name": "Galaxy Explorer Baby Outfit 7-Piece Set",
+    "mainImage": "/allProducts/product10main.webp",
+    "subImages": [
+      "/allProducts/product10sub1.webp",
+      "/allProducts/product10sub2.webp",
+      "/allProducts/product10sub3.webp",
+      "/allProducts/product10sub4.webp",
+      "/allProducts/product10sub5.webp",
+      "/allProducts/product10sub6.webp"
+    ],
+    "description": "Galaxy explorer themed hospital outfit for newborns.",
+    "oldPrice": 3499,
+    "price": 2899,
+    "discount": 17,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 11,
+    "name": "Milky Way Baby Hospital Outfit 8-Piece",
+    "mainImage": "/allProducts/product11main.webp",
+    "subImages": [
+      "/allProducts/product11sub1.webp",
+      "/allProducts/product11sub2.webp",
+      "/allProducts/product11sub3.webp",
+      "/allProducts/product11sub4.webp",
+      "/allProducts/product11sub5.webp",
+      "/allProducts/product11sub6.webp"
+    ],
+    "description": "Milky Way themed newborn hospital outfit set.",
+    "oldPrice": 3599,
+    "price": 2999,
+    "discount": 17,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 12,
+    "name": "Rocket Adventure Baby Outfit 6-Piece Set",
+    "mainImage": "/allProducts/product12main.webp",
+    "subImages": [
+      "/allProducts/product12sub1.webp",
+      "/allProducts/product12sub2.webp",
+      "/allProducts/product12sub3.webp",
+      "/allProducts/product12sub4.webp",
+      "/allProducts/product12sub5.webp",
+      "/allProducts/product12sub6.webp"
+    ],
+    "description": "Adventure rocket themed hospital outfit for newborns.",
+    "oldPrice": 3299,
+    "price": 2699,
+    "discount": 18,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 13,
+    "name": "Shooting Star Baby Outfit 7-Piece",
+    "mainImage": "/allProducts/product13main.webp",
+    "subImages": [
+      "/allProducts/product13sub1.webp",
+      "/allProducts/product13sub2.webp",
+      "/allProducts/product13sub3.webp",
+      "/allProducts/product13sub4.webp",
+      "/allProducts/product13sub5.webp",
+      "/allProducts/product13sub6.webp"
+    ],
+    "description": "Shooting star themed muslin outfit set for newborns.",
+    "oldPrice": 3199,
+    "price": 2599,
+    "discount": 19,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 14,
+    "name": "Little Astronaut Baby Outfit 8-Piece Set",
+    "mainImage": "/allProducts/product14main.webp",
+    "subImages": [
+      "/allProducts/product14sub1.webp",
+      "/allProducts/product14sub2.webp",
+      "/allProducts/product14sub3.webp",
+      "/allProducts/product14sub4.webp",
+      "/allProducts/product14sub5.webp",
+      "/allProducts/product14sub6.webp"
+    ],
+    "description": "Little astronaut themed newborn outfit set.",
+    "oldPrice": 3499,
+    "price": 2899,
+    "discount": 17,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 15,
+    "name": "Star Explorer Baby Hospital Outfit 6-Piece",
+    "mainImage": "/allProducts/product15main.webp",
+    "subImages": [
+      "/allProducts/product15sub1.webp",
+      "/allProducts/product15sub2.webp",
+      "/allProducts/product15sub3.webp",
+      "/allProducts/product15sub4.webp",
+      "/allProducts/product15sub5.webp",
+      "/allProducts/product15sub6.webp"
+    ],
+    "description": "Star explorer themed muslin outfit for newborns.",
+    "oldPrice": 3199,
+    "price": 2599,
+    "discount": 18,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 16,
+    "name": "Comet Explorer Baby Outfit 7-Piece Set",
+    "mainImage": "/allProducts/product16main.webp",
+    "subImages": [
+      "/allProducts/product16sub1.webp",
+      "/allProducts/product16sub2.webp",
+      "/allProducts/product16sub3.webp",
+      "/allProducts/product16sub4.webp",
+      "/allProducts/product16sub5.webp",
+      "/allProducts/product16sub6.webp"
+    ],
+    "description": "Comet explorer themed muslin outfit set for newborns.",
+    "oldPrice": 3299,
+    "price": 2699,
+    "discount": 18,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 17,
+    "name": "Moon Explorer Baby Outfit 8-Piece Set",
+    "mainImage": "/allProducts/product17main.webp",
+    "subImages": [
+      "/allProducts/product17sub1.webp",
+      "/allProducts/product17sub2.webp",
+      "/allProducts/product17sub3.webp",
+      "/allProducts/product17sub4.webp",
+      "/allProducts/product17sub5.webp",
+      "/allProducts/product17sub6.webp"
+    ],
+    "description": "Moon explorer themed hospital outfit for newborns.",
+    "oldPrice": 3399,
+    "price": 2799,
+    "discount": 18,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 18,
+    "name": "Sunshine Explorer Baby Outfit 6-Piece",
+    "mainImage": "/allProducts/product18main.webp",
+    "subImages": [
+      "/allProducts/product18sub1.webp",
+      "/allProducts/product18sub2.webp",
+      "/allProducts/product18sub3.webp",
+      "/allProducts/product18sub4.webp",
+      "/allProducts/product18sub5.webp",
+      "/allProducts/product18sub6.webp"
+    ],
+    "description": "Sunshine explorer themed muslin hospital outfit.",
+    "oldPrice": 3199,
+    "price": 2599,
+    "discount": 19,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 19,
+    "name": "Little Comet Baby Hospital Outfit 7-Piece",
+    "mainImage": "/allProducts/product19main.webp",
+    "subImages": [
+      "/allProducts/product19sub1.webp",
+      "/allProducts/product19sub2.webp",
+      "/allProducts/product19sub3.webp",
+      "/allProducts/product19sub4.webp",
+      "/allProducts/product19sub5.webp",
+      "/allProducts/product19sub6.webp"
+    ],
+    "description": "Little comet themed muslin outfit set for newborns.",
+    "oldPrice": 3299,
+    "price": 2699,
+    "discount": 18,
+    "category": "hospital-outfit-set"
+  },
+  {
+    "id": 20,
+    "name": "Little Star Baby Hospital Outfit 8-Piece Set",
+    "mainImage": "/allProducts/product20main.webp",
+    "subImages": [
+      "/allProducts/product20sub1.webp",
+      "/allProducts/product20sub2.webp",
+      "/allProducts/product20sub3.webp",
+      "/allProducts/product20sub4.webp",
+      "/allProducts/product20sub5.webp",
+      "/allProducts/product20sub6.webp"
+    ],
+    "description": "Little star themed hospital outfit for newborns.",
+    "oldPrice": 3499,
+    "price": 2899,
+    "discount": 17,
+    "category": "hospital-outfit-set"
+  }
+]

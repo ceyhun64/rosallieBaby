@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MessageSquareText, Star, X,Info } from "lucide-react";
+import { MessageSquareText, Star, X, Info } from "lucide-react";
 
 import {
   ShoppingCart,
@@ -21,7 +21,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumb from "@/components/layout/breadcrumb";
-import Bestseller from "../romper/bestseller";
+import Bestseller from "./bestseller";
+import CompletePurchase from "./completePurchase";
 
 const products = [
   {
@@ -30,13 +31,13 @@ const products = [
     mainImage: "/allProducts/product1main.webp",
     subImages: [
       "/allProducts/product1main.webp",
-      "/allProducts/product1sub1.webp",
-      "/allProducts/product1sub2.webp",
-      "/allProducts/product1sub3.webp",
+      "/allProducts/product1sub.webp",
+      "/allProducts/product2sub.webp",
+      "/allProducts/product3sub.webp",
     ],
     description: `A perfect choice for newborn photos, the Astronaut Muslin Hospital Outfit 6-Piece Set offers a soft texture with 4 layers of muslin fabric to protect your baby's sensitive skin. Its elegant and comfortable design makes the first days unforgettable.
     Set contents:
-    Embroidered blanket
+    Embroidered toy
     Embroidered pillowcase
     Embroidered jumpsuit
     Hat
@@ -45,37 +46,6 @@ const products = [
     oldPrice: 2999,
     price: 2399,
     discount: 20,
-  },
-  {
-    id: 2,
-    name: "Defne",
-    mainImage: "/allProducts/product2main.webp",
-    subImages: ["/allProducts/product2main.webp"],
-    description: "Flowery Muslin 6-Piece Baby Hospital Outfit Set",
-    oldPrice: 2399,
-    price: 1899,
-    discount: 24,
-  },
-  {
-    id: 3,
-    name: "Sarp",
-    mainImage: "/allProducts/product3main.webp",
-    subImages: ["/allProducts/product3main.webp"],
-    description: "Rabbit Muslin 6-Piece Baby Hospital Outfit Set",
-    oldPrice: 2299,
-    price: 1999,
-    discount: 13,
-  },
-  {
-    id: 4,
-    name: "Aren",
-    mainImage: "/allProducts/product4main.webp",
-    subImages: ["/allProducts/product4main.webp"],
-    description:
-      "Personalized Embroidered Muslin 7-Piece Baby Hospital Outfit Set",
-    oldPrice: 2399,
-    price: 1799,
-    discount: 25,
   },
 ];
 
@@ -283,8 +253,8 @@ export default function ProductDetail() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="hat-blanket" className="text-base font-semibold">
-                Hat & Blanket Option *
+              <Label htmlFor="hat-toy" className="text-base font-semibold">
+                Hat & Toy Option *
               </Label>
               <div className="flex gap-3">
                 <div
@@ -344,8 +314,9 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+      <CompletePurchase />
 
-      <div className="mt-12 flex flex-col items-center text-center">
+      <div className="mt-8 flex flex-col items-center text-center">
         <h2 className="text-xl font-medium text-green-800">
           Product Description
         </h2>

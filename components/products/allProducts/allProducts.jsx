@@ -65,11 +65,11 @@ const products = [
     name: "Defne",
     mainImage: "/allProducts/product6main.webp",
     subImage1: "/allProducts/product6sub.webp",
-    description: "Flowery Muslin Blanket",
+    description: "Flowery Muslin Toy",
     oldPrice: 2399,
     price: 1899,
     discount: 24,
-    category: "blanket",
+    category: "toy",
   },
   {
     id: 7,

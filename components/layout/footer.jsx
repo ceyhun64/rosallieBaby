@@ -1,88 +1,108 @@
-// components/Footer.jsx
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Facebook, Instagram } from "lucide-react";
+import { Facebook, Instagram, Plus, Minus } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+const footerSections = [
+  {
+    title: "Agreements",
+    links: [
+      { label: "Distance Sales Agreement", href: "/mesafeli-satis-sozlesmesi" },
+      { label: "Privacy Policy", href: "/gizlilik-sozlesmesi" },
+      { label: "Cancellation & Refund Policy", href: "/iptal-iade-sartlari" },
+    ],
+  },
+  {
+    title: "My Account",
+    links: [
+      { label: "Sign In", href: "/giris" },
+      { label: "Register", href: "/kayit-ol" },
+    ],
+  },
+  {
+    title: "About Us",
+    links: [{ label: "Contact", href: "/iletisim" }],
+  },
+];
 
 export default function Footer() {
+  const isMobile = useIsMobile();
+  const [openIndex, setOpenIndex] = useState(null);
+
+  const toggleAccordion = (index) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
   return (
     <>
-      <footer className="bg-white text-black py-12 px-5">
+      <footer
+        className={`bg-white text-black py-12 ${isMobile ? "px-0" : "px-5"}`}
+      >
         <div className="container mx-auto px-4">
-          {/* Top Section: Link Columns */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16">
-            {/* AGREEMENTS */}
-            <div>
-              <h4 className="text-xl font-bold mb-4">Agreements</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <Link
-                    href="/mesafeli-satis-sozlesmesi"
-                    className="hover:text-black transition-colors"
-                  >
-                    Distance Sales Agreement
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/gizlilik-sozlesmesi"
-                    className="hover:text-black transition-colors"
-                  >
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/iptal-iade-sartlari"
-                    className="hover:text-black transition-colors"
-                  >
-                    Cancellation & Refund Policy
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* MY ACCOUNT */}
-            <div>
-              <h4 className="text-xl font-bold mb-4">My Account</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <Link
-                    href="/giris"
-                    className="hover:text-black transition-colors"
-                  >
-                    Sign In
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/kayit-ol"
-                    className="hover:text-black transition-colors"
-                  >
-                    Register
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* ABOUT US */}
-            <div>
-              <h4 className="text-xl font-bold mb-4">About Us</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <Link
-                    href="/iletisim"
-                    className="hover:text-black transition-colors"
-                  >
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
+          {/* Link Columns */}
+          <div
+            className={`grid ${
+              isMobile ? "grid-cols-1" : "grid-cols-3"
+            } gap-8 md:gap-16`}
+          >
+            {footerSections.map((section, index) => (
+              <div key={index}>
+                {isMobile ? (
+                  // Mobile Accordion
+                  <div>
+                    <button
+                      onClick={() => toggleAccordion(index)}
+                      className="w-full flex justify-between items-center text-lg font-bold mb-2"
+                    >
+                      {section.title}
+                      {openIndex === index ? (
+                        <Minus size={20} />
+                      ) : (
+                        <Plus size={20} />
+                      )}
+                    </button>
+                    {openIndex === index && (
+                      <ul className="space-y-2 text-gray-400 mb-4">
+                        {section.links.map((link, i) => (
+                          <li key={i}>
+                            <Link
+                              href={link.href}
+                              className="hover:text-black transition-colors"
+                            >
+                              {link.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ) : (
+                  // Desktop Grid
+                  <div>
+                    <h4 className="text-xl font-bold mb-4">{section.title}</h4>
+                    <ul className="space-y-2 text-gray-400">
+                      {section.links.map((link, i) => (
+                        <li key={i}>
+                          <Link
+                            href={link.href}
+                            className="hover:text-black transition-colors"
+                          >
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
 
           {/* Bottom Section: Social Media and Payment Icons */}
-          <div className="border-t mt-12 pt-8 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+          <div className="border-t mt-12 pt-8 flex flex-row items-center justify-between">
+            {/* Social Media Icons - sol */}
             <div className="flex items-center space-x-4">
               <Link href="#" aria-label="Facebook">
                 <Facebook
@@ -98,6 +118,7 @@ export default function Footer() {
               </Link>
             </div>
 
+            {/* Payment Icons - sağ */}
             <div className="flex items-center space-x-1">
               <Image
                 src="/footer/Visa.svg"
@@ -123,9 +144,13 @@ export default function Footer() {
       </footer>
 
       {/* Copyright Section */}
-      <div className="w-full bg-[#96a978] py-4 px-10">
-        <p className="text-white text-sm font-medium">
-          ©2025 All rights reserved | Developed by Ceyhun Türkmen
+      <div className="w-full bg-[#96a978] py-4 px-4 md:px-10">
+        <p className="text-white text-sm font-medium text-center md:text-left">
+          <span className="block md:inline">
+            ©2025 RosallieBaby.com All rights reserved
+            <span className="hidden md:inline"> | </span>
+          </span>
+          <span className="block md:inline">Developed by Ceyhun Türkmen</span>
         </p>
       </div>
     </>

@@ -1,13 +1,16 @@
-// components/SubscribeSection.jsx
+"use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function SubscribeSection() {
+  const isMobile = useIsMobile();
+
   return (
     <section className="w-full bg-cover bg-center py-16 md:py-24 relative">
-      {/* Darker Overlay Layer */}
+      {/* Background Image */}
       <Image
         src="/subscribe/subscribe.webp"
         alt="Subscribe"
@@ -35,7 +38,9 @@ export default function SubscribeSection() {
           />
           <Button
             type="submit"
-            className="w-full md:w-auto bg-[#96a978] text-white font-bold  rounded-none px-8 py-3 shadow-lg hover:bg-[#85966a] transition-colors"
+            className={`${
+              isMobile ? "w-1/3" : "w-full md:w-auto"
+            } bg-[#96a978] text-white font-bold rounded-none px-8 py-3 shadow-lg hover:bg-[#85966a] transition-colors`}
           >
             JOIN US!
           </Button>
