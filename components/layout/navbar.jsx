@@ -41,7 +41,7 @@ export default function Header() {
           </Button>
         ) : (
           <Link className="text-xl text-teal-600 font-extrabold" href="/">
-            RosallieBaby.Com
+            RosallieBaby
           </Link>
         )}
         {/* Ortada Logo (Mobil) */}
@@ -50,7 +50,7 @@ export default function Header() {
             href="/"
             className="absolute left-1/2 -translate-x-1/2 text-md text-teal-600 font-extrabold"
           >
-            RosallieBaby.Com
+            RosallieBaby
           </Link>
         )}
         {/* Masaüstü Navigasyon */}
