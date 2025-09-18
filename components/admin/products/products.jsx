@@ -98,7 +98,7 @@ export default function Products() {
 
       <main className={`flex-1 p-4 md:p-8 ${isMobile ? "ml-0" : "ml-64"}`}>
         <h1 className="text-2xl md:text-3xl font-bold mb-6 ms-12 mt-2">
-          Product List
+          Ürün Listesi
         </h1>
 
         {/* Filter & Add */}
@@ -117,7 +117,7 @@ export default function Products() {
                 setProducts(products.filter((p) => !selectedIds.includes(p.id)))
               }
             >
-              Delete Selected ({selectedIds.length})
+              Seçilenleri Sil ({selectedIds.length})
             </Button>
 
             <AddProductDialog
@@ -141,26 +141,26 @@ export default function Products() {
               </SelectTrigger>
               <SelectContent className="bg-black text-white border border-stone-700">
                 <SelectItem value="all" className="hover:bg-stone-800">
-                  All Products
+                  Tüm Ürünler
                 </SelectItem>
                 <SelectItem
                   value="hospital-outfit-set"
                   className="hover:bg-stone-800"
                 >
-                  Hospital Outfit Set
+                Hastane Çıkış Seti
                 </SelectItem>
                 <SelectItem value="toy" className="hover:bg-stone-800">
-                  Toy
+                  TOyuncak
                 </SelectItem>
                 <SelectItem value="pillow" className="hover:bg-stone-800">
-                  Pillow
+                  Yastık
                 </SelectItem>
               </SelectContent>
             </Select>
 
             <Input
               type="text"
-              placeholder="Search by name..."
+              placeholder="İsme göre ara..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full sm:w-64 bg-black border border-stone-700 text-white placeholder-stone-400"
@@ -184,18 +184,18 @@ export default function Products() {
                   />
                 </th>
                 <th className="px-4 py-2 border-b border-stone-800">ID</th>
-                <th className="px-4 py-2 border-b border-stone-800">Name</th>
+                <th className="px-4 py-2 border-b border-stone-800">Ürün Adı</th>
                 <th className="px-4 py-2 border-b border-stone-800">
-                  Category
+                  Kategori
                 </th>
-                <th className="px-4 py-2 border-b border-stone-800">Price</th>
+                <th className="px-4 py-2 border-b border-stone-800">Fiyat</th>
                 <th className="px-4 py-2 border-b border-stone-800">
-                  Old Price
+                   Eski Fiyat
                 </th>
                 <th className="px-4 py-2 border-b border-stone-800">
-                  Discount (%)
+                  İndirim (%)
                 </th>
-                <th className="px-4 py-2 border-b border-stone-800">Actions</th>
+                <th className="px-4 py-2 border-b border-stone-800">İşlemler</th>
               </tr>
             </thead>
             <tbody>
@@ -237,7 +237,7 @@ export default function Products() {
                       onClick={() => handleDelete(product.id)}
                       className="hover:bg-red-600"
                     >
-                      Delete
+                      Sil
                     </Button>
                   </td>
                 </tr>

@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogTrigger
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,9 +64,10 @@ export default function UpdateProductDialog({ product, onUpdate }) {
           <DialogTitle>Ürünü Güncelle</DialogTitle>
         </DialogHeader>
 
-        <div className="flex gap-6 mt-4">
+        <div className="flex gap-6 mt-4 flex-col md:flex-row">
           {/* Sol taraf: Form */}
           <div className="flex-1 grid grid-cols-2 gap-4">
+            {/* Ürün Adı */}
             <div className="flex flex-col gap-1">
               <Label className="text-sm font-medium">Ürün Adı</Label>
               <Input
@@ -74,10 +75,11 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Ürün Adı"
-                className="bg-black border border-stone-700 text-white"
+                className="bg-black border border-stone-700 text-white w-full"
               />
             </div>
 
+            {/* Kategori */}
             <div className="flex flex-col gap-1">
               <Label className="text-sm font-medium">Kategori</Label>
               <Select
@@ -99,6 +101,7 @@ export default function UpdateProductDialog({ product, onUpdate }) {
               </Select>
             </div>
 
+            {/* Açıklama */}
             <div className="flex flex-col gap-1 col-span-2">
               <Label className="text-sm font-medium">Açıklama</Label>
               <Input
@@ -106,10 +109,11 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                 value={formData.description}
                 onChange={handleChange}
                 placeholder="Açıklama"
-                className="bg-black border border-stone-700 text-white p-2 rounded resize-none"
+                className="bg-black border border-stone-700 text-white p-2 rounded resize-none w-full"
               />
             </div>
 
+            {/* Fiyat */}
             <div className="flex flex-col gap-1">
               <Label className="text-sm font-medium">Fiyat</Label>
               <Input
@@ -118,10 +122,11 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                 value={formData.price}
                 onChange={handleChange}
                 placeholder="Fiyat"
-                className="bg-black border border-stone-700 text-white"
+                className="bg-black border border-stone-700 text-white w-full"
               />
             </div>
 
+            {/* Eski Fiyat */}
             <div className="flex flex-col gap-1">
               <Label className="text-sm font-medium">Eski Fiyat</Label>
               <Input
@@ -130,10 +135,11 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                 value={formData.oldPrice}
                 onChange={handleChange}
                 placeholder="Eski Fiyat"
-                className="bg-black border border-stone-700 text-white"
+                className="bg-black border border-stone-700 text-white w-full"
               />
             </div>
 
+            {/* İndirim */}
             <div className="flex flex-col gap-1">
               <Label className="text-sm font-medium">İndirim (%)</Label>
               <Input
@@ -142,7 +148,7 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                 value={formData.discount}
                 onChange={handleChange}
                 placeholder="İndirim (%)"
-                className="bg-black border border-stone-700 text-white"
+                className="bg-black border border-stone-700 text-white w-full"
               />
             </div>
 
@@ -153,7 +159,7 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleFileChange(e, "mainImage")}
-                className="bg-black border border-stone-700 text-white p-2 rounded"
+                className="bg-black border border-stone-700 text-white p-2 rounded w-full"
               />
             </div>
 
@@ -165,14 +171,14 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, `subImage${i}`)}
-                  className="bg-black border border-stone-700 text-white p-2 rounded"
+                  className="bg-black border border-stone-700 text-white p-2 rounded w-full"
                 />
               </div>
             ))}
           </div>
 
-          {/* Sağ taraf: Önizleme */}
-          <div className="flex-1 border border-stone-700 p-4 rounded-xl bg-stone-900 flex flex-col">
+          {/* Sağ taraf: Önizleme (mobilde gizli) */}
+          <div className="hidden md:flex flex-1 border border-stone-700 p-4 rounded-xl bg-stone-900 flex-col">
             <h3 className="text-xl font-semibold mb-4">Önizleme</h3>
 
             <div className="flex gap-4 mb-4">

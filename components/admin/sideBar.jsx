@@ -25,7 +25,7 @@ export default function AdminSidebar() {
   const menuItems = [
     {
       id: "dashboard",
-      label: "Admin Panel",
+      label: "Yönetici Paneli",
       icon: <Box size={20} />,
       href: "/admin/dashboard",
     },

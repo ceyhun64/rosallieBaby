@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CardContent } from "@/components/ui/card";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function AddProductDialog({
   newProduct,
@@ -27,6 +28,7 @@ export default function AddProductDialog({
   handleAddProduct,
 }) {
   const [open, setOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const handleSubmit = () => {
     handleAddProduct();
@@ -35,7 +37,11 @@ export default function AddProductDialog({
 
   return (
     <>
-      <Button className={"hover:bg-amber-600"} variant="default" onClick={() => setOpen(true)}>
+      <Button
+        className={"hover:bg-amber-600"}
+        variant="default"
+        onClick={() => setOpen(true)}
+      >
         Yeni Ürün Ekle
       </Button>
 
@@ -46,9 +52,10 @@ export default function AddProductDialog({
           </DialogHeader>
 
           {/* İki sütunlu düzen */}
-          <div className="flex gap-6 mt-4">
+          <div className="flex gap-6 mt-4 flex-col md:flex-row">
             {/* Sol taraf: Form */}
             <div className="flex-1 grid grid-cols-2 gap-4">
+              {/* Ürün Adı */}
               <div className="flex flex-col gap-1">
                 <Label className="text-sm font-medium">Ürün Adı</Label>
                 <Input
@@ -56,9 +63,11 @@ export default function AddProductDialog({
                   value={newProduct.name}
                   onChange={handleChange}
                   placeholder="Ürün Adı"
-                  className="bg-black border border-stone-700 text-white"
+                  className="bg-black border border-stone-700 text-white w-full"
                 />
               </div>
+
+              {/* Kategori */}
               <div className="flex flex-col gap-1">
                 <Label className="text-sm font-medium">Kategori</Label>
                 <Select
@@ -82,6 +91,7 @@ export default function AddProductDialog({
                 </Select>
               </div>
 
+              {/* Açıklama */}
               <div className="flex flex-col gap-1 col-span-2">
                 <Label className="text-sm font-medium">Açıklama</Label>
                 <Input
@@ -89,11 +99,11 @@ export default function AddProductDialog({
                   value={newProduct.description}
                   onChange={handleChange}
                   placeholder="Açıklama"
-                  className="bg-black border border-stone-700 text-white p-2 rounded resize-none "
+                  className="bg-black border border-stone-700 text-white p-2 rounded resize-none w-full"
                 />
               </div>
 
-              {/* Ana görsel */}
+              {/* Ana Görsel */}
               <div className="flex flex-col gap-1">
                 <Label className="text-sm font-medium">Ana Görsel</Label>
                 <input
@@ -108,11 +118,11 @@ export default function AddProductDialog({
                       mainFile: e.target.files ? e.target.files[0] : null,
                     })
                   }
-                  className="bg-black border border-stone-700 text-white p-2 rounded"
+                  className="bg-black border border-stone-700 text-white p-2 rounded w-full"
                 />
               </div>
 
-              {/* Alt görseller için 6 dosya input */}
+              {/* Alt görseller */}
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="flex flex-col gap-1">
                   <Label className="text-sm font-medium">{`Alt Görsel ${i}`}</Label>
@@ -130,11 +140,12 @@ export default function AddProductDialog({
                           : null,
                       })
                     }
-                    className="bg-black border border-stone-700 text-white p-2 rounded"
+                    className="bg-black border border-stone-700 text-white p-2 rounded w-full"
                   />
                 </div>
               ))}
 
+              {/* Fiyat */}
               <div className="flex flex-col gap-1">
                 <Label className="text-sm font-medium">Fiyat</Label>
                 <Input
@@ -143,10 +154,11 @@ export default function AddProductDialog({
                   value={newProduct.price}
                   onChange={handleChange}
                   placeholder="Fiyat"
-                  className="bg-black border border-stone-700 text-white"
+                  className="bg-black border border-stone-700 text-white w-full"
                 />
               </div>
 
+              {/* Eski Fiyat */}
               <div className="flex flex-col gap-1">
                 <Label className="text-sm font-medium">Eski Fiyat</Label>
                 <Input
@@ -155,10 +167,11 @@ export default function AddProductDialog({
                   value={newProduct.oldPrice}
                   onChange={handleChange}
                   placeholder="Eski Fiyat"
-                  className="bg-black border border-stone-700 text-white"
+                  className="bg-black border border-stone-700 text-white w-full"
                 />
               </div>
 
+              {/* İndirim */}
               <div className="flex flex-col gap-1">
                 <Label className="text-sm font-medium">İndirim (%)</Label>
                 <Input
@@ -167,13 +180,13 @@ export default function AddProductDialog({
                   value={newProduct.discount}
                   onChange={handleChange}
                   placeholder="İndirim (%)"
-                  className="bg-black border border-stone-700 text-white"
+                  className="bg-black border border-stone-700 text-white w-full"
                 />
               </div>
             </div>
 
             {/* Sağ taraf: Ürün önizlemesi */}
-            <div className="flex-1 border border-stone-700 p-4 rounded-xl bg-stone-900 flex flex-col">
+            <div className="hidden md:flex flex-1 border border-stone-700 p-4 rounded-xl bg-stone-900 flex-col">
               <h3 className="text-xl font-semibold mb-4">Önizleme</h3>
 
               {/* Üst kısım: Ana görsel ve küçük görseller */}
@@ -262,7 +275,9 @@ export default function AddProductDialog({
 
           <DialogFooter className="mt-4 flex justify-end gap-2">
             <Button
-              className={"bg-black border border-stone-700 text-white hover:bg-orange-400"}
+              className={
+                "bg-orange-400 border border-stone-700 text-white hover:bg-orange-400"
+              }
               onClick={handleSubmit}
             >
               Ekle
