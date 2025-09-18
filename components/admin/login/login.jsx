@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import { Separator } from "@/components/ui/separator";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -15,7 +16,6 @@ export default function AdminLogin() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-
     if (email === "admin@gmail.com" && password === "123456") {
       setLoginMessage("Giriş başarılı! Yönlendiriliyorsunuz...");
       router.push("/admin/dashboard");
@@ -26,8 +26,8 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-white font-sans">
-      {/* Right side: Image */}
-      <div className="hidden md:flex flex-1 relative">
+      {/* Right side: Image (gizli mobil) */}
+      <div className="hidden md:flex flex-2 relative">
         <img
           src="/login/adminLogin.jpg"
           alt="Login Image"
@@ -37,16 +37,21 @@ export default function AdminLogin() {
       </div>
 
       {/* Left side: Form */}
-      <div className="flex flex-col justify-center items-center p-8 md:w-[30rem]">
-        <div className="w-full max-w-sm bg-gray-900 p-8 rounded-lg shadow-lg">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-3xl font-bold text-white">Admin Girişi</h2>
-          </div>
+      <div className="flex flex-1 flex-col justify-center items-center p-4 md:p-8 bg-black">
+        <div className="w-full max-w-sm bg-stone-900 p-6 md:p-8 rounded-lg shadow-lg">
+          {/* RosallieBaby Başlığı */}
+          <h1 className="text-4xl md:text-5xl font-extrabold text-teal-600 mb-4 text-center">
+            RosallieBaby
+          </h1>
+          <Separator className={"my-4"} />
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center">
+            Admin Girişi
+          </h2>
 
           <form onSubmit={handleLogin} className="space-y-4">
             {/* Email */}
             <div>
-              <Label htmlFor="email" className="text-gray-300 mb-2">
+              <Label htmlFor="email" className="text-stone-300 mb-2">
                 * Email
               </Label>
               <Input
@@ -55,13 +60,13 @@ export default function AdminLogin() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-gray-800 text-white placeholder-gray-500 border-gray-700 focus:ring-gray-500"
+                className="w-full bg-stone-800 text-white placeholder-stone-500 border-stone-700 focus:ring-stone-500"
               />
             </div>
 
             {/* Password */}
             <div>
-              <Label htmlFor="password" className="text-gray-300 mb-2">
+              <Label htmlFor="password" className="text-stone-300 mb-2">
                 * Password
               </Label>
               <div className="relative">
@@ -71,12 +76,12 @@ export default function AdminLogin() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="pr-10 bg-gray-800 text-white placeholder-gray-500 border-gray-700 focus:ring-gray-500"
+                  className="w-full pr-10 bg-stone-800 text-white placeholder-stone-500 border-stone-700 focus:ring-stone-500"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-200"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-200"
                   aria-label="Toggle password visibility"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -86,7 +91,7 @@ export default function AdminLogin() {
 
             <Button
               type="submit"
-              className="w-full bg-gray-700 hover:bg-gray-600 text-white"
+              className="w-full bg-stone-700 hover:bg-stone-600 text-white"
             >
               Login
             </Button>

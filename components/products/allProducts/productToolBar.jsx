@@ -112,54 +112,57 @@ export default function ProductToolbar({ products }) {
       {/* Masaüstü: Sol filtre paneli */}
       {!isMobile && (
         <div className="w-64 flex-shrink-0 space-y-4">
-          {/* Arama */}
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              type="text"
-              placeholder="What are you looking for?"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 h-10"
-            />
-          </div>
-
-          {/* Alt kategoriler */}
-          <Accordion type="single" collapsible defaultValue="sub-categories">
-            <AccordionItem value="sub-categories">
-              <AccordionTrigger className="flex justify-between items-center text-lg font-semibold">
-                Sub Categories
-              </AccordionTrigger>
-              <AccordionContent>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  {categories.map((category) => (
-                    <li key={category.name}>
-                      <button
-                        onClick={() =>
-                          setSelectedCategory(
+          <div className="sticky top-4">
+            {" "}
+            {/* Buraya sticky ekledik */}
+            {/* Arama */}
+            <div className="relative w-full mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="What are you looking for?"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 h-10"
+              />
+            </div>
+            {/* Alt kategoriler */}
+            <Accordion type="single" collapsible defaultValue="sub-categories">
+              <AccordionItem value="sub-categories">
+                <AccordionTrigger className="flex justify-between items-center text-lg font-semibold">
+                  Sub Categories
+                </AccordionTrigger>
+                <AccordionContent>
+                  <ul className="space-y-2 text-sm text-gray-700">
+                    {categories.map((category) => (
+                      <li key={category.name}>
+                        <button
+                          onClick={() =>
+                            setSelectedCategory(
+                              selectedCategory === category.name
+                                ? null
+                                : category.name
+                            )
+                          }
+                          className={cn(
+                            "flex justify-between items-center w-full text-left",
                             selectedCategory === category.name
-                              ? null
-                              : category.name
-                          )
-                        }
-                        className={cn(
-                          "flex justify-between items-center w-full text-left",
-                          selectedCategory === category.name
-                            ? "font-semibold text-teal-600"
-                            : ""
-                        )}
-                      >
-                        <span>{category.name}</span>
-                        <span className="text-gray-500">
-                          ({category.count})
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+                              ? "font-semibold text-teal-600"
+                              : ""
+                          )}
+                        >
+                          <span>{category.name}</span>
+                          <span className="text-gray-500">
+                            ({category.count})
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
         </div>
       )}
 

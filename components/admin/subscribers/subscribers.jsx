@@ -14,8 +14,9 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Menu } from "lucide-react";
 
-// örnek başlangıç verisi
 const initialUsers = [
   {
     id: 1,
@@ -47,15 +48,15 @@ const initialUsers = [
 ];
 
 export default function Subscribers() {
+  const isMobile = useIsMobile();
   const [users, setUsers] = useState(initialUsers);
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
-
-  // mail form state
   const [mailSubject, setMailSubject] = useState("");
   const [mailMessage, setMailMessage] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const filteredUsers = users.filter(
     (u) =>
@@ -96,49 +97,57 @@ export default function Subscribers() {
         ? users.filter((u) => selectedIds.includes(u.id)).map((u) => u.email)
         : users.map((u) => u.email);
 
-    console.log("Kime:", recipients);
-    console.log("Konu:", mailSubject);
-    console.log("Mesaj:", mailMessage);
-
     alert(
       `Mail gönderildi!\nKime: ${recipients.join(
         ", "
       )}\nKonu: ${mailSubject}\nMesaj: ${mailMessage}`
     );
 
-    // reset
     setMailSubject("");
     setMailMessage("");
   };
 
   return (
     <div className="flex min-h-screen bg-black text-white">
-      <Sidebar />
-      <main className="flex-1 p-8 ml-64">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Kullanıcılar Listesi</h1>
-        </div>
+      {/* Mobil sidebar toggler */}
+      {isMobile && (
+        <button
+          className="fixed top-4 left-4 z-50 p-2 bg-stone-900 rounded-md"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          <Menu size={24} />
+        </button>
+      )}
 
-        {/* Abonelere Mail Atma Alanı */}
-        <div className="mb-8 p-6 bg-stone-900 rounded-xl shadow-lg">
+      <Sidebar
+        isMobileOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+
+      <main className="flex-1 p-4 md:p-8 ml-0 md:ml-64">
+        <h1 className="text-2xl md:text-3xl font-bold mb-6 ms-12 mt-2">
+          Aboneler
+        </h1>
+        {/* Mail Gönderme Alanı */}
+        <div className="mb-8 p-6 bg-stone-900 rounded-xl shadow-lg w-full md:w-auto">
           <h2 className="text-xl font-semibold mb-4">Abonelere Mail Gönder</h2>
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <Input
               type="text"
               placeholder="Konu"
               value={mailSubject}
               onChange={(e) => setMailSubject(e.target.value)}
-              className="bg-black border border-stone-700 text-white placeholder-stone-400"
+              className="bg-black border border-stone-700 text-white placeholder-stone-400 w-full"
             />
             <Textarea
               placeholder="Mesajınızı yazın..."
               value={mailMessage}
               onChange={(e) => setMailMessage(e.target.value)}
-              className="bg-black border border-stone-700 text-white placeholder-stone-400 min-h-[120px]"
+              className="bg-black border border-stone-700 text-white placeholder-stone-400 min-h-[120px] w-full"
             />
             <Button
               onClick={handleSendMail}
-              className="bg-amber-600 hover:bg-amber-500 text-white"
+              className="bg-amber-600 hover:bg-amber-500 text-white w-full md:w-1/8"
             >
               Mail Gönder
             </Button>
@@ -150,94 +159,48 @@ export default function Subscribers() {
           </p>
         </div>
 
-        {/* Arama */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex gap-4 items-center">
-            <Button
-              variant="default"
-              className={`${
-                selectedIds.length > 0
-                  ? "hover:bg-red-600 cursor-pointer"
-                  : "bg-stone-700 text-stone-400 cursor-not-allowed"
-              }`}
-              disabled={selectedIds.length === 0}
-              onClick={() =>
-                setUsers(users.filter((u) => !selectedIds.includes(u.id)))
-              }
-            >
-              Seçilenleri Sil ({selectedIds.length})
-            </Button>
-          </div>
-
-          <div className="flex gap-4 items-center">
-            <Input
-              type="text"
-              placeholder="Ad, soyad veya email ara..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-64 bg-black border border-stone-700 text-white placeholder-stone-400"
-            />
-          </div>
+        {/* Arama ve Silme */}
+        <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
+          <Button
+            className={`w-full md:w-auto ${
+              selectedIds.length > 0
+                ? "hover:bg-red-600 cursor-pointer"
+                : "bg-stone-700 text-stone-400 cursor-not-allowed"
+            }`}
+            disabled={selectedIds.length === 0}
+            onClick={() =>
+              setUsers(users.filter((u) => !selectedIds.includes(u.id)))
+            }
+          >
+            Seçilenleri Sil ({selectedIds.length})
+          </Button>
+          <Input
+            type="text"
+            placeholder="Ad, soyad veya email ara..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full md:w-64 bg-black border border-stone-700 text-white placeholder-stone-400"
+          />
         </div>
 
-        {/* Kullanıcı Tablosu */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left border border-stone-800 rounded-xl">
-            <thead>
-              <tr className="bg-stone-900">
-                <th className="px-4 py-2 border-b border-stone-800">
-                  <input
-                    type="checkbox"
-                    checked={
-                      selectedIds.length > 0 &&
-                      selectedIds.length === paginatedUsers.length
-                    }
-                    onChange={handleSelectAll}
-                  />
-                </th>
-                <th className="px-4 py-2 border-b border-stone-800">ID</th>
-                <th className="px-4 py-2 border-b border-stone-800">Ad</th>
-                <th className="px-4 py-2 border-b border-stone-800">Soyad</th>
-                <th className="px-4 py-2 border-b border-stone-800">Telefon</th>
-                <th className="px-4 py-2 border-b border-stone-800">Email</th>
-                <th className="px-4 py-2 border-b border-stone-800">
-                  İşlemler
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-stone-800">
-                  <td className="px-4 py-2 border-b border-stone-800">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(user.id)}
-                      onChange={() => handleSelectOne(user.id)}
-                    />
-                  </td>
-                  <td className="px-4 py-2 border-b border-stone-800">
-                    {user.id}
-                  </td>
-                  <td className="px-4 py-2 border-b border-stone-800">
-                    {user.firstName}
-                  </td>
-                  <td className="px-4 py-2 border-b border-stone-800">
-                    {user.lastName}
-                  </td>
-                  <td className="px-4 py-2 border-b border-stone-800">
-                    {user.phone}
-                  </td>
-                  <td className="px-4 py-2 border-b border-stone-800">
-                    {user.email}
-                  </td>
-                  <td className="px-4 py-2 border-b border-stone-800 flex gap-2">
-                    {/* Detay Butonu */}
+        {/* Mobil kart görünümü */}
+        {isMobile ? (
+          <div className="flex flex-col gap-4">
+            {paginatedUsers.map((user) => (
+              <div
+                key={user.id}
+                className="bg-stone-900 p-4 rounded-xl shadow-md"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-semibold">
+                    {user.firstName} {user.lastName} (#{user.id})
+                  </span>
+                  <div className="flex gap-2">
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
                           size="sm"
                           variant="default"
-                          className=" hover:bg-amber-600"
                           onClick={() => setSelectedUser(user)}
                         >
                           Detay
@@ -246,11 +209,11 @@ export default function Subscribers() {
                       <DialogContent className="bg-stone-900 text-white">
                         <DialogHeader>
                           <DialogTitle>
-                            {selectedUser?.firstName} {selectedUser?.lastName} -{" "}
+                            {selectedUser?.firstName} {selectedUser?.lastName} -
                             Adresleri
                           </DialogTitle>
                           <DialogDescription>
-                            Kullanıcıya kayıtlı adres bilgileri
+                            Kullanıcıya kayıtlı adresler
                           </DialogDescription>
                         </DialogHeader>
                         <ul className="mt-4 space-y-2">
@@ -265,22 +228,126 @@ export default function Subscribers() {
                         </ul>
                       </DialogContent>
                     </Dialog>
-
-                    {/* Sil Butonu */}
                     <Button
-                      variant="default"
                       size="sm"
+                      variant="default"
                       onClick={() => handleDelete(user.id)}
                       className="hover:bg-red-600"
                     >
                       Sil
                     </Button>
-                  </td>
+                  </div>
+                </div>
+                <p>
+                  <strong>Telefon:</strong> {user.phone}
+                </p>
+                <p>
+                  <strong>Email:</strong> {user.email}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* Masaüstü tablo */
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left border border-stone-800 rounded-xl">
+              <thead>
+                <tr className="bg-stone-900">
+                  <th className="px-4 py-2 border-b border-stone-800">
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedIds.length > 0 &&
+                        selectedIds.length === paginatedUsers.length
+                      }
+                      onChange={handleSelectAll}
+                    />
+                  </th>
+                  <th className="px-4 py-2 border-b border-stone-800">ID</th>
+                  <th className="px-4 py-2 border-b border-stone-800">Ad</th>
+                  <th className="px-4 py-2 border-b border-stone-800">Soyad</th>
+                  <th className="px-4 py-2 border-b border-stone-800">
+                    Telefon
+                  </th>
+                  <th className="px-4 py-2 border-b border-stone-800">Email</th>
+                  <th className="px-4 py-2 border-b border-stone-800">
+                    İşlemler
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {paginatedUsers.map((user) => (
+                  <tr key={user.id} className="hover:bg-stone-800">
+                    <td className="px-4 py-2 border-b border-stone-800">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(user.id)}
+                        onChange={() => handleSelectOne(user.id)}
+                      />
+                    </td>
+                    <td className="px-4 py-2 border-b border-stone-800">
+                      {user.id}
+                    </td>
+                    <td className="px-4 py-2 border-b border-stone-800">
+                      {user.firstName}
+                    </td>
+                    <td className="px-4 py-2 border-b border-stone-800">
+                      {user.lastName}
+                    </td>
+                    <td className="px-4 py-2 border-b border-stone-800">
+                      {user.phone}
+                    </td>
+                    <td className="px-4 py-2 border-b border-stone-800">
+                      {user.email}
+                    </td>
+                    <td className="px-4 py-2 border-b border-stone-800 flex gap-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="default"
+                            onClick={() => setSelectedUser(user)}
+                          >
+                            Detay
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-stone-900 text-white">
+                          <DialogHeader>
+                            <DialogTitle>
+                              {selectedUser?.firstName} {selectedUser?.lastName}{" "}
+                              - Adresleri
+                            </DialogTitle>
+                            <DialogDescription>
+                              Kullanıcıya kayıtlı adresler
+                            </DialogDescription>
+                          </DialogHeader>
+                          <ul className="mt-4 space-y-2">
+                            {selectedUser?.addresses?.map((addr, idx) => (
+                              <li
+                                key={idx}
+                                className="border-b border-stone-700 pb-2"
+                              >
+                                {addr}
+                              </li>
+                            ))}
+                          </ul>
+                        </DialogContent>
+                      </Dialog>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => handleDelete(user.id)}
+                        className="hover:bg-red-600"
+                      >
+                        Sil
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Pagination */}
         <div className="mt-4">

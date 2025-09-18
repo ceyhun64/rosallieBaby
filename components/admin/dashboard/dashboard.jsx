@@ -29,6 +29,7 @@ import {
   Legend,
 } from "chart.js";
 import { Separator } from "@/components/ui/separator";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 ChartJS.register(
   CategoryScale,
@@ -41,13 +42,14 @@ ChartJS.register(
 );
 
 export default function AdminDashboard() {
-  // ===== Sahte veriler =====
+  const isMobile = useIsMobile();
+
   const kpiData = [
     {
       id: "products",
       title: "Ürünler",
       stat: "128",
-      description: "Toplam ürünleri görüntüle ve yönet",
+      description: "Ürünleri görüntüle ve yönet",
       icon: <Package size={24} color="#60A5FA" />,
       href: "/admin/products",
     },
@@ -63,7 +65,7 @@ export default function AdminDashboard() {
       id: "subscribers",
       title: "Aboneler",
       stat: "432",
-      description: "Abone listelerini görüntüle",
+      description: "Abone listesini görüntüle",
       icon: <CreditCard size={24} color="#FBBF24" />,
       href: "/admin/subscribers",
     },
@@ -86,7 +88,7 @@ export default function AdminDashboard() {
   ];
 
   const chartFakeData = {
-    labels: ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran"],
+    labels: ["Oca", "Şub", "Mar", "Nis", "May", "Haz"],
     datasets: [
       {
         label: "Satışlar",
@@ -108,21 +110,11 @@ export default function AdminDashboard() {
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: {
-        labels: {
-          color: "white",
-        },
-      },
+      legend: { labels: { color: "white" } },
     },
     scales: {
-      x: {
-        ticks: { color: "white" },
-        grid: { color: "#2c2c2c" },
-      },
-      y: {
-        ticks: { color: "white" },
-        grid: { color: "#2c2c2c" },
-      },
+      x: { ticks: { color: "white" }, grid: { color: "#2c2c2c" } },
+      y: { ticks: { color: "white" }, grid: { color: "#2c2c2c" } },
     },
   };
 
@@ -133,19 +125,25 @@ export default function AdminDashboard() {
     { id: "1027", total: 200 },
   ];
 
-  // =========================
-
   return (
     <div className="flex min-h-screen bg-black text-white">
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main content */}
-      <main className="flex-1 p-8 ml-64">
-        <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
+      <main className={`flex-1 p-4 md:p-8 ${isMobile ? "" : "ml-64"}`}>
+        <h1 className="text-2xl md:text-3xl font-bold mb-6 ms-12 mt-2">
+          Yönetim Paneli
+        </h1>
 
         {/* KPI Kartları */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div
+          className={`grid gap-4 ${
+            isMobile
+              ? "grid-cols-1"
+              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+          } mb-6`}
+        >
           {kpiData.map((card) => (
             <Link key={card.id} href={card.href}>
               <Card className="bg-stone-900 hover:bg-stone-800 rounded-xl shadow-lg transition-transform hover:scale-105 cursor-pointer">
@@ -173,13 +171,17 @@ export default function AdminDashboard() {
         </div>
 
         {/* Grafikler */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div
+          className={`grid gap-4 ${
+            isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2"
+          }`}
+        >
           <Card className="bg-stone-900 rounded-xl shadow-lg p-4">
             <CardHeader>
-              <CardTitle className={"text-white"}>
-                Satış ve Kullanıcı Grafiği
+              <CardTitle className="text-white">
+                Satış & Kullanıcı Grafiği
               </CardTitle>
-              <Separator className={"mt-2 "} />
+              <Separator className="mt-2" />
             </CardHeader>
             <CardContent>
               <Line data={chartFakeData} options={chartOptions} />
@@ -188,10 +190,9 @@ export default function AdminDashboard() {
 
           <Card className="bg-stone-900 rounded-xl shadow-lg p-4">
             <CardHeader>
-              <CardTitle className={"text-white"}>Son Siparişler</CardTitle>
-              <Separator className={"mt-2 "} />
+              <CardTitle className="text-white">Son Siparişler</CardTitle>
+              <Separator className="mt-2" />
             </CardHeader>
-
             <CardContent>
               <ul className="space-y-2">
                 {recentOrders.map((order) => (
@@ -199,7 +200,7 @@ export default function AdminDashboard() {
                     key={order.id}
                     className="flex justify-between text-stone-200 border-b border-stone-800 pb-2"
                   >
-                    <span>Order #{order.id}</span>
+                    <span>Sipariş #{order.id}</span>
                     <span className="text-teal-400">${order.total}</span>
                   </li>
                 ))}

@@ -13,6 +13,7 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // örnek başlangıç verisi
 const initialUsers = [
@@ -46,6 +47,7 @@ const initialUsers = [
 ];
 
 export default function Users() {
+  const isMobile = useIsMobile();
   const [users, setUsers] = useState(initialUsers);
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
@@ -86,19 +88,22 @@ export default function Users() {
   };
 
   return (
-    <div className="flex min-h-screen bg-black text-white">
+    <div className="flex min-h-screen bg-black text-white flex-col md:flex-row">
       <Sidebar />
-      <main className="flex-1 p-8 ml-64">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Kullanıcılar Listesi</h1>
-        </div>
 
-        {/* Arama */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex gap-4 items-center">
+      <main
+        className={`flex-1 p-4 md:p-8 ${
+          isMobile ? "ml-0" : "ml-64"
+        } transition-all duration-300`}
+      >
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <h1 className="text-2xl md:text-3xl font-bold mb-6 ms-12 mt-2">
+            Kullanıcılar
+          </h1>
+          <div className="flex flex-col md:flex-row gap-2 md:gap-4 w-full md:w-auto">
             <Button
               variant="default"
-              className={`${
+              className={`w-full md:w-auto ${
                 selectedIds.length > 0
                   ? "hover:bg-red-600 cursor-pointer"
                   : "bg-stone-700 text-stone-400 cursor-not-allowed"
@@ -110,14 +115,12 @@ export default function Users() {
             >
               Seçilenleri Sil ({selectedIds.length})
             </Button>
-          </div>
-          <div className="flex gap-4 items-center">
             <Input
               type="text"
               placeholder="Ad, soyad veya email ara..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-64 bg-black border border-stone-700 text-white placeholder-stone-400"
+              className="w-full md:w-64 bg-black border border-stone-700 text-white placeholder-stone-400"
             />
           </div>
         </div>
@@ -127,7 +130,7 @@ export default function Users() {
           <table className="min-w-full text-left border border-stone-800 rounded-xl">
             <thead>
               <tr className="bg-stone-900">
-                <th className="px-4 py-2 border-b border-stone-800">
+                <th className="px-2 py-2 border-b border-stone-800">
                   <input
                     type="checkbox"
                     checked={
@@ -137,12 +140,12 @@ export default function Users() {
                     onChange={handleSelectAll}
                   />
                 </th>
-                <th className="px-4 py-2 border-b border-stone-800">ID</th>
-                <th className="px-4 py-2 border-b border-stone-800">Ad</th>
-                <th className="px-4 py-2 border-b border-stone-800">Soyad</th>
-                <th className="px-4 py-2 border-b border-stone-800">Telefon</th>
-                <th className="px-4 py-2 border-b border-stone-800">Email</th>
-                <th className="px-4 py-2 border-b border-stone-800">
+                <th className="px-2 py-2 border-b border-stone-800">ID</th>
+                <th className="px-2 py-2 border-b border-stone-800">Ad</th>
+                <th className="px-2 py-2 border-b border-stone-800">Soyad</th>
+                <th className="px-2 py-2 border-b border-stone-800">Telefon</th>
+                <th className="px-2 py-2 border-b border-stone-800">Email</th>
+                <th className="px-2 py-2 border-b border-stone-800">
                   İşlemler
                 </th>
               </tr>
@@ -150,36 +153,35 @@ export default function Users() {
             <tbody>
               {paginatedUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-stone-800">
-                  <td className="px-4 py-2 border-b border-stone-800">
+                  <td className="px-2 py-2 border-b border-stone-800">
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(user.id)}
                       onChange={() => handleSelectOne(user.id)}
                     />
                   </td>
-                  <td className="px-4 py-2 border-b border-stone-800">
+                  <td className="px-2 py-2 border-b border-stone-800">
                     {user.id}
                   </td>
-                  <td className="px-4 py-2 border-b border-stone-800">
+                  <td className="px-2 py-2 border-b border-stone-800">
                     {user.firstName}
                   </td>
-                  <td className="px-4 py-2 border-b border-stone-800">
+                  <td className="px-2 py-2 border-b border-stone-800">
                     {user.lastName}
                   </td>
-                  <td className="px-4 py-2 border-b border-stone-800">
+                  <td className="px-2 py-2 border-b border-stone-800">
                     {user.phone}
                   </td>
-                  <td className="px-4 py-2 border-b border-stone-800">
+                  <td className="px-2 py-2 border-b border-stone-800">
                     {user.email}
                   </td>
-                  <td className="px-4 py-2 border-b border-stone-800 flex gap-2">
-                    {/* Detay Butonu */}
+                  <td className="px-2 py-2 border-b border-stone-800 flex flex-col sm:flex-row gap-2">
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
                           size="sm"
                           variant="default"
-                          className=" hover:bg-amber-600"
+                          className="hover:bg-amber-600 w-full sm:w-auto"
                           onClick={() => setSelectedUser(user)}
                         >
                           Detay
@@ -188,7 +190,7 @@ export default function Users() {
                       <DialogContent className="bg-stone-900 text-white">
                         <DialogHeader>
                           <DialogTitle>
-                            {selectedUser?.firstName} {selectedUser?.lastName} -{" "}
+                            {selectedUser?.firstName} {selectedUser?.lastName} -
                             Adresleri
                           </DialogTitle>
                           <DialogDescription>
@@ -208,12 +210,11 @@ export default function Users() {
                       </DialogContent>
                     </Dialog>
 
-                    {/* Sil Butonu */}
                     <Button
                       variant="default"
                       size="sm"
                       onClick={() => handleDelete(user.id)}
-                      className="hover:bg-red-600"
+                      className="hover:bg-red-600 w-full sm:w-auto"
                     >
                       Sil
                     </Button>
@@ -225,7 +226,7 @@ export default function Users() {
         </div>
 
         {/* Pagination */}
-        <div className="mt-4">
+        <div className="mt-4 flex justify-center">
           <DefaultPagination
             totalItems={filteredUsers.length}
             itemsPerPage={15}

@@ -8,6 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MessageSquareText, Star, X, Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import {
   ShoppingCart,
@@ -23,6 +28,7 @@ import { toast } from "sonner";
 import Breadcrumb from "@/components/layout/breadcrumb";
 import Bestseller from "./bestseller";
 import CompletePurchase from "./completePurchase";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const products = [
   {
@@ -51,9 +57,11 @@ const products = [
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const isMobile = useIsMobile();
   const [selected, setSelected] = useState("plain");
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const [selectedStars, setSelectedStars] = useState(0);
 
@@ -115,97 +123,125 @@ export default function ProductDetail() {
     <div className="container mx-auto p-4 md:p-8">
       <Breadcrumb />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="flex gap-4 lg:col-span-2">
-          <div className="flex flex-col items-center gap-2 w-28">
-            <button
-              onClick={handleThumbUp}
-              className="p-1 rounded-full hover:bg-gray-200"
-            >
-              <ChevronUp size={20} />
-            </button>
+        {isMobile ? (
+          <div className="lg:col-span-2 flex justify-center items-center">
+            <div className="flex overflow-x-auto snap-x snap-mandatory w-full pb-4">
+              {product.subImages.map((img, index) => (
+                <div
+                  key={index}
+                  className="w-full flex-shrink-0 snap-center flex justify-center"
+                >
+                  <Image
+                    src={img}
+                    alt={`Image ${index + 1}`}
+                    width={500}
+                    height={500}
+                    className="h-[270px] w-full object-contain cursor-pointer"
+                    onClick={() => {
+                      setActiveIndex(index);
+                      setIsImageModalOpen(true);
+                    }}
+                    unoptimized
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex gap-4 lg:col-span-2">
+            <div className="flex flex-col items-center gap-2 w-28">
+              <button
+                onClick={handleThumbUp}
+                className="p-1 rounded-full hover:bg-gray-200"
+              >
+                <ChevronUp size={20} />
+              </button>
 
-            <div className="flex flex-col gap-2">
-              {product.subImages
-                .slice(activeIndex, activeIndex + 3)
-                .map((img, index) => {
-                  const realIndex = activeIndex + index;
-                  return (
-                    <div
-                      key={realIndex}
-                      className={`flex justify-center items-center cursor-pointer ${
-                        realIndex === activeIndex
-                          ? "border-gray-900"
-                          : "border-transparent hover:border-gray-400"
-                      }`}
-                      onClick={() => setActiveIndex(realIndex)}
-                    >
-                      <Image
-                        src={img}
-                        alt={`Thumbnail ${realIndex + 1}`}
-                        width={80}
-                        height={120}
-                        className="h-24 w-auto object-contain"
-                        unoptimized
-                      />
-                    </div>
-                  );
-                })}
+              <div className="flex flex-col gap-2">
+                {product.subImages
+                  .slice(activeIndex, activeIndex + 3)
+                  .map((img, index) => {
+                    const realIndex = activeIndex + index;
+                    return (
+                      <div
+                        key={realIndex}
+                        className={`flex justify-center items-center cursor-pointer ${
+                          realIndex === activeIndex
+                            ? "border-gray-900"
+                            : "border-transparent hover:border-gray-400"
+                        }`}
+                        onClick={() => setActiveIndex(realIndex)}
+                      >
+                        <Image
+                          src={img}
+                          alt={`Thumbnail ${realIndex + 1}`}
+                          width={80}
+                          height={120}
+                          className="h-24 w-auto object-contain"
+                          unoptimized
+                        />
+                      </div>
+                    );
+                  })}
+              </div>
+
+              <button
+                onClick={handleThumbDown}
+                className="p-1 hover:bg-gray-200"
+              >
+                <ChevronDown size={20} />
+              </button>
             </div>
 
-            <button onClick={handleThumbDown} className="p-1 hover:bg-gray-200">
-              <ChevronDown size={20} />
-            </button>
+            <div className="relative flex-1 flex justify-center items-center">
+              <button
+                onClick={handlePrevImage}
+                className="absolute left-2 bg-white p-2 shadow hover:bg-gray-100 border border-gray-400"
+              >
+                <ChevronLeft size={24} />
+              </button>
+
+              <Image
+                src={product.subImages[activeIndex]}
+                alt="Main Image"
+                width={0}
+                height={0}
+                sizes="100vw"
+                unoptimized
+                className="h-[600px] w-auto object-contain cursor-pointer"
+                onClick={() => setIsImageModalOpen(true)}
+              />
+
+              <button
+                onClick={handleNextImage}
+                className="absolute right-2 bg-white p-2 shadow hover:bg-gray-100 border border-gray-400"
+              >
+                <ChevronRight size={24} />
+              </button>
+            </div>
           </div>
+        )}
 
-          <div className="relative flex-1 flex justify-center items-center">
-            <button
-              onClick={handlePrevImage}
-              className="absolute left-2 bg-white p-2 shadow hover:bg-gray-100 border border-gray-400"
-            >
-              <ChevronLeft size={24} />
-            </button>
-
-            <Image
-              src={product.subImages[activeIndex]}
-              alt="Main Image"
-              width={0}
-              height={0}
-              sizes="100vw"
-              unoptimized
-              className="h-[600px] w-auto object-contain cursor-pointer"
-              onClick={() => setIsImageModalOpen(true)}
-            />
-
-            <button
-              onClick={handleNextImage}
-              className="absolute right-2 bg-white p-2 shadow hover:bg-gray-100 border border-gray-400"
-            >
-              <ChevronRight size={24} />
-            </button>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-6 lg:col-span-1">
+        <div className="flex flex-col gap-5 lg:col-span-1">
           <div className="flex justify-between items-start">
             <h1 className="text-sm">{product.name}</h1>
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-400 hover:text-red-500"
+              className="text-gray-600 hover:text-red-500"
             >
-              <Heart size={24} strokeWidth={1.5} />
+              <Heart size={30} strokeWidth={2} />
             </Button>
           </div>
-
-          <div className="flex items-start gap-4 text-lg">
-            <span className="bg-stone-700 text-white px-3 py-3 rounded font-bold text-sm">
+          <div className="flex items-start gap-1 sm:gap-4 text-base sm:text-lg">
+            <span className="bg-stone-700 text-white px-2 py-3 sm:px-1 sm:py-2 rounded-none font-bold text-xs sm:text-sm">
               % {product.discount}
             </span>
-            <div className="flex flex-col">
-              <span className="text-xl md:text-2xl line-through text-gray-400">
+            <div className="flex flex-col leading-none ms-1">
+              <span className="text-ms sm:text-md md:text-lg line-through text-gray-400">
                 ₺ {product.oldPrice.toFixed(2)}
               </span>
-              <span className="font-bold text-stone-700">
+              <span className="font-bold text-stone-700 text-base sm:text-sm">
                 ₺ {product.price.toFixed(2)}
               </span>
             </div>
@@ -223,43 +259,39 @@ export default function ProductDetail() {
               </Label>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <Label className="flex items-center gap-1">
-                Enter Your Name
-                <Info
-                  size={16}
-                  className="text-gray-400"
-                  title="Your name must be at most 12 characters"
-                />
-              </Label>
+            <div className="flex flex-col gap-2 relative">
+              {/* Label + Info */}
+              <div className="flex items-center gap-1 relative">
+                <Label htmlFor="name">Enter Your Name *</Label>
+                <div className="relative"></div>
+              </div>
+
+              {/* Input + Preview */}
               <div className="flex items-center gap-2">
                 <Input
                   id="name"
                   placeholder="Enter your name"
-                  maxLength={12}
-                  className="flex-1"
+                  maxLength={16}
+                  className="flex-1 rounded-none"
                 />
-                <button
+                 <button
                   type="button"
-                  className="px-3 py-2 bg-stone-600 text-white rounded-md text-sm hover:bg-stone-700 transition"
+                  className="px-3 py-2 bg-stone-600 text-white rounded-none text-sm hover:bg-stone-700 transition"
                   onClick={() => alert("You can preview how it looks here!")}
                 >
                   Preview
                 </button>
               </div>
-              <p className="text-xs text-gray-500">
-                Your name must be at most 12 characters
-              </p>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="hat-toy" className="text-base font-semibold">
                 Hat & Toy Option *
               </Label>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <div
                   onClick={() => setSelected("ruffle")}
-                  className={`px-3 py-2 border-2 rounded-md cursor-pointer text-sm transition ${
+                  className={`px-3 py-2 border-2 rounded-sm cursor-pointer text-sm transition ${
                     selected === "ruffle"
                       ? "border-stone-600 bg-stone-200 font-medium"
                       : "border-gray-200 hover:border-gray-400"
@@ -269,7 +301,7 @@ export default function ProductDetail() {
                 </div>
                 <div
                   onClick={() => setSelected("plain")}
-                  className={`px-3 py-2 border-2 rounded-md cursor-pointer text-sm transition ${
+                  className={`px-3 py-2 border-2 rounded-sm cursor-pointer text-sm transition ${
                     selected === "plain"
                       ? "border-stone-600 bg-stone-200 font-medium"
                       : "border-gray-200 hover:border-gray-400"
@@ -281,7 +313,7 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 mt-4">
             <Button
               className="w-full py-6 text-base font-bold bg-gray-200 hover:bg-gray-300 transition-colors rounded-full text-black"
               onClick={handleAddToCart}
@@ -298,7 +330,7 @@ export default function ProductDetail() {
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 mt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600 mt-1">
             <div className="flex items-center gap-2">
               <Truck size={24} />
               <div>
@@ -315,13 +347,12 @@ export default function ProductDetail() {
         </div>
       </div>
       <CompletePurchase />
-
-      <div className="mt-8 flex flex-col items-center text-center">
+      <div className="mt-8 flex flex-col items-start md:items-center text-left md:text-center">
         <h2 className="text-xl font-medium text-green-800">
           Product Description
         </h2>
         <div className="w-16 h-0.5 bg-green-800 mt-2"></div>
-        <div className="w-full max-w-2xl mt-8 text-center text-gray-700">
+        <div className="w-full max-w-2xl mt-8 text-left md:text-center text-gray-700">
           {formatDescription(product.description)}
         </div>
       </div>
