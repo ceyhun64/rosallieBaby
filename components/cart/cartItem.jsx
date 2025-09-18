@@ -46,7 +46,7 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
           <p className="font-semibold">
             Price:{" "}
             <span className="font-bold text-sm sm:text-base">
-              ₺{item.price.toFixed(2)}
+              €{item.price.toFixed(2)}
             </span>
           </p>
           <p className="text-gray-500 mt-0.5">
@@ -69,7 +69,7 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
                 </span>
                 {option.extraPrice && (
                   <span className="text-gray-500">
-                    (+₺{option.extraPrice.toFixed(2)})
+                    (+€{option.extraPrice.toFixed(2)})
                   </span>
                 )}
               </div>
@@ -106,11 +106,11 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
           <div className="flex flex-col items-end">
             {oldPrice > 0 && (
               <span className="text-gray-400 line-through text-[10px] sm:text-sm">
-                ₺{finalOldPrice.toFixed(2)}
+                €{finalOldPrice.toFixed(2)}
               </span>
             )}
             <span className="font-bold text-sm sm:text-base text-gray-800">
-              ₺{finalPrice.toFixed(2)}
+              €{finalPrice.toFixed(2)}
             </span>
             <button className="flex items-center text-xs sm:text-sm text-gray-500 hover:text-gray-800 transition-colors mt-1">
               <span className="mr-1">Edit</span>

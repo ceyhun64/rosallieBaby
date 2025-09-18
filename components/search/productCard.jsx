@@ -55,11 +55,11 @@ export default function ProductCard({ product }) {
         <div className="flex items-center justify-center space-x-2">
           {product.oldPrice > 0 && (
             <span className="text-gray-400 line-through text-sm">
-              ₺{product.oldPrice.toFixed(2)}
+              €{product.oldPrice.toFixed(2)}
             </span>
           )}
           <span className="text-lg md:text-xl font-bold text-teal-600">
-            ₺{product.price.toFixed(2)}
+            €{product.price.toFixed(2)}
           </span>
         </div>
       </div>

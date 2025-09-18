@@ -253,7 +253,7 @@ export default function Header() {
                   <div className="flex flex-col items-start">
                     <span className="text-xs">Total</span>
                     <span className="text-lg font-bold">
-                      ₺{totalAmount.toFixed(2)}
+                      €{totalAmount.toFixed(2)}
                     </span>
                   </div>
 

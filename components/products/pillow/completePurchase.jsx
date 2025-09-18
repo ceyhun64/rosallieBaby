@@ -88,10 +88,10 @@ export default function CompletePurchase() {
                   )}
                   <div className="flex items-center gap-2">
                     <span className="line-through text-gray-400 text-xs md:text-sm">
-                      ₺{product.oldPrice.toFixed(2)}
+                      €{product.oldPrice.toFixed(2)}
                     </span>
                     <span className="font-bold text-base md:text-lg text-teal-600">
-                      ₺{product.price.toFixed(2)}
+                      €{product.price.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -118,10 +118,10 @@ export default function CompletePurchase() {
                 %{calculateDiscountPercentage()}
               </span>
               <span className="line-through text-gray-400">
-                ₺{calculateOldTotal().toFixed(2)}
+                €{calculateOldTotal().toFixed(2)}
               </span>
               <span className="font-bold text-xl">
-                ₺{calculateTotal().toFixed(2)}
+                €{calculateTotal().toFixed(2)}
               </span>
             </div>
             <Button className="w-full bg-black text-white hover:bg-gray-800 rounded-none">

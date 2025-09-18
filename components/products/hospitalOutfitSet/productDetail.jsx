@@ -239,10 +239,10 @@ export default function ProductDetail() {
             </span>
             <div className="flex flex-col leading-none ms-1">
               <span className="text-ms sm:text-md md:text-lg line-through text-gray-400">
-                ₺ {product.oldPrice.toFixed(2)}
+                € {product.oldPrice.toFixed(2)}
               </span>
               <span className="font-bold text-stone-700 text-base sm:text-sm">
-                ₺ {product.price.toFixed(2)}
+                € {product.price.toFixed(2)}
               </span>
             </div>
           </div>
@@ -255,7 +255,7 @@ export default function ProductDetail() {
                 className="text-base font-semibold cursor-pointer"
               >
                 I want personalized stroller cover{" "}
-                <span className="text-gray-500">(+₺ 549.00)</span>
+                <span className="text-gray-500">(+€ 549.00)</span>
               </Label>
             </div>
 
@@ -297,7 +297,7 @@ export default function ProductDetail() {
                       : "border-gray-200 hover:border-gray-400"
                   }`}
                 >
-                  Ruffle (+₺149.00)
+                  Ruffle (+€149.00)
                 </div>
                 <div
                   onClick={() => setSelected("plain")}

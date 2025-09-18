@@ -48,7 +48,7 @@ export const CartItem = ({ item }) => {
         <p className="text-xs sm:text-sm text-gray-500">
           Price:{" "}
           <span className="font-bold text-gray-800">
-            ₺{item.price.toFixed(2)}
+            €{item.price.toFixed(2)}
           </span>
         </p>
 
@@ -76,7 +76,7 @@ export const CartItem = ({ item }) => {
                     {option.label} - {option.value}{" "}
                     {option.extraPrice > 0 && (
                       <span className="ml-1 text-gray-400">
-                        (+₺{option.extraPrice.toFixed(2)})
+                        (+€{option.extraPrice.toFixed(2)})
                       </span>
                     )}
                   </p>
@@ -109,11 +109,11 @@ export const CartItem = ({ item }) => {
           <div className="flex flex-col items-end">
             {item.oldPrice > 0 && (
               <span className="text-gray-400 text-xs line-through">
-                ₺{finalOldPrice.toFixed(2)}
+                €{finalOldPrice.toFixed(2)}
               </span>
             )}
             <span className="text-sm sm:text-base font-bold text-gray-800">
-              ₺{finalPrice.toFixed(2)}
+              €{finalPrice.toFixed(2)}
             </span>
             <button className="flex items-center text-xs text-gray-500 hover:text-gray-800 transition-colors">
               <span className="mr-0.5">Edit</span>

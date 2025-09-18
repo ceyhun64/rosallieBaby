@@ -60,10 +60,10 @@ export default function ProductCard({ product }) {
           {/* Fiyatlar */}
           <div className="flex flex-col items-start">
             <span className="text-gray-400 line-through text-xs md:text-sm">
-              ₺{product.oldPrice.toFixed(2)}
+              €{product.oldPrice.toFixed(2)}
             </span>
             <span className="text-base md:text-lg lg:text-xl font-bold text-teal-600">
-              ₺{product.price.toFixed(2)}
+              €{product.price.toFixed(2)}
             </span>
           </div>
         </div>

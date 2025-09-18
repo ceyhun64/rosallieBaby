@@ -12,11 +12,11 @@ export default function CartSummary({ subtotal }) {
       <div className="space-y-2 text-gray-700">
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span className="font-medium">₺{subtotal.toFixed(2)}</span>
+          <span className="font-medium">€{subtotal.toFixed(2)}</span>
         </div>
         <div className="flex justify-between font-semibold text-lg border-t pt-2 mt-2">
           <span>Total</span>
-          <span>₺{subtotal.toFixed(2)}</span>
+          <span>€{subtotal.toFixed(2)}</span>
         </div>
         <p className="text-sm text-gray-500 mt-4">
           Shipping will be calculated at the next step.
@@ -39,7 +39,7 @@ export default function CartSummary({ subtotal }) {
         </div>
         <div className="flex items-center gap-2">
           <Truck className="h-4 w-4" />
-          <span>Free shipping on orders over 150₺</span>
+          <span>Free shipping on orders over 150€</span>
         </div>
       </div>
     </div>

@@ -86,14 +86,14 @@ export default function Orders() {
                           </div>
                         </div>
                         <p className="text-teal-700 font-semibold">
-                          ₺{item.price * item.qty}
+                          €{item.price * item.qty}
                         </p>
                       </div>
                     ))}
                   </div>
                   <div className="flex justify-end mt-4">
                     <p className="text-gray-700 font-bold">
-                      Total: ₺{order.total}
+                      Total: €{order.total}
                     </p>
                   </div>
                 </CardContent>

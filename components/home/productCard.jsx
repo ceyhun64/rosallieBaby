@@ -82,14 +82,14 @@ export default function ProductCard({ product }) {
                   isMobile ? "text-xs" : "text-sm "
                 } text-gray-400 line-through`}
               >
-                ₺{product.oldPrice.toFixed(2)}
+                €{product.oldPrice.toFixed(2)}
               </span>
               <span
                 className={`${
                   isMobile ? "text-sm" : "text-xl"
                 } font-bold text-black`}
               >
-                ₺{product.price.toFixed(2)}
+                €{product.price.toFixed(2)}
               </span>
             </div>
           </div>

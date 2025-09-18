@@ -234,10 +234,10 @@ export default function ProductDetail() {
             </span>
             <div className="flex flex-col leading-none ms-1">
               <span className="text-ms sm:text-md md:text-lg line-through text-gray-400">
-                ₺ {product.oldPrice.toFixed(2)}
+                € {product.oldPrice.toFixed(2)}
               </span>
               <span className="font-bold text-stone-700 text-base sm:text-sm">
-                ₺ {product.price.toFixed(2)}
+                € {product.price.toFixed(2)}
               </span>
             </div>
           </div>

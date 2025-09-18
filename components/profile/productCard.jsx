@@ -67,10 +67,10 @@ export default function ProductCard({ product, onRemove }) {
               </div>
             )}
             <span className="text-gray-400 line-through text-sm">
-              ₺{product.oldPrice.toFixed(2)}
+              €{product.oldPrice.toFixed(2)}
             </span>
             <span className="text-xl font-bold text-teal-600">
-              ₺{product.price.toFixed(2)}
+              €{product.price.toFixed(2)}
             </span>
           </div>
         </div>
