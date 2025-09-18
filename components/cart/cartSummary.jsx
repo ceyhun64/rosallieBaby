@@ -3,6 +3,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Lock, Truck } from "lucide-react";
+import Link from "next/link";
 
 export default function CartSummary({ subtotal }) {
   return (
@@ -22,7 +23,13 @@ export default function CartSummary({ subtotal }) {
         </p>
       </div>
       <Button className="w-full mt-6 bg-[#809363] hover:bg-green-900 text-white font-semibold rounded-none flex items-center justify-center h-12">
-        COMPLETE PURCHASE <ArrowRight className="ml-2 h-4 w-4" />
+        <Link
+          href="/payment"
+          className="flex items-center justify-center gap-2 w-full"
+        >
+          <span>COMPLETE PURCHASE</span>
+          <ArrowRight className="h-4 w-4" />
+        </Link>
       </Button>
 
       <div className="mt-6 space-y-3 text-sm text-gray-500 items-center justify-center">

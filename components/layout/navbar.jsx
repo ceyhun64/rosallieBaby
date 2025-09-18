@@ -238,7 +238,7 @@ export default function Header() {
                 asChild
                 className="w-full rounded-none bg-gray-100 hover:bg-gray-200 text-white font-semibold py-3 h-auto"
               >
-                <Link href="/checkout">
+                <Link href="/payment">
                   <span className="mr-2 text-black">GO TO PAYMENT STEP</span>
                   <ShoppingBag className="h-5 w-5 text-black" />
                 </Link>
