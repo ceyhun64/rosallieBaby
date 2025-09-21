@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MessageSquareText, Star, X, Info } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import {
   ShoppingCart,
@@ -30,31 +25,6 @@ import Bestseller from "./bestseller";
 import CompletePurchase from "./completePurchase";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const products = [
-  {
-    id: 1,
-    name: "Astronaut Muslin Hospital Outfit 8-Piece Set",
-    mainImage: "/allProducts/product1main.webp",
-    subImages: [
-      "/allProducts/product1main.webp",
-      "/allProducts/product1sub.webp",
-      "/allProducts/product2sub.webp",
-      "/allProducts/product3sub.webp",
-    ],
-    description: `A perfect choice for newborn photos, the Astronaut Muslin Hospital Outfit 6-Piece Set offers a soft texture with 4 layers of muslin fabric to protect your baby's sensitive skin. Its elegant and comfortable design makes the first days unforgettable.
-    Set contents:
-    Embroidered toy
-    Embroidered pillowcase
-    Embroidered jumpsuit
-    Hat
-    Gloves
-    Bib`,
-    oldPrice: 2999,
-    price: 2399,
-    discount: 20,
-  },
-];
-
 export default function ProductDetail() {
   const { id } = useParams();
   const isMobile = useIsMobile();
@@ -65,18 +35,82 @@ export default function ProductDetail() {
 
   const [selectedStars, setSelectedStars] = useState(0);
 
-  const product = products.find((p) => p.id === parseInt(id));
+  // Ürün verisi için state'ler
+  const [product, setProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const total = product?.subImages.length || 0;
+
+  // Ürün verisini API'den çekmek için useEffect
+  useEffect(() => {
+    async function fetchProduct() {
+      if (!id) return;
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/products/${id}`);
+        if (!res.ok) {
+          throw new Error("Ürün verileri alınamadı.");
+        }
+        const data = await res.json();
+        setProduct(data.product);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchProduct();
+  }, [id]);
+
+  // Mevcut state'lerin yanına ekleyin
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  // Ürün verilerini çeken useEffect'in altına veya içine ekleyin
+  useEffect(() => {
+    async function checkFavoriteStatus() {
+      // API çağrısını yapın
+      const res = await fetch("/api/favorites");
+      if (res.ok) {
+        const favorites = await res.json();
+        const isProductFavorite = favorites.some(
+          (fav) => fav.productId === product.id
+        );
+        setIsFavorite(isProductFavorite);
+      }
+    }
+
+    if (product) {
+      checkFavoriteStatus();
+    }
+  }, [product]);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen text-xl font-semibold">
+        Yükleniyor...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen text-xl font-semibold text-red-600">
+        {error}
+      </div>
+    );
+  }
 
   if (!product) {
     return (
       <div className="flex items-center justify-center h-screen text-xl font-semibold">
-        Product not found.
+        Ürün bulunamadı.
       </div>
     );
   }
+
+  const total = product?.subImages.length || 0;
 
   const handleThumbUp = () => {
     if (activeIndex > 0) setActiveIndex(activeIndex - 1);
@@ -95,7 +129,7 @@ export default function ProductDetail() {
   };
 
   const handleAddToCart = () => {
-    toast.success("Product added to cart!");
+    toast.success("Ürün sepete eklendi!");
   };
 
   const handleWhatsapp = () => {
@@ -115,6 +149,35 @@ export default function ProductDetail() {
       return <p key={index}>{line}</p>;
     });
   };
+  const handleFavoriteToggle = async () => {
+  if (isFavorite) {
+    // Favorilerden çıkarmak için DELETE isteği
+    const res = await fetch(`/api/favorites`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId: product.id }),
+    });
+    if (res.ok) {
+      setIsFavorite(false);
+      toast.success("Ürün favorilerden kaldırıldı.");
+    } else {
+      toast.error("Favorilerden kaldırılırken bir hata oluştu.");
+    }
+  } else {
+    // Favorilere eklemek için POST isteği
+    const res = await fetch("/api/favorites", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId: product.id }),
+    });
+    if (res.ok) {
+      setIsFavorite(true);
+      toast.success("Ürün favorilere eklendi!");
+    } else {
+      toast.error("Favorilere eklenirken bir hata oluştu.");
+    }
+  }
+};
 
   const handleOpenReviewModal = () => setIsReviewModalOpen(true);
   const handleCloseReviewModal = () => setIsReviewModalOpen(false);
@@ -132,7 +195,7 @@ export default function ProductDetail() {
                   className="w-full flex-shrink-0 snap-center flex justify-center"
                 >
                   <Image
-                    src={img}
+                    src={img.url} // Resim URL'si için 'url' alanını kullandık
                     alt={`Image ${index + 1}`}
                     width={500}
                     height={500}
@@ -173,7 +236,7 @@ export default function ProductDetail() {
                         onClick={() => setActiveIndex(realIndex)}
                       >
                         <Image
-                          src={img}
+                          src={img.url} // Resim URL'si için 'url' alanını kullandık
                           alt={`Thumbnail ${realIndex + 1}`}
                           width={80}
                           height={120}
@@ -202,7 +265,7 @@ export default function ProductDetail() {
               </button>
 
               <Image
-                src={product.subImages[activeIndex]}
+                src={product.subImages[activeIndex].url} // Resim URL'si için 'url' alanını kullandık
                 alt="Main Image"
                 width={0}
                 height={0}
@@ -260,13 +323,11 @@ export default function ProductDetail() {
             </div>
 
             <div className="flex flex-col gap-2 relative">
-              {/* Label + Info */}
               <div className="flex items-center gap-1 relative">
                 <Label htmlFor="name">Enter Your Name *</Label>
                 <div className="relative"></div>
               </div>
 
-              {/* Input + Preview */}
               <div className="flex items-center gap-2">
                 <Input
                   id="name"
@@ -274,7 +335,7 @@ export default function ProductDetail() {
                   maxLength={16}
                   className="flex-1 rounded-none"
                 />
-                 <button
+                <button
                   type="button"
                   className="px-3 py-2 bg-stone-600 text-white rounded-none text-sm hover:bg-stone-700 transition"
                   onClick={() => alert("You can preview how it looks here!")}
@@ -468,7 +529,7 @@ export default function ProductDetail() {
             </button>
 
             <Image
-              src={product.subImages[activeIndex]}
+              src={product.subImages[activeIndex].url} // Resim URL'si için 'url' alanını kullandık
               alt="Main Image"
               width={0}
               height={0}

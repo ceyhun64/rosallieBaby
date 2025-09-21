@@ -7,32 +7,47 @@ import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-// Register page component
 export default function Register() {
   const router = useRouter();
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [name, setName] = useState("");
+  const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [marketingConsent, setMarketingConsent] = useState(false);
-
   const [registerMessage, setRegisterMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const isMobile = useIsMobile();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    console.log(
-      "First Name:",
-      firstName,
-      "Last Name:",
-      lastName,
-      "Email:",
-      email,
-      "Password:",
-      password
-    );
-    setRegisterMessage("Register button clicked!");
+    setRegisterMessage("Registering...");
+
+    try {
+      const res = await fetch("/api/account/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          surname,
+          email,
+          password,
+          marketingConsent,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setRegisterMessage(data.error || "Registration failed!");
+        return;
+      }
+
+      setRegisterMessage("Registration successful! Redirecting to login...");
+      setTimeout(() => router.push("/account/login"), 1500);
+    } catch (err) {
+      console.error(err);
+      setRegisterMessage("Server error, please try again.");
+    }
   };
 
   const handleLoginRedirect = () => {
@@ -41,11 +56,10 @@ export default function Register() {
 
   return (
     <div
-      className={`bg-white min-h-screen flex flex-col md:flex-row  font-sans  ${
+      className={`bg-white min-h-screen flex flex-col md:flex-row font-sans ${
         isMobile ? "mt-10" : "mt-0"
       }`}
     >
-      {/* Left side: Form */}
       <div className="flex flex-col justify-center items-center p-8 md:w-[30rem]">
         <div className="w-full max-w-sm">
           <div className="flex justify-between items-center mb-6">
@@ -59,35 +73,32 @@ export default function Register() {
           </div>
 
           <form onSubmit={handleRegister} className="space-y-4">
-            {/* First Name */}
             <div>
-              <Label htmlFor="firstName" className="text-gray-500 mb-2">
+              <Label htmlFor="name" className="text-gray-500 mb-2">
                 * First Name
               </Label>
               <Input
-                id="firstName"
+                id="name"
                 type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 required
               />
             </div>
 
-            {/* Last Name */}
             <div>
-              <Label htmlFor="lastName" className="text-gray-500 mb-2">
+              <Label htmlFor="surname" className="text-gray-500 mb-2">
                 * Last Name
               </Label>
               <Input
-                id="lastName"
+                id="surname"
                 type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+                value={surname}
+                onChange={(e) => setSurname(e.target.value)}
                 required
               />
             </div>
 
-            {/* Email */}
             <div>
               <Label htmlFor="email" className="text-gray-500 mb-2">
                 * Email
@@ -101,7 +112,6 @@ export default function Register() {
               />
             </div>
 
-            {/* Password */}
             <div>
               <Label htmlFor="password" className="text-gray-500 mb-2">
                 * Password
@@ -125,7 +135,7 @@ export default function Register() {
                 </button>
               </div>
             </div>
-            {/* Ticari Elektronik İleti Onayı */}
+
             <div className="flex items-start gap-2 mt-2">
               <input
                 type="checkbox"
@@ -139,9 +149,7 @@ export default function Register() {
                 className="text-gray-500 text-sm"
               >
                 I have read and agree to the{" "}
-                <strong>Commercial Electronic Message Consent</strong> text to
-                be informed about promotions. I want to receive commercial
-                electronic messages sent by you.
+                <strong>Commercial Electronic Message Consent</strong>.
               </label>
             </div>
 
@@ -158,22 +166,9 @@ export default function Register() {
               {registerMessage}
             </div>
           )}
-
-          <div className="flex items-center my-4">
-            <hr className="flex-grow border-gray-300" />
-            <span className="mx-2 text-gray-400 text-sm">or</span>
-            <hr className="flex-grow border-gray-300" />
-          </div>
-
-          <Button
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2"
-          >
-            Sign in with Google
-          </Button>
         </div>
       </div>
-      {/* Right side: Image */}
+
       <div className="hidden md:flex flex-1 relative">
         <img
           src="/login/register.jpg"

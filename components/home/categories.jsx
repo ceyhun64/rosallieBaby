@@ -7,17 +7,17 @@ const categories = [
   {
     title: "Hospital Outfit Sets",
     imageUrl: "/categories/category1.webp",
-    href: "/all-products/hospital-outfit-set",
+    href: "/all_products/hospital-outfit-set",
   },
   {
     title: "Toys",
     imageUrl: "/categories/category2.webp",
-    href: "/all-products/toy",
+    href: "/all_products/toy",
   },
   {
     title: "Pillows",
     imageUrl: "/categories/category3.webp",
-    href: "/all-products/pillow",
+    href: "/all_products/pillow",
   },
 ];
 

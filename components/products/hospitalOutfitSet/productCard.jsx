@@ -16,7 +16,7 @@ export default function ProductCard({ product }) {
         onMouseLeave={() => !isMobile && setIsHovered(false)}
       >
         {/* Ürün Resmi */}
-        <Link href={`/all-products/hospital-outfit-set/${product.id}`}>
+        <Link href={`/all_products/hospital_outfit_set/${product.id}`}>
           <div className="relative w-full aspect-[2.5/4] overflow-hidden">
             <Image
               src={

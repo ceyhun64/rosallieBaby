@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Category {
+  hospital_outfit_set
+  toy
+  pillow
+}
+
+model Product {
+  id          Int        @id @default(autoincrement())
+  name        String
+  mainImage   String
+  description String
+  oldPrice    Int
+  price       Int
+  discount    Int
+  category    Category
+  subImages   SubImage[]
+  favorites   Favorite[] // Product ile Favorite ilişkisi
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model SubImage {
+  id        Int     @id @default(autoincrement())
+  url       String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  surname   String
+  email     String     @unique
+  password  String
+  phone     String?
+  favorites Favorite[] // User ile Favorite ilişkisi
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId]) // Aynı ürünü bir kullanıcı favori olarak yalnızca bir kez ekleyebilir
+}

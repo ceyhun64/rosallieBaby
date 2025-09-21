@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -30,31 +30,6 @@ import Bestseller from "./bestseller";
 import CompletePurchase from "./completePurchase";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const products = [
-  {
-    id: 1,
-    name: "Astronaut Muslin Hospital Outfit 8-Piece Set",
-    mainImage: "/allProducts/product1main.webp",
-    subImages: [
-      "/allProducts/product1main.webp",
-      "/allProducts/product1sub.webp",
-      "/allProducts/product2sub.webp",
-      "/allProducts/product3sub.webp",
-    ],
-    description: `A perfect choice for newborn photos, the Astronaut Muslin Hospital Outfit 6-Piece Set offers a soft texture with 4 layers of muslin fabric to protect your baby's sensitive skin. Its elegant and comfortable design makes the first days unforgettable.
-    Set contents:
-    Embroidered toy
-    Embroidered pillowcase
-    Embroidered jumpsuit
-    Hat
-    Gloves
-    Bib`,
-    oldPrice: 2999,
-    price: 2399,
-    discount: 20,
-  },
-];
-
 export default function ProductDetail() {
   const { id } = useParams();
   const isMobile = useIsMobile();
@@ -65,18 +40,61 @@ export default function ProductDetail() {
 
   const [selectedStars, setSelectedStars] = useState(0);
 
-  const product = products.find((p) => p.id === parseInt(id));
+  // Ürün verisi için yeni state'ler
+  const [product, setProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const total = product?.subImages.length || 0;
+
+  // Ürün verisini API'den çekmek için useEffect
+  useEffect(() => {
+    async function fetchProduct() {
+      if (!id) return;
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/products/${id}`);
+        if (!res.ok) {
+          throw new Error("Ürün verileri alınamadı.");
+        }
+        const data = await res.json();
+        setProduct(data.product);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchProduct();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen text-xl font-semibold">
+        Yükleniyor...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen text-xl font-semibold text-red-600">
+        {error}
+      </div>
+    );
+  }
 
   if (!product) {
     return (
       <div className="flex items-center justify-center h-screen text-xl font-semibold">
-        Product not found.
+        Ürün bulunamadı.
       </div>
     );
   }
+
+  const total = product?.subImages.length || 0;
 
   const handleThumbUp = () => {
     if (activeIndex > 0) setActiveIndex(activeIndex - 1);
@@ -132,7 +150,7 @@ export default function ProductDetail() {
                   className="w-full flex-shrink-0 snap-center flex justify-center"
                 >
                   <Image
-                    src={img}
+                    src={img.url}
                     alt={`Image ${index + 1}`}
                     width={500}
                     height={500}
@@ -173,7 +191,7 @@ export default function ProductDetail() {
                         onClick={() => setActiveIndex(realIndex)}
                       >
                         <Image
-                          src={img}
+                          src={img.url}
                           alt={`Thumbnail ${realIndex + 1}`}
                           width={80}
                           height={120}
@@ -202,7 +220,7 @@ export default function ProductDetail() {
               </button>
 
               <Image
-                src={product.subImages[activeIndex]}
+                src={product.subImages[activeIndex].url}
                 alt="Main Image"
                 width={0}
                 height={0}
@@ -247,16 +265,81 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 mt-4">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox id="stroller-cover" />
+              <Label
+                htmlFor="stroller-cover"
+                className="text-base font-semibold cursor-pointer"
+              >
+                I want personalized stroller cover{" "}
+                <span className="text-gray-500">(+€ 549.00)</span>
+              </Label>
+            </div>
+
+            <div className="flex flex-col gap-2 relative">
+              <div className="flex items-center gap-1 relative">
+                <Label htmlFor="name">Enter Your Name *</Label>
+                <div className="relative"></div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Input
+                  id="name"
+                  placeholder="Enter your name"
+                  maxLength={16}
+                  className="flex-1 rounded-none"
+                />
+                <button
+                  type="button"
+                  className="px-3 py-2 bg-stone-600 text-white rounded-none text-sm hover:bg-stone-700 transition"
+                  onClick={() => alert("You can preview how it looks here!")}
+                >
+                  Preview
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="hat-toy" className="text-base font-semibold">
+                Hat & Toy Option *
+              </Label>
+              <div className="flex gap-2">
+                <div
+                  onClick={() => setSelected("ruffle")}
+                  className={`px-3 py-2 border-2 rounded-sm cursor-pointer text-sm transition ${
+                    selected === "ruffle"
+                      ? "border-stone-600 bg-stone-200 font-medium"
+                      : "border-gray-200 hover:border-gray-400"
+                  }`}
+                >
+                  Ruffle (+€149.00)
+                </div>
+                <div
+                  onClick={() => setSelected("plain")}
+                  className={`px-3 py-2 border-2 rounded-sm cursor-pointer text-sm transition ${
+                    selected === "plain"
+                      ? "border-stone-600 bg-stone-200 font-medium"
+                      : "border-gray-200 hover:border-gray-400"
+                  }`}
+                >
+                  Plain
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 mt-4">
             <Button
-              className="w-full py-6 text-base font-bold bg-[#809363] hover:bg-orange-500 transition-colors rounded-full text-white"
+              className="w-full py-6 text-base font-bold bg-gray-200 hover:bg-gray-300 transition-colors rounded-full text-black"
               onClick={handleAddToCart}
             >
               <ShoppingCart size={20} className="mr-2" />
               ADD TO CART
             </Button>
             <Button
-              className="w-full py-6 text-base font-bold bg-[#809363] hover:bg-green-800 transition-colors rounded-full text-white"
+              variant="outline"
+              className="w-full py-6 text-base font-bold border-green-700 text-green-700 hover:bg-green-50 rounded-full"
               onClick={handleWhatsapp}
             >
               WHATSAPP
@@ -401,7 +484,7 @@ export default function ProductDetail() {
             </button>
 
             <Image
-              src={product.subImages[activeIndex]}
+              src={product.subImages[activeIndex].url}
               alt="Main Image"
               width={0}
               height={0}

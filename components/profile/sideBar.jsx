@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 
 export default function Sidebar({ username = "Ceyhun Türkmen" }) {
-  const router = useRouter();
   const pathname = usePathname();
 
   const menuItems = {
@@ -16,9 +16,11 @@ export default function Sidebar({ username = "Ceyhun Türkmen" }) {
     "Order Information": [{ name: " Orders", path: "/profile/orders" }],
   };
 
-  const handleLogout = () => {
-    console.log("Logging out...");
-    router.push("/login");
+  const handleLogout = async () => {
+    await signOut({
+      redirect: true,
+      callbackUrl: "/account/login", // Logout sonrası yönlendirilecek sayfa
+    });
   };
 
   return (

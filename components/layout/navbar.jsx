@@ -1,10 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { Search, User, ShoppingBag, X, Menu, ArrowRight } from "lucide-react";
+import {
+  Search,
+  User,
+  ShoppingBag,
+  X,
+  Menu,
+  ArrowRight,
+  Heart,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -20,18 +27,14 @@ import { CartItem } from "./cartItem";
 const mockCartItem = {
   id: "1",
   name: "Sun Müslin Hastane Çıkışı 6'lı Set",
-  image: "/allProducts/product3main.webp", // Buraya görselin yolunu ekleyin
+  image: "/allProducts/product3main.webp",
   price: 2047.99,
   oldPrice: 2347.99,
   productCode: "4693",
   quantity: 1,
   options: [
     { label: "Enter Name", value: "why", extraPrice: 0 },
-    {
-      label: "Hat & Blanket Option",
-      value: "Ruffled",
-      extraPrice: 149.0,
-    },
+    { label: "Hat & Blanket Option", value: "Ruffled", extraPrice: 149.0 },
   ],
 };
 
@@ -40,19 +43,34 @@ export default function Header() {
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([mockCartItem]); // Örnek veri ile dolduruldu
+  const [cartItems, setCartItems] = useState([mockCartItem]); // Örnek veri
+  const [user, setUser] = useState(null);
 
-  const handleLoginClick = () => router.push("/account/login");
+  // Session kontrolü için API çağrısı
+  useEffect(() => {
+    fetch("/api/account/check")
+      .then((res) => res.json())
+      .then((data) => setUser(data.user))
+      .catch(() => setUser(null));
+  }, []);
+
+  const handleUserClick = () => {
+    if (user) {
+      router.push("/profile");
+    } else {
+      router.push("/account/login");
+    }
+  };
+
   const handleSearchClick = () => router.push("/search");
 
   const menuItems = [
-    { label: "All Products", href: "/all-products" },
-    { label: "Hospital Outfit Set", href: "/all-products/hospital-outfit-set" },
-    { label: "Toy", href: "/all-products/toy" },
-    { label: "Pillow", href: "/all-products/pillow" },
+    { label: "All Products", href: "/all_products" },
+    { label: "Hospital Outfit Set", href: "/all_products/hospital_outfit_set" },
+    { label: "Toy", href: "/all_products/toy" },
+    { label: "Pillow", href: "/all_products/pillow" },
   ];
 
-  // Sepetteki toplam tutarı hesaplama
   const totalAmount = cartItems.reduce((acc, item) => {
     const itemPrice =
       item.price +
@@ -63,7 +81,6 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-sm shadow-xs">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8 relative">
-        {/*... (mevcut Header kodları) ...*/}
         {isMobile ? (
           <Button variant="ghost" size="icon" onClick={() => setMenuOpen(true)}>
             <Menu className="h-6 w-6 text-gray-700" />
@@ -104,14 +121,31 @@ export default function Header() {
           >
             <Search className="h-5 w-5" />
           </Button>
+
+          {/* User/Profile ikon */}
           <Button
             variant="ghost"
             size="icon"
             className="text-gray-700 hover:text-blue-600"
-            onClick={handleLoginClick}
+            onClick={handleUserClick}
           >
-            <User className="h-5 w-5" />
+            <User
+              className={"h-5 w-5 "}
+            />
           </Button>
+          {/* Favorites ikon: Sadece kullanıcı giriş yaptıysa */}
+          {user && !isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-gray-700 hover:text-pink-600"
+              onClick={() => router.push("/profile/favorites")}
+            >
+              <Heart className="h-5 w-5 " />
+            </Button>
+          )}
+
+          {/* Cart ikon */}
           <Button
             variant="ghost"
             size="icon"
@@ -126,12 +160,9 @@ export default function Header() {
             )}
           </Button>
         </div>
+        {/* Menu Sheet */}
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-          <SheetContent
-            side="left"
-            className="w-full h-full"
-            aria-describedby={undefined}
-          >
+          <SheetContent side="left" className="w-full h-full">
             <div className="flex justify-between items-center py-4 px-6 border-b border-gray-200">
               <div className="flex items-center gap-4">
                 <SheetClose asChild>
@@ -168,45 +199,25 @@ export default function Header() {
               </Button>
             </div>
             <div className="mt-4 flex flex-col gap-0">
-              <Link
-                href="/all-products"
-                className="text-lg font-normal text-gray-800 py-3 px-6 hover:bg-gray-100 transition-colors"
-                onClick={() => setMenuOpen(false)}
-              >
-                All Products
-              </Link>
-              <Link
-                href="/all-products/hospital-outfit-set"
-                className="text-lg font-normal text-gray-800 py-3 px-6 hover:bg-gray-100 transition-colors"
-                onClick={() => setMenuOpen(false)}
-              >
-                Hospital Outfit Set
-              </Link>
-              <Link
-                href="/all-products/toy"
-                className="text-lg font-normal text-gray-800 py-3 px-6 hover:bg-gray-100 transition-colors"
-                onClick={() => setMenuOpen(false)}
-              >
-                Toys
-              </Link>
-              <Link
-                href="/all-products/pillow"
-                className="text-lg font-normal text-gray-800 py-3 px-6 hover:bg-gray-100 transition-colors"
-                onClick={() => setMenuOpen(false)}
-              >
-                Pillows
-              </Link>
+              {menuItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-lg font-normal text-gray-800 py-3 px-6 hover:bg-gray-100 transition-colors"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
             </div>
           </SheetContent>
         </Sheet>
-
-        {/* Görselle uyumlu yeni Cart Sheet */}
+        {/* Cart Sheet */}
         <Sheet open={cartOpen} onOpenChange={setCartOpen}>
           <SheetContent
             side="right"
             className="w-full sm:w-[540px] lg:w-[700px] p-0 flex flex-col"
           >
-            {/* Header */}
             <SheetHeader className="p-4 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <SheetTitle className="text-xl font-bold text-gray-800">
@@ -220,7 +231,6 @@ export default function Header() {
               </div>
             </SheetHeader>
 
-            {/* Ürün Listesi */}
             <div className="flex-1 overflow-y-auto px-4">
               {cartItems.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
@@ -231,9 +241,7 @@ export default function Header() {
               )}
             </div>
 
-            {/* Alt Kısım */}
-            <div className="sticky bottom-0   shadow-top">
-              <div className="flex justify-between items-center font-bold text-xl"></div>
+            <div className="sticky bottom-0 shadow-top">
               <Button
                 asChild
                 className="w-full rounded-none bg-gray-100 hover:bg-gray-200 text-white font-semibold py-3 h-auto"
@@ -248,18 +256,18 @@ export default function Header() {
                 variant="outline"
                 className="w-full rounded-none bg-[#829969] hover:bg-[#6f855a] text-white hover:text-gray-50 font-semibold py-3 h-auto"
               >
-                <Link href="/cart" className="flex  w-full px-0">
-                  {/* Left side: Total and Price */}
+                <Link
+                  href="/cart"
+                  className="flex w-full px-0 justify-between items-center"
+                >
                   <div className="flex flex-col items-start">
                     <span className="text-xs">Total</span>
                     <span className="text-lg font-bold">
                       €{totalAmount.toFixed(2)}
                     </span>
                   </div>
-
-                  {/* Right side: Go to Cart */}
                   <div className="flex items-center gap-2">
-                    <span className="uppercase text-sm ms-30">Go to Cart</span>
+                    <span className="uppercase text-sm">Go to Cart</span>
                     <ArrowRight className="h-4 w-4" />
                   </div>
                 </Link>

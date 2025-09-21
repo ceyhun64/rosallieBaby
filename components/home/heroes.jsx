@@ -13,7 +13,7 @@ export default function Heroes() {
       className={`relative w-full cursor-pointer ${
         isMobile ? "h-[60vh]" : "h-[80vh]"
       }`}
-      onClick={() => router.push("/all-products")}
+      onClick={() => router.push("/all_products")}
     >
       <Image
         src={isMobile ? "/heroes/heroes2.webp" : "/heroes/heroes1.webp"}

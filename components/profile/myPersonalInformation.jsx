@@ -1,15 +1,33 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Sidebar from "./sideBar";
+import Loading from "@/components/layout/loading";
+import Unauthorized from "../layout/unauthorized";
 
 export default function MyPersonalInformation() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await fetch("/api/account/check");
+      const data = await res.json();
+      setUser(data.user);
+      setLoading(false);
+    };
+    fetchUser();
+  }, []);
+
+  if (loading) return <Loading />;
+  if (!user) return <Unauthorized />;
+
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
+      <Sidebar username={user.name + " " + user.surname} />
       <div className="w-full max-w-2xl md:mt-32 justify-center items-start ms-20 mt-20">
         <h2 className="text-2xl font-bold mb-8 text-gray-800 text-start">
           My Personal Information
@@ -21,7 +39,7 @@ export default function MyPersonalInformation() {
             <Label htmlFor="firstName">
               <span className="text-red-500">*</span> First Name
             </Label>
-            <Input id="firstName" defaultValue="Ceyhun" className="w-full" />
+            <Input id="firstName" defaultValue={user.name} className="w-full" />
           </div>
 
           {/* Last Name */}
@@ -29,7 +47,11 @@ export default function MyPersonalInformation() {
             <Label htmlFor="lastName">
               <span className="text-red-500">*</span> Last Name
             </Label>
-            <Input id="lastName" defaultValue="Türkmen" className="w-full" />
+            <Input
+              id="lastName"
+              defaultValue={user.surname}
+              className="w-full"
+            />
           </div>
 
           {/* Phone */}
@@ -63,7 +85,7 @@ export default function MyPersonalInformation() {
             <Input
               id="email"
               type="email"
-              defaultValue="ctrkm.64@gmail.com"
+              defaultValue={user.email}
               disabled
               className="bg-gray-100 text-gray-500 cursor-not-allowed"
             />

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/admin/sideBar";
 import AddProductDialog from "./addProduct";
 import UpdateProductDialog from "./updateProduct";
@@ -13,31 +13,51 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import initialProducts from "@/seed/products";
 import DefaultPagination from "@/components/layout/pagination";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Products() {
-  const isMobile = useIsMobile();
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState([]);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-
   const [newProduct, setNewProduct] = useState({
     name: "",
     mainImage: "",
-    subImage1: "",
+    subImages: [""],
     description: "",
     oldPrice: "",
     price: "",
     discount: "",
     category: "",
   });
+  const isMobile = useIsMobile();
+
+  // Dinamik API fetch
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/products`,
+          {
+            cache: "no-store",
+          }
+        );
+        if (!res.ok) throw new Error("Fetch failed");
+        const data = await res.json();
+        setProducts(data.products);
+      } catch (err) {
+        console.error("Ürünleri çekerken hata:", err);
+      }
+    }
+    fetchProducts();
+  }, []);
 
   const filteredProducts = products
-    .filter((p) => (filter === "all" ? true : p.category === filter))
+    .filter((p) =>
+      filter === "all" ? true : p.category.toLowerCase() === filter
+    )
     .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
 
   const paginatedProducts = filteredProducts.slice(
@@ -45,28 +65,95 @@ export default function Products() {
     currentPage * 15
   );
 
-  const handleChange = (e) => {
-    setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
+  const handleChange = (e, index = 0) => {
+    if (e.target.name === "subImages") {
+      const updatedSubImages = [...newProduct.subImages];
+      updatedSubImages[index] = e.target.value;
+      setNewProduct({ ...newProduct, subImages: updatedSubImages });
+    } else {
+      setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
+    }
   };
 
-  const handleAddProduct = () => {
-    const id = products.length ? products[products.length - 1].id + 1 : 1;
-    setProducts([...products, { ...newProduct, id }]);
-    setNewProduct({
-      name: "",
-      mainImage: "",
-      subImage1: "",
-      description: "",
-      oldPrice: "",
-      price: "",
-      discount: "",
-      category: "",
-    });
+  const handleAddProduct = async () => {
+    try {
+      // subImages boş olanları çıkar
+      const filteredSubImages = newProduct.subImages.filter(
+        (url) => url !== ""
+      );
+
+      const productToSend = {
+        name: newProduct.name,
+        mainImage: newProduct.mainImage,
+        description: newProduct.description,
+        oldPrice: Number(newProduct.oldPrice),
+        price: Number(newProduct.price),
+        discount: Number(newProduct.discount),
+        category: newProduct.category,
+        subImages: filteredSubImages,
+      };
+
+      // POST isteği
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/products`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(productToSend),
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Ürün eklenirken hata oluştu");
+      }
+
+      const data = await res.json();
+
+      // Backend’den dönen ürünü state’e ekle
+      setProducts((prev) => [...prev, data.product]);
+
+      // Formu temizle
+      setNewProduct({
+        name: "",
+        mainImage: "",
+        description: "",
+        oldPrice: "",
+        price: "",
+        discount: "",
+        category: "",
+        subImages: [""],
+      });
+
+      alert("Ürün başarıyla eklendi!");
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
   };
 
-  const handleDelete = (id) => {
-    setProducts(products.filter((p) => p.id !== id));
-    setSelectedIds(selectedIds.filter((sid) => sid !== id));
+  const handleDelete = async (id) => {
+    if (!confirm("Bu ürünü silmek istediğinize emin misiniz?")) return;
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!res.ok) throw new Error("Ürün silinirken hata oluştu");
+
+      // Başarılıysa state’i güncelle
+      setProducts(products.filter((p) => p.id !== id));
+      setSelectedIds(selectedIds.filter((sid) => sid !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Ürün silinirken bir hata oluştu.");
+    }
   };
 
   const handleUpdate = (updatedProduct) => {
@@ -91,9 +178,39 @@ export default function Products() {
     }
   };
 
+  const handleDeleteSelected = async () => {
+    if (selectedIds.length === 0) return;
+    if (
+      !confirm(
+        `Seçilen ${selectedIds.length} ürünü silmek istediğinize emin misiniz?`
+      )
+    )
+      return;
+
+    try {
+      // Her bir id için DELETE isteği gönder
+      await Promise.all(
+        selectedIds.map((id) =>
+          fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${id}`, {
+            method: "DELETE",
+          }).then((res) => {
+            if (!res.ok) throw new Error(`Ürün ${id} silinirken hata oluştu`);
+          })
+        )
+      );
+
+      // State güncelle
+      setProducts(products.filter((p) => !selectedIds.includes(p.id)));
+      setSelectedIds([]);
+      alert("Seçilen ürünler başarıyla silindi!");
+    } catch (err) {
+      console.error(err);
+      alert("Seçilen ürünler silinirken bir hata oluştu.");
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-black text-white flex-col md:flex-row">
-      {/* Sidebar */}
       <Sidebar />
 
       <main className={`flex-1 p-4 md:p-8 ${isMobile ? "ml-0" : "ml-64"}`}>
@@ -101,9 +218,7 @@ export default function Products() {
           Ürün Listesi
         </h1>
 
-        {/* Filter & Add */}
         <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:justify-between">
-          {/* Sol taraf: Toplu Silme ve Ekleme */}
           <div className="flex flex-col sm:flex-row gap-4 w-full">
             <Button
               variant="default"
@@ -113,9 +228,7 @@ export default function Products() {
                   : "bg-stone-700 text-stone-400 cursor-not-allowed"
               }`}
               disabled={selectedIds.length === 0}
-              onClick={() =>
-                setProducts(products.filter((p) => !selectedIds.includes(p.id)))
-              }
+              onClick={handleDeleteSelected}
             >
               Seçilenleri Sil ({selectedIds.length})
             </Button>
@@ -129,7 +242,6 @@ export default function Products() {
             />
           </div>
 
-          {/* Sağ taraf: Filtre ve Arama */}
           <div className="flex flex-col sm:flex-row gap-4 w-full">
             <Select
               onValueChange={(val) => setFilter(val)}
@@ -144,13 +256,13 @@ export default function Products() {
                   Tüm Ürünler
                 </SelectItem>
                 <SelectItem
-                  value="hospital-outfit-set"
+                  value="hospital_outfit_set"
                   className="hover:bg-stone-800"
                 >
-                Hastane Çıkış Seti
+                  Hastane Çıkış Seti
                 </SelectItem>
                 <SelectItem value="toy" className="hover:bg-stone-800">
-                  TOyuncak
+                  Oyuncak
                 </SelectItem>
                 <SelectItem value="pillow" className="hover:bg-stone-800">
                   Yastık
@@ -168,7 +280,6 @@ export default function Products() {
           </div>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="min-w-full text-left border border-stone-800 rounded-xl">
             <thead>
@@ -184,18 +295,22 @@ export default function Products() {
                   />
                 </th>
                 <th className="px-4 py-2 border-b border-stone-800">ID</th>
-                <th className="px-4 py-2 border-b border-stone-800">Ürün Adı</th>
+                <th className="px-4 py-2 border-b border-stone-800">
+                  Ürün Adı
+                </th>
                 <th className="px-4 py-2 border-b border-stone-800">
                   Kategori
                 </th>
                 <th className="px-4 py-2 border-b border-stone-800">Fiyat</th>
                 <th className="px-4 py-2 border-b border-stone-800">
-                   Eski Fiyat
+                  Eski Fiyat
                 </th>
                 <th className="px-4 py-2 border-b border-stone-800">
                   İndirim (%)
                 </th>
-                <th className="px-4 py-2 border-b border-stone-800">İşlemler</th>
+                <th className="px-4 py-2 border-b border-stone-800">
+                  İşlemler
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -246,7 +361,6 @@ export default function Products() {
           </table>
         </div>
 
-        {/* Pagination */}
         <div className="mt-4">
           <DefaultPagination
             totalItems={filteredProducts.length}

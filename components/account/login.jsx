@@ -1,29 +1,46 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-// Main login component
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginMessage, setLoginMessage] = useState("");
-const isMobile = useIsMobile();
-  const handleLogin = (e) => {
+  const isMobile = useIsMobile();
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Email:", email, "Password:", password);
-    setLoginMessage("Login button clicked!");
+    setLoginMessage("Giriş yapılıyor...");
+
+    // NextAuth credentials ile login
+    const result = await signIn("credentials", {
+      redirect: false, // sayfayı otomatik yönlendirmesin
+      email,
+      password,
+    });
+
+    if (result.error) {
+      setLoginMessage("Email veya şifre hatalı");
+      return;
+    }
+
+    if (result.ok) {
+      setLoginMessage("Giriş başarılı");
+      router.push("/profile"); // başarılı login sonrası yönlendirme
+    }
   };
 
   return (
     <div
-      className={`bg-white min-h-screen flex flex-col md:flex-row  font-sans  ${
+      className={`bg-white min-h-screen flex flex-col md:flex-row font-sans ${
         isMobile ? "mt-30" : "mt-0"
       }`}
     >
@@ -31,9 +48,7 @@ const isMobile = useIsMobile();
       <div className="flex flex-col justify-center items-center p-8 md:w-[30rem]">
         <div className="w-full max-w-sm">
           <div className="flex justify-between items-center mb-6">
-            {/* Title on left */}
             <h2 className="text-3xl font-bold text-[#829969]">Login</h2>
-            {/* Button on right */}
             <button
               onClick={() => router.push("/account/register")}
               className="text-lg text-gray-500 hover:text-[#829969]"
@@ -105,6 +120,7 @@ const isMobile = useIsMobile();
           <Button
             variant="outline"
             className="w-full flex items-center justify-center gap-2"
+            onClick={() => signIn("google")}
           >
             Sign in with Google
           </Button>

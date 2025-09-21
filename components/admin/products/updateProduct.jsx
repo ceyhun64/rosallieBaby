@@ -24,11 +24,10 @@ import { CardContent } from "@/components/ui/card";
 export default function UpdateProductDialog({ product, onUpdate }) {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState(product);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (product) {
-      setFormData(product);
-    }
+    if (product) setFormData(product);
   }, [product]);
 
   const handleChange = (e) => {
@@ -45,17 +44,53 @@ export default function UpdateProductDialog({ product, onUpdate }) {
       });
     }
   };
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const payload = {
+        name: formData.name,
+        description: formData.description,
+        category: formData.category, // Enum değerlerinden biri olmalı
+        price: formData.price ? Number(formData.price) : 0,
+        oldPrice: formData.oldPrice ? Number(formData.oldPrice) : 0,
+        discount: formData.discount ? Number(formData.discount) : 0,
+        mainImage: formData.mainImage || "",
+        // SubImages sadece string array olarak gönder
+        subImages: (formData.subImages || []).map((img) =>
+          typeof img === "string" ? img : img.url
+        ),
+      };
 
-  const handleSave = () => {
-    onUpdate(formData);
-    setOpen(false);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${product.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Güncelleme başarısız");
+      }
+
+      const updated = await res.json();
+      onUpdate(updated.product);
+      setOpen(false);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" className="hover:bg-yellow-600">
-          Güncelle
+          {loading ? "Kaydediliyor..." : "Güncelle"}
         </Button>
       </DialogTrigger>
 
@@ -67,7 +102,6 @@ export default function UpdateProductDialog({ product, onUpdate }) {
         <div className="flex gap-6 mt-4 flex-col md:flex-row">
           {/* Sol taraf: Form */}
           <div className="flex-1 grid grid-cols-2 gap-4">
-            {/* Ürün Adı */}
             <div className="flex flex-col gap-1">
               <Label className="text-sm font-medium">Ürün Adı</Label>
               <Input
@@ -79,7 +113,6 @@ export default function UpdateProductDialog({ product, onUpdate }) {
               />
             </div>
 
-            {/* Kategori */}
             <div className="flex flex-col gap-1">
               <Label className="text-sm font-medium">Kategori</Label>
               <Select
@@ -92,16 +125,15 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                   <SelectValue placeholder="Kategori Seç" />
                 </SelectTrigger>
                 <SelectContent className="bg-black text-white border border-stone-700">
-                  <SelectItem value="hospital-outfit-set">
-                    Hospital Outfit Set
+                  <SelectItem value="hospital_outfit_set">
+                    Hastane Çıkış Seti
                   </SelectItem>
-                  <SelectItem value="toy">Toy</SelectItem>
-                  <SelectItem value="pillow">Pillow</SelectItem>
+                  <SelectItem value="toy">Oyuncak</SelectItem>
+                  <SelectItem value="pillow">Yastık</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Açıklama */}
             <div className="flex flex-col gap-1 col-span-2">
               <Label className="text-sm font-medium">Açıklama</Label>
               <Input
@@ -113,46 +145,26 @@ export default function UpdateProductDialog({ product, onUpdate }) {
               />
             </div>
 
-            {/* Fiyat */}
-            <div className="flex flex-col gap-1">
-              <Label className="text-sm font-medium">Fiyat</Label>
-              <Input
-                name="price"
-                type="number"
-                value={formData.price}
-                onChange={handleChange}
-                placeholder="Fiyat"
-                className="bg-black border border-stone-700 text-white w-full"
-              />
-            </div>
+            {["price", "oldPrice", "discount"].map((field) => (
+              <div key={field} className="flex flex-col gap-1">
+                <Label className="text-sm font-medium">
+                  {field === "oldPrice"
+                    ? "Eski Fiyat"
+                    : field === "discount"
+                    ? "İndirim (%)"
+                    : "Fiyat"}
+                </Label>
+                <Input
+                  name={field}
+                  type="number"
+                  value={formData[field]}
+                  onChange={handleChange}
+                  placeholder={field}
+                  className="bg-black border border-stone-700 text-white w-full"
+                />
+              </div>
+            ))}
 
-            {/* Eski Fiyat */}
-            <div className="flex flex-col gap-1">
-              <Label className="text-sm font-medium">Eski Fiyat</Label>
-              <Input
-                name="oldPrice"
-                type="number"
-                value={formData.oldPrice}
-                onChange={handleChange}
-                placeholder="Eski Fiyat"
-                className="bg-black border border-stone-700 text-white w-full"
-              />
-            </div>
-
-            {/* İndirim */}
-            <div className="flex flex-col gap-1">
-              <Label className="text-sm font-medium">İndirim (%)</Label>
-              <Input
-                name="discount"
-                type="number"
-                value={formData.discount}
-                onChange={handleChange}
-                placeholder="İndirim (%)"
-                className="bg-black border border-stone-700 text-white w-full"
-              />
-            </div>
-
-            {/* Ana Görsel */}
             <div className="flex flex-col gap-1 col-span-2">
               <Label className="text-sm font-medium">Ana Görsel</Label>
               <input
@@ -163,7 +175,6 @@ export default function UpdateProductDialog({ product, onUpdate }) {
               />
             </div>
 
-            {/* Alt Görseller */}
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="flex flex-col gap-1">
                 <Label className="text-sm font-medium">{`Alt Görsel ${i}`}</Label>
@@ -176,8 +187,7 @@ export default function UpdateProductDialog({ product, onUpdate }) {
               </div>
             ))}
           </div>
-
-          {/* Sağ taraf: Önizleme (mobilde gizli) */}
+          {/* Sağ taraf: Önizleme */}
           <div className="hidden md:flex flex-1 border border-stone-700 p-4 rounded-xl bg-stone-900 flex-col">
             <h3 className="text-xl font-semibold mb-4">Önizleme</h3>
 
@@ -197,29 +207,31 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                 )}
               </div>
 
-              {/* Küçük görseller */}
+              {/* Alt görseller */}
               <div className="grid grid-cols-3 grid-rows-2 gap-2 flex-1">
-                {[1, 2, 3, 4, 5, 6].map((i) => {
-                  const img = formData[`subImage${i}`];
-                  return (
-                    <div
-                      key={i}
-                      className="w-20 h-32 bg-stone-800 rounded flex items-center justify-center overflow-hidden"
-                    >
-                      {img ? (
+                {formData.subImages && formData.subImages.length > 0
+                  ? formData.subImages.map((imgObj, idx) => (
+                      <div
+                        key={idx}
+                        className="w-20 h-32 bg-stone-800 rounded flex items-center justify-center overflow-hidden"
+                      >
                         <img
-                          src={img}
-                          alt={`Alt Görsel ${i}`}
+                          src={imgObj.url}
+                          alt={`Alt Görsel ${idx + 1}`}
                           className="w-full h-full object-cover"
                         />
-                      ) : (
+                      </div>
+                    ))
+                  : Array.from({ length: 6 }).map((_, idx) => (
+                      <div
+                        key={idx}
+                        className="w-20 h-32 bg-stone-800 rounded flex items-center justify-center overflow-hidden"
+                      >
                         <span className="text-xs text-stone-400">
                           Alt Görsel
                         </span>
-                      )}
-                    </div>
-                  );
-                })}
+                      </div>
+                    ))}
               </div>
             </div>
 
@@ -258,8 +270,9 @@ export default function UpdateProductDialog({ product, onUpdate }) {
           <Button
             className="bg-green-600 hover:bg-green-500"
             onClick={handleSave}
+            disabled={loading}
           >
-            Güncelle
+            {loading ? "Kaydediliyor..." : "Güncelle"}
           </Button>
         </DialogFooter>
       </DialogContent>

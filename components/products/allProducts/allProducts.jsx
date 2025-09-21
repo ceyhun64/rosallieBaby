@@ -1,120 +1,37 @@
-"use client"
-import React, { use } from "react";
 import ProductToolbar from "./productToolBar";
-import { Label } from "@/components/ui/label"; // Başlık için Label ekledim
-import { useIsMobile } from "@/hooks/use-mobile";
 
-const products = [
-  {
-    id: 1,
-    name: "Tuğkan",
-    mainImage: "/allProducts/product1main.webp",
-    subImage1: "/allProducts/product1sub.webp",
-    description: "Anchor Muslin 6-Piece Baby Hospital Outfit Set",
-    oldPrice: 2399,
-    price: 1899,
-    discount: 17,
-    category: "hospital-outfit-set",
-  },
-  {
-    id: 2,
-    name: "Defne",
-    mainImage: "/allProducts/product2main.webp",
-    subImage1: "/allProducts/product2sub.webp",
-    description: "Flowery Muslin 6-Piece Baby Hospital Outfit Set",
-    oldPrice: 2399,
-    price: 1899,
-    discount: 24,
-    category: "hospital-outfit-set",
-  },
-  {
-    id: 3,
-    name: "Sarp",
-    mainImage: "/allProducts/product3main.webp",
-    subImage1: "/allProducts/product3sub.webp",
-    description: "Rabbit Muslin 6-Piece Baby Hospital Outfit Set",
-    oldPrice: 2299,
-    price: 1999,
-    discount: 13,
-    category: "hospital-outfit-set",
-  },
-  {
-    id: 4,
-    name: "Aren",
-    mainImage: "/allProducts/product4main.webp",
-    subImage1: "/allProducts/product4sub.webp",
-    description:
-      "Personalized Embroidered Muslin 7-Piece Baby Hospital Outfit Set",
-    oldPrice: 2399,
-    price: 1799,
-    discount: 25,
-    category: "hospital-outfit-set",
-  },
-  {
-    id: 5,
-    name: "Tuğkan",
-    mainImage: "/allProducts/product5main.webp",
-    subImage1: "/allProducts/product5sub.webp",
-    description: "Anchor Muslin 6-Piece Baby Romper Set",
-    oldPrice: 2399,
-    price: 1899,
-    discount: 17,
-    category: "romper",
-  },
-  {
-    id: 6,
-    name: "Defne",
-    mainImage: "/allProducts/product6main.webp",
-    subImage1: "/allProducts/product6sub.webp",
-    description: "Flowery Muslin Toy",
-    oldPrice: 2399,
-    price: 1899,
-    discount: 24,
-    category: "toy",
-  },
-  {
-    id: 7,
-    name: "Sarp",
-    mainImage: "/allProducts/product7main.webp",
-    subImage1: "/allProducts/product7sub.webp",
-    description: "Rabbit Muslin Pillow",
-    oldPrice: 2299,
-    price: 1999,
-    discount: 13,
-    category: "pillow",
-  },
-  {
-    id: 8,
-    name: "Aren",
-    mainImage: "/allProducts/product8main.webp",
-    subImage1: "/allProducts/product8sub.webp",
-    description: "Personalized Embroidered Muslin 7-Piece Hospital Outfit",
-    oldPrice: 2399,
-    price: 1799,
-    discount: 25,
-    category: "hospital-outfit-set",
-  },
-];
+// Server-side fetch
+async function getProducts() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products`, {
+    cache: "no-store",
+  });
+  console.log("res:", res);
 
-export default function AllProducts() {
-  const isMobile = useIsMobile();
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("Fetch error:", text);
+    throw new Error(`Fetch failed with status ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data.products;
+}
+
+export default async function AllProducts() {
+  const products = await getProducts(); // server-side fetch
+
   return (
-    <div className="p-4 md:p-8">
-      {/* Başlık + ürün sayısı */}
-      <div className="flex items-center gap-2 mb-4">
-        <Label
-          className={`text-3xl font-semibold ${
-            isMobile ? "text-xl" : "text-3xl"
-          }`}
-        >
-          All Products
-        </Label>
+    <main className="p-4 md:p-8">
+      <header className="flex items-center gap-2 mb-4">
+        <h1 className="text-3xl font-semibold">All Products</h1>
         <span className="text-gray-600 text-lg">
           ({products.length} products)
         </span>
-      </div>
+      </header>
 
-      <ProductToolbar products={products} />
-    </div>
+      <section>
+        <ProductToolbar products={products} />
+      </section>
+    </main>
   );
 }

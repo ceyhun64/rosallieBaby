@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 function capitalizeWords(str) {
   return str
-    .split("-")
+    .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }

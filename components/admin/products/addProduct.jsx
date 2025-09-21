@@ -24,11 +24,33 @@ import { useIsMobile } from "@/hooks/use-mobile";
 export default function AddProductDialog({
   newProduct,
   setNewProduct,
-  handleChange,
   handleAddProduct,
 }) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
+
+  const handleChange = (e, index = null) => {
+    const { name, value } = e.target;
+    if (name === "subImages" && index !== null) {
+      const updatedSubImages = [...newProduct.subImages];
+      updatedSubImages[index] = value;
+      setNewProduct({ ...newProduct, subImages: updatedSubImages });
+    } else {
+      setNewProduct({ ...newProduct, [name]: value });
+    }
+  };
+
+  const handleFileChange = (e, index = null, isMain = false) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    const url = file ? URL.createObjectURL(file) : "";
+    if (isMain) {
+      setNewProduct({ ...newProduct, mainImage: url, mainFile: file });
+    } else if (index !== null) {
+      const updatedSubImages = [...newProduct.subImages];
+      updatedSubImages[index] = url;
+      setNewProduct({ ...newProduct, subImages: updatedSubImages });
+    }
+  };
 
   const handleSubmit = () => {
     handleAddProduct();
@@ -51,7 +73,6 @@ export default function AddProductDialog({
             <DialogTitle>Yeni Ürün Ekle</DialogTitle>
           </DialogHeader>
 
-          {/* İki sütunlu düzen */}
           <div className="flex gap-6 mt-4 flex-col md:flex-row">
             {/* Sol taraf: Form */}
             <div className="flex-1 grid grid-cols-2 gap-4">
@@ -76,17 +97,17 @@ export default function AddProductDialog({
                   onValueChange={(val) =>
                     setNewProduct({ ...newProduct, category: val })
                   }
-                  defaultValue="hospital-outfit-set"
+                  defaultValue="hospital_outfit_set"
                 >
                   <SelectTrigger className="bg-black border border-stone-700 text-white w-full">
                     <SelectValue placeholder="Kategori Seç" />
                   </SelectTrigger>
                   <SelectContent className="bg-black text-white border border-stone-700">
-                    <SelectItem value="hospital-outfit-set">
-                      Hospital Outfit Set
+                    <SelectItem value="hospital_outfit_set">
+                      Hastane Çıkış Seti
                     </SelectItem>
-                    <SelectItem value="toy">Toy</SelectItem>
-                    <SelectItem value="pillow">Pillow</SelectItem>
+                    <SelectItem value="toy">Oyuncak</SelectItem>
+                    <SelectItem value="pillow">Yastık</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -109,37 +130,21 @@ export default function AddProductDialog({
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) =>
-                    setNewProduct({
-                      ...newProduct,
-                      mainImage: e.target.files
-                        ? URL.createObjectURL(e.target.files[0])
-                        : "",
-                      mainFile: e.target.files ? e.target.files[0] : null,
-                    })
-                  }
+                  onChange={(e) => handleFileChange(e, null, true)}
                   className="bg-black border border-stone-700 text-white p-2 rounded w-full"
                 />
               </div>
 
-              {/* Alt görseller */}
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="flex flex-col gap-1">
-                  <Label className="text-sm font-medium">{`Alt Görsel ${i}`}</Label>
+              {/* Alt Görseller */}
+              {[...Array(6)].map((_, idx) => (
+                <div key={idx} className="flex flex-col gap-1">
+                  <Label className="text-sm font-medium">{`Alt Görsel ${
+                    idx + 1
+                  }`}</Label>
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) =>
-                      setNewProduct({
-                        ...newProduct,
-                        [`subImage${i}`]: e.target.files
-                          ? URL.createObjectURL(e.target.files[0])
-                          : "",
-                        [`subFile${i}`]: e.target.files
-                          ? e.target.files[0]
-                          : null,
-                      })
-                    }
+                    onChange={(e) => handleFileChange(e, idx)}
                     className="bg-black border border-stone-700 text-white p-2 rounded w-full"
                   />
                 </div>
@@ -189,7 +194,6 @@ export default function AddProductDialog({
             <div className="hidden md:flex flex-1 border border-stone-700 p-4 rounded-xl bg-stone-900 flex-col">
               <h3 className="text-xl font-semibold mb-4">Önizleme</h3>
 
-              {/* Üst kısım: Ana görsel ve küçük görseller */}
               <div className="flex gap-4 mb-4">
                 {/* Ana görsel */}
                 <div className="flex-shrink-0">
@@ -208,14 +212,7 @@ export default function AddProductDialog({
 
                 {/* Küçük görseller */}
                 <div className="grid grid-cols-3 grid-rows-2 gap-2 flex-1">
-                  {[
-                    newProduct.subImage1,
-                    newProduct.subImage2,
-                    newProduct.subImage3,
-                    newProduct.subImage4,
-                    newProduct.subImage5,
-                    newProduct.subImage6,
-                  ].map((img, idx) => (
+                  {newProduct.subImages.map((img, idx) => (
                     <div
                       key={idx}
                       className="w-20 h-32 bg-stone-800 rounded flex items-center justify-center overflow-hidden"
@@ -236,9 +233,7 @@ export default function AddProductDialog({
                 </div>
               </div>
 
-              {/* Ürün bilgileri: Modern ve minimal */}
               <CardContent className="p-4 flex flex-col gap-2 bg-stone-900 border-t border-stone-700 rounded-b-xl">
-                {/* Başlık ve kategori */}
                 <div className="flex flex-col">
                   <h3 className="text-lg font-bold text-white">
                     {newProduct.name || "Ürün Adı"}
@@ -248,12 +243,10 @@ export default function AddProductDialog({
                   </span>
                 </div>
 
-                {/* Açıklama */}
                 <p className="text-sm text-stone-200">
                   {newProduct.description || "Açıklama"}
                 </p>
 
-                {/* Fiyat ve indirim */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-baseline gap-2">
                     <span className="text-white font-semibold text-lg">
