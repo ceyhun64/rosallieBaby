@@ -66,6 +66,7 @@ export default function Categories() {
               imageUrl={category.imageUrl}
               href={category.href}
             />
+           
 
             {isMobile && index === activeIndex && (
               <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">

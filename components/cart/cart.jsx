@@ -1,73 +1,117 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CartItemComponent from "./cartItem";
 import CartSummary from "./cartSummary";
+import Loading from "../layout/loading";
 
 export default function Cart() {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Sun Muslin Hospital Discharge 6-Piece Set",
-      price: 2047.99,
-      oldPrice: 2347.99,
-      quantity: 1,
-      image: "/allProducts/product1main.webp",
-      productCode: "BB0143",
-      options: [
-        { label: "Enter Name", value: "why" },
-        {
-          label: "Hat & Blanket Option",
-          value: "Ruffled",
-          extraPrice: 149.0,
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: "Rabbit Muslin Pillowcase",
-      price: 499.0,
-      quantity: 1,
-      image: "/allProducts/product2main.webp",
-      productCode: "BB0143",
-      options: [{ label: "Enter Name", value: "why" }],
-    },
-  ]);
+  const [cartItems, setCartItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleIncrease = (id) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    );
+  // API'den sepeti çek
+  useEffect(() => {
+    async function fetchCart() {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/cart");
+        if (!res.ok) throw new Error("Sepet verileri alınamadı.");
+        const data = await res.json();
+        setCartItems(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchCart();
+  }, []);
+
+  // Quantity artır
+  const handleIncrease = async (id) => {
+    const item = cartItems.find((i) => i.id === id);
+    if (!item) return;
+
+    try {
+      const res = await fetch(`/api/cart/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantity: item.quantity + 1 }),
+      });
+      if (!res.ok) throw new Error("Quantity güncellenemedi");
+      const updated = await res.json();
+      setCartItems((prev) =>
+        prev.map((i) =>
+          i.id === id ? { ...i, quantity: updated.quantity } : i
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleDecrease = (id) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-    );
+  // Quantity azalt
+  const handleDecrease = async (id) => {
+    const item = cartItems.find((i) => i.id === id);
+    if (!item || item.quantity <= 1) return;
+
+    try {
+      const res = await fetch(`/api/cart/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantity: item.quantity - 1 }),
+      });
+      if (!res.ok) throw new Error("Quantity güncellenemedi");
+      const updated = await res.json();
+      setCartItems((prev) =>
+        prev.map((i) =>
+          i.id === id ? { ...i, quantity: updated.quantity } : i
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleRemove = (id) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  // Ürünü sil
+  const handleRemove = async (id) => {
+    try {
+      const res = await fetch(`/api/cart/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Ürün silinemedi");
+      setCartItems((prev) => prev.filter((i) => i.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const subtotal = cartItems.reduce((acc, item) => {
+    const product = item.product || {};
+    const basePrice = product?.price || 0;
+    const strollerCoverPrice = item?.strollerCover ? 149 : 0;
+    const hatToyPrice =
+      item?.hatToyOption && item.hatToyOption !== "none" ? 149 : 0;
+
     const finalPrice =
-      item.price +
-      item.options.reduce(
-        (optionAcc, option) => optionAcc + (option.extraPrice || 0),
-        0
-      );
-    return acc + finalPrice * item.quantity;
+      (basePrice + strollerCoverPrice + hatToyPrice) * item.quantity;
+    return acc + finalPrice;
   }, 0);
 
+  if (isLoading)
+    return (
+     <Loading />
+    );
+
+  if (error)
+    return (
+      <div className="flex justify-center items-center h-screen text-xl text-red-600">
+        {error}
+      </div>
+    );
+
   return (
-    <div className="container mx-auto px-2 py-8 md:py-12">
+    <div className="container mx-auto px-2 sm:px-10 py-8 md:py-12">
       <h1 className="text-2xl md:text-3xl font-semibold mb-6 px-4">
         My Cart ({cartItems.length})
       </h1>

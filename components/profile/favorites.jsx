@@ -26,13 +26,29 @@ export default function Favorites() {
     fetchFavorites();
   }, []);
 
+  const handleRemoveFavorite = async (productId) => {
+    try {
+      const res = await fetch(`/api/favorites/${productId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to remove favorite");
+
+      // Favorilerden çıkar
+      setFavorites((prev) =>
+        prev.filter((fav) => fav.product.id !== productId)
+      );
+    } catch (err) {
+      console.error("Error removing favorite:", err);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen">
-      {/* Left side */}
+    <div className="flex flex-col md:flex-row min-h-screen">
+      {/* Sidebar */}
       <Sidebar />
 
-      {/* Right side */}
-      <div className="flex-1 ms-20 mt-20 md:mt-32 px-4">
+      {/* Content */}
+      <div className="flex-1 md:ms-20 md:mt-32 px-4">
         <h2 className="text-2xl font-bold mb-8 text-gray-800">My Favorites</h2>
 
         {loading ? (
@@ -44,7 +60,11 @@ export default function Favorites() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {favorites.map((fav) => (
-              <ProductCard key={fav.id} product={fav.product} />
+              <ProductCard
+                key={fav.id}
+                product={fav.product}
+                onRemove={handleRemoveFavorite}
+              />
             ))}
           </div>
         )}

@@ -3,30 +3,38 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Sidebar({ username = "Ceyhun Türkmen" }) {
+  const isMobile = useIsMobile();
   const pathname = usePathname();
 
   const menuItems = {
     "Personal Information": [
-      { name: " Personal Info", path: "/profile" },
-      { name: " Addresses", path: "/profile/addresses" },
-      { name: " Favorites", path: "/profile/favorites" },
+      { name: "Personal Info", path: "/profile" },
+      { name: "Addresses", path: "/profile/addresses" },
+      { name: "Favorites", path: "/profile/favorites" },
     ],
-    "Order Information": [{ name: " Orders", path: "/profile/orders" }],
+    "Order Information": [{ name: "Orders", path: "/profile/orders" }],
   };
 
   const handleLogout = async () => {
     await signOut({
       redirect: true,
-      callbackUrl: "/account/login", // Logout sonrası yönlendirilecek sayfa
+      callbackUrl: "/account/login",
     });
   };
 
   return (
-    <div className="w-full md:w-110 h-screen bg-gray-50 p-6 font-sans flex flex-col justify-between">
+    <div
+      className={`
+        w-full md:w-110 
+        ${isMobile ? "h-auto" : "h-screen"} 
+        bg-gray-50 p-6 font-sans flex flex-col justify-between
+      `}
+    >
       {/* User Info and Logout */}
-      <div className="ms-10 mt-20">
+      <div className={`${isMobile ? "ms-0 mt-4" : "ms-10 mt-20"}`}>
         <div className="flex flex-col mb-8">
           <h1 className="text-xl mb-1">{username}</h1>
           <button
@@ -56,7 +64,11 @@ export default function Sidebar({ username = "Ceyhun Türkmen" }) {
           {Object.entries(menuItems).map(([category, items]) => (
             <div key={category} className="mb-8">
               <h3 className="text-lg font-bold text-black mb-2">{category}</h3>
-              <ul className="flex flex-col">
+              <ul
+                className={`
+                  ${isMobile ? "grid grid-cols-2 gap-2" : "flex flex-col"}
+                `}
+              >
                 {items.map((item) => (
                   <li key={item.path}>
                     <Link

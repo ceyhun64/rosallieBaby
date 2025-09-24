@@ -39,9 +39,12 @@ const orders = [
 
 export default function Orders() {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex flex-col md:flex-row min-h-screen">
+      {/* Sidebar */}
       <Sidebar />
-      <div className="w-full max-w-4xl md:mt-32 ms-20 mt-20 px-4">
+
+      {/* Content */}
+      <div className="w-full max-w-4xl md:mt-32 md:ms-20 px-4">
         <h2 className="text-2xl font-bold mb-8 text-gray-800">My Orders</h2>
 
         {orders.length === 0 ? (

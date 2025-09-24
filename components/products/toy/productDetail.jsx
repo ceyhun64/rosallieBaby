@@ -6,13 +6,7 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { MessageSquareText, Star, X, Info } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { MessageSquareText, Star, X } from "lucide-react";
 
 import {
   ShoppingCart,
@@ -29,14 +23,13 @@ import Breadcrumb from "@/components/layout/breadcrumb";
 import Bestseller from "./bestseller";
 import CompletePurchase from "./completePurchase";
 import { useIsMobile } from "@/hooks/use-mobile";
+import Loading from "@/components/layout/loading";
 
 export default function ProductDetail() {
   const { id } = useParams();
   const isMobile = useIsMobile();
-  const [selected, setSelected] = useState("plain");
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const [selectedStars, setSelectedStars] = useState(0);
 
@@ -69,13 +62,30 @@ export default function ProductDetail() {
 
     fetchProduct();
   }, [id]);
+  // Mevcut state'lerin yanına ekleyin
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  // Ürün verilerini çeken useEffect'in altına veya içine ekleyin
+  useEffect(() => {
+    async function checkFavoriteStatus() {
+      // API çağrısını yapın
+      const res = await fetch("/api/favorites");
+      if (res.ok) {
+        const favorites = await res.json();
+        const isProductFavorite = favorites.some(
+          (fav) => fav.productId === product.id
+        );
+        setIsFavorite(isProductFavorite);
+      }
+    }
+
+    if (product) {
+      checkFavoriteStatus();
+    }
+  }, [product]);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen text-xl font-semibold">
-        Yükleniyor...
-      </div>
-    );
+    return <Loading />;
   }
 
   if (error) {
@@ -112,10 +122,30 @@ export default function ProductDetail() {
     setActiveIndex((prev) => (prev === total - 1 ? 0 : prev + 1));
   };
 
-  const handleAddToCart = () => {
-    toast.success("Product added to cart!");
-  };
+  const handleAddToCart = async () => {
+    if (!product) return;
 
+    try {
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.id,
+          quantity: 1,
+          strollerCover: false, // Düzeltme: Güncel state'i kullanıyoruz.
+          customName: "none",
+          hatToyOption: "none",
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to add to cart");
+
+      toast.success("Ürün sepete eklendi!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Sepete eklerken bir hata oluştu!");
+    }
+  };
   const handleWhatsapp = () => {
     window.open("https://wa.me/905551234567", "_blank");
   };
@@ -134,6 +164,34 @@ export default function ProductDetail() {
     });
   };
 
+  const handleFavoriteToggle = async () => {
+    if (isFavorite) {
+      // Favorilerden çıkarmak için DELETE isteği
+      const res = await fetch(`/api/favorites/${product.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        setIsFavorite(false);
+        toast.success("Ürün favorilerden kaldırıldı.");
+      } else {
+        toast.error("Favorilerden kaldırılırken bir hata oluştu.");
+      }
+    } else {
+      // Favorilere eklemek için POST isteği
+      const res = await fetch("/api/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product.id }),
+      });
+      if (res.ok) {
+        setIsFavorite(true);
+        toast.success("Ürün favorilere eklendi!");
+      } else {
+        toast.error("Favorilere eklenirken bir hata oluştu.");
+      }
+    }
+  };
   const handleOpenReviewModal = () => setIsReviewModalOpen(true);
   const handleCloseReviewModal = () => setIsReviewModalOpen(false);
 
@@ -246,9 +304,15 @@ export default function ProductDetail() {
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-600 hover:text-red-500"
+              onClick={handleFavoriteToggle}
+              className="hover:text-red-500"
             >
-              <Heart size={30} strokeWidth={2} />
+              <Heart
+                size={30}
+                strokeWidth={2}
+                fill={isFavorite ? "red" : "none"}
+                color={isFavorite ? "red" : "currentColor"}
+              />
             </Button>
           </div>
           <div className="flex items-start gap-1 sm:gap-4 text-base sm:text-lg">
@@ -262,70 +326,6 @@ export default function ProductDetail() {
               <span className="font-bold text-stone-700 text-base sm:text-sm">
                 € {product.price.toFixed(2)}
               </span>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox id="stroller-cover" />
-              <Label
-                htmlFor="stroller-cover"
-                className="text-base font-semibold cursor-pointer"
-              >
-                I want personalized stroller cover{" "}
-                <span className="text-gray-500">(+€ 549.00)</span>
-              </Label>
-            </div>
-
-            <div className="flex flex-col gap-2 relative">
-              <div className="flex items-center gap-1 relative">
-                <Label htmlFor="name">Enter Your Name *</Label>
-                <div className="relative"></div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Input
-                  id="name"
-                  placeholder="Enter your name"
-                  maxLength={16}
-                  className="flex-1 rounded-none"
-                />
-                <button
-                  type="button"
-                  className="px-3 py-2 bg-stone-600 text-white rounded-none text-sm hover:bg-stone-700 transition"
-                  onClick={() => alert("You can preview how it looks here!")}
-                >
-                  Preview
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="hat-toy" className="text-base font-semibold">
-                Hat & Toy Option *
-              </Label>
-              <div className="flex gap-2">
-                <div
-                  onClick={() => setSelected("ruffle")}
-                  className={`px-3 py-2 border-2 rounded-sm cursor-pointer text-sm transition ${
-                    selected === "ruffle"
-                      ? "border-stone-600 bg-stone-200 font-medium"
-                      : "border-gray-200 hover:border-gray-400"
-                  }`}
-                >
-                  Ruffle (+€149.00)
-                </div>
-                <div
-                  onClick={() => setSelected("plain")}
-                  className={`px-3 py-2 border-2 rounded-sm cursor-pointer text-sm transition ${
-                    selected === "plain"
-                      ? "border-stone-600 bg-stone-200 font-medium"
-                      : "border-gray-200 hover:border-gray-400"
-                  }`}
-                >
-                  Plain
-                </div>
-              </div>
             </div>
           </div>
 

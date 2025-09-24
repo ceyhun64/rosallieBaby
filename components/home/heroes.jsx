@@ -11,15 +11,16 @@ export default function Heroes() {
   return (
     <section
       className={`relative w-full cursor-pointer ${
-        isMobile ? "h-[60vh]" : "h-[80vh]"
+        isMobile ? "h-[50vh]" : "h-[120vh]"
       }`}
       onClick={() => router.push("/all_products")}
     >
       <Image
-        src={isMobile ? "/heroes/heroes2.webp" : "/heroes/heroes1.webp"}
+        src={isMobile ? "/heroes/heroes1.jpg" : "/heroes/heroes2.jpg"}
         alt="Hero background"
         fill
         className="object-cover"
+        
         priority
       />
     </section>

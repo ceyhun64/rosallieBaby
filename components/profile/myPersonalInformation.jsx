@@ -7,39 +7,95 @@ import { Button } from "@/components/ui/button";
 import Sidebar from "./sideBar";
 import Loading from "@/components/layout/loading";
 import Unauthorized from "../layout/unauthorized";
+import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function MyPersonalInformation() {
+  const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+  });
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
-      const res = await fetch("/api/account/check");
-      const data = await res.json();
-      setUser(data.user);
-      setLoading(false);
+      try {
+        const res = await fetch("/api/user");
+        if (!res.ok) throw new Error("Failed to fetch user");
+        const data = await res.json();
+        setUser(data.user);
+        setFormData({
+          firstName: data.user.name || "",
+          lastName: data.user.surname || "",
+          phone: data.user.phone || "",
+          email: data.user.email || "",
+        });
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchUser();
   }, []);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const res = await fetch("/api/user", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error("Failed to update user");
+      const data = await res.json();
+      setUser(data.user);
+      toast.success("Information updated successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update information");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (loading) return <Loading />;
   if (!user) return <Unauthorized />;
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex flex-col md:flex-row min-h-screen">
+      {/* Sidebar */}
       <Sidebar username={user.name + " " + user.surname} />
-      <div className="w-full max-w-2xl md:mt-32 justify-center items-start ms-20 mt-20">
+
+      {/* Content */}
+      <div className="w-full max-w-2xl md:mt-32 md:ms-20 p-4">
         <h2 className="text-2xl font-bold mb-8 text-gray-800 text-start">
           My Personal Information
         </h2>
 
-        <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          onSubmit={handleSave}
+        >
           {/* First Name */}
           <div className="space-y-1">
             <Label htmlFor="firstName">
               <span className="text-red-500">*</span> First Name
             </Label>
-            <Input id="firstName" defaultValue={user.name} className="w-full" />
+            <Input
+              id="firstName"
+              value={formData.firstName}
+              onChange={(e) =>
+                setFormData({ ...formData, firstName: e.target.value })
+              }
+              className="w-full"
+              required
+            />
           </div>
 
           {/* Last Name */}
@@ -49,8 +105,12 @@ export default function MyPersonalInformation() {
             </Label>
             <Input
               id="lastName"
-              defaultValue={user.surname}
+              value={formData.lastName}
+              onChange={(e) =>
+                setFormData({ ...formData, lastName: e.target.value })
+              }
               className="w-full"
+              required
             />
           </div>
 
@@ -72,7 +132,11 @@ export default function MyPersonalInformation() {
                 id="phone"
                 type="tel"
                 placeholder="Phone number"
-                className="flex-1 border-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-none focus-visible:outline-none"
+                className="flex-1 border-none rounded-none focus-visible:ring-0"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
               />
             </div>
           </div>
@@ -93,8 +157,12 @@ export default function MyPersonalInformation() {
 
           {/* Save Button */}
           <div className="md:col-span-2 flex justify-start mt-6">
-            <Button className="w-48 bg-green-700 hover:bg-green-800 rounded-none">
-              SAVE
+            <Button
+              type="submit"
+              className="w-48 bg-green-700 hover:bg-green-800 rounded-none"
+              disabled={saving}
+            >
+              {saving ? "Saving..." : "SAVE"}
             </Button>
           </div>
         </form>

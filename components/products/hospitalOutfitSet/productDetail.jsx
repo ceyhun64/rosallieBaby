@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MessageSquareText, Star, X, Info } from "lucide-react";
+import { MessageSquareText, Star, X } from "lucide-react";
 
 import {
   ShoppingCart,
@@ -24,6 +24,7 @@ import Breadcrumb from "@/components/layout/breadcrumb";
 import Bestseller from "./bestseller";
 import CompletePurchase from "./completePurchase";
 import { useIsMobile } from "@/hooks/use-mobile";
+import Loading from "@/components/layout/loading";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -31,7 +32,6 @@ export default function ProductDetail() {
   const [selected, setSelected] = useState("plain");
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const [selectedStars, setSelectedStars] = useState(0);
 
@@ -41,6 +41,7 @@ export default function ProductDetail() {
   const [error, setError] = useState(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [strollerCover, setStrollerCover] = useState(false);
 
   // Ürün verisini API'den çekmek için useEffect
   useEffect(() => {
@@ -86,14 +87,10 @@ export default function ProductDetail() {
       checkFavoriteStatus();
     }
   }, [product]);
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen text-xl font-semibold">
-        Yükleniyor...
-      </div>
-    );
-  }
 
+  if (isLoading) {
+    return <Loading />;
+  }
   if (error) {
     return (
       <div className="flex items-center justify-center h-screen text-xl font-semibold text-red-600">
@@ -128,8 +125,43 @@ export default function ProductDetail() {
     setActiveIndex((prev) => (prev === total - 1 ? 0 : prev + 1));
   };
 
-  const handleAddToCart = () => {
-    toast.success("Ürün sepete eklendi!");
+  const handleAddToCart = async () => {
+    if (!product) return;
+
+    // Doğrudan state'i kullanın, DOM'dan okumaya gerek yok
+    const customNameInput = document.getElementById("name");
+    const customName = customNameInput?.value.trim() || null;
+    const hatToyOption = selected || null;
+
+    if (!customName) {
+      toast.error("Please fill in the name field!");
+      return;
+    }
+    if (!hatToyOption) {
+      toast.error("Please select a Hat & Toy option!");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.id,
+          quantity: 1,
+          strollerCover, // Düzeltme: Güncel state'i kullanıyoruz.
+          customName: "none",
+          hatToyOption,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to add to cart");
+
+      toast.success("Ürün sepete eklendi!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Sepete eklerken bir hata oluştu!");
+    }
   };
 
   const handleWhatsapp = () => {
@@ -150,35 +182,33 @@ export default function ProductDetail() {
     });
   };
   const handleFavoriteToggle = async () => {
-  if (isFavorite) {
-    // Favorilerden çıkarmak için DELETE isteği
-    const res = await fetch(`/api/favorites`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId: product.id }),
-    });
-    if (res.ok) {
-      setIsFavorite(false);
-      toast.success("Ürün favorilerden kaldırıldı.");
+    if (isFavorite) {
+      // Favorilerden çıkarmak için DELETE isteği
+      const res = await fetch(`/api/favorites/${product.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        setIsFavorite(false);
+        toast.success("Ürün favorilerden kaldırıldı.");
+      } else {
+        toast.error("Favorilerden kaldırılırken bir hata oluştu.");
+      }
     } else {
-      toast.error("Favorilerden kaldırılırken bir hata oluştu.");
+      // Favorilere eklemek için POST isteği
+      const res = await fetch("/api/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product.id }),
+      });
+      if (res.ok) {
+        setIsFavorite(true);
+        toast.success("Ürün favorilere eklendi!");
+      } else {
+        toast.error("Favorilere eklenirken bir hata oluştu.");
+      }
     }
-  } else {
-    // Favorilere eklemek için POST isteği
-    const res = await fetch("/api/favorites", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId: product.id }),
-    });
-    if (res.ok) {
-      setIsFavorite(true);
-      toast.success("Ürün favorilere eklendi!");
-    } else {
-      toast.error("Favorilere eklenirken bir hata oluştu.");
-    }
-  }
-};
-
+  };
   const handleOpenReviewModal = () => setIsReviewModalOpen(true);
   const handleCloseReviewModal = () => setIsReviewModalOpen(false);
 
@@ -288,12 +318,19 @@ export default function ProductDetail() {
         <div className="flex flex-col gap-5 lg:col-span-1">
           <div className="flex justify-between items-start">
             <h1 className="text-sm">{product.name}</h1>
+
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-600 hover:text-red-500"
+              onClick={handleFavoriteToggle}
+              className="hover:text-red-500"
             >
-              <Heart size={30} strokeWidth={2} />
+              <Heart
+                size={30}
+                strokeWidth={2}
+                fill={isFavorite ? "red" : "none"}
+                color={isFavorite ? "red" : "currentColor"}
+              />
             </Button>
           </div>
           <div className="flex items-start gap-1 sm:gap-4 text-base sm:text-lg">
@@ -310,69 +347,6 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox id="stroller-cover" />
-              <Label
-                htmlFor="stroller-cover"
-                className="text-base font-semibold cursor-pointer"
-              >
-                I want personalized stroller cover{" "}
-                <span className="text-gray-500">(+€ 549.00)</span>
-              </Label>
-            </div>
-
-            <div className="flex flex-col gap-2 relative">
-              <div className="flex items-center gap-1 relative">
-                <Label htmlFor="name">Enter Your Name *</Label>
-                <div className="relative"></div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Input
-                  id="name"
-                  placeholder="Enter your name"
-                  maxLength={16}
-                  className="flex-1 rounded-none"
-                />
-                <button
-                  type="button"
-                  className="px-3 py-2 bg-stone-600 text-white rounded-none text-sm hover:bg-stone-700 transition"
-                  onClick={() => alert("You can preview how it looks here!")}
-                >
-                  Preview
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="hat-toy" className="text-base font-semibold">
-                Hat & Toy Option *
-              </Label>
-              <div className="flex gap-2">
-                <div
-                  onClick={() => setSelected("ruffle")}
-                  className={`px-3 py-2 border-2 rounded-sm cursor-pointer text-sm transition ${
-                    selected === "ruffle"
-                      ? "border-stone-600 bg-stone-200 font-medium"
-                      : "border-gray-200 hover:border-gray-400"
-                  }`}
-                >
-                  Ruffle (+€149.00)
-                </div>
-                <div
-                  onClick={() => setSelected("plain")}
-                  className={`px-3 py-2 border-2 rounded-sm cursor-pointer text-sm transition ${
-                    selected === "plain"
-                      ? "border-stone-600 bg-stone-200 font-medium"
-                      : "border-gray-200 hover:border-gray-400"
-                  }`}
-                >
-                  Plain
-                </div>
-              </div>
-            </div>
-          </div>
 
           <div className="flex flex-col gap-4 mt-4">
             <Button

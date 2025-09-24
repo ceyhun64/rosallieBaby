@@ -9,8 +9,8 @@ import {
   ShoppingBag,
   X,
   Menu,
-  ArrowRight,
   Heart,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,32 +21,16 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { CartItem } from "./cartItem";
-
-// Örnek sepet öğesi verisi
-const mockCartItem = {
-  id: "1",
-  name: "Sun Müslin Hastane Çıkışı 6'lı Set",
-  image: "/allProducts/product3main.webp",
-  price: 2047.99,
-  oldPrice: 2347.99,
-  productCode: "4693",
-  quantity: 1,
-  options: [
-    { label: "Enter Name", value: "why", extraPrice: 0 },
-    { label: "Hat & Blanket Option", value: "Ruffled", extraPrice: 149.0 },
-  ],
-};
+import Cart from "./cart"; // Cart componenti
 
 export default function Header() {
   const router = useRouter();
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([mockCartItem]); // Örnek veri
   const [user, setUser] = useState(null);
+  const [cartItemsCount, setCartItemsCount] = useState(0);
 
-  // Session kontrolü için API çağrısı
   useEffect(() => {
     fetch("/api/account/check")
       .then((res) => res.json())
@@ -54,29 +38,37 @@ export default function Header() {
       .catch(() => setUser(null));
   }, []);
 
-  const handleUserClick = () => {
-    if (user) {
-      router.push("/profile");
-    } else {
-      router.push("/account/login");
+  useEffect(() => {
+    if (!user) {
+      setCartItemsCount(0);
+      return;
     }
-  };
+    async function fetchCartCount() {
+      try {
+        const res = await fetch("/api/cart");
+        if (!res.ok) throw new Error("Sepet verileri alınamadı.");
+        const data = await res.json();
+        setCartItemsCount(data.length);
+      } catch {
+        setCartItemsCount(0);
+      }
+    }
+    fetchCartCount();
+  }, [user]);
 
+  const handleUserClick = () =>
+    router.push(user ? "/profile" : "/account/login");
   const handleSearchClick = () => router.push("/search");
 
   const menuItems = [
     { label: "All Products", href: "/all_products" },
+    {
+      label: "Hospital Outfit Special Set",
+      href: "/all_products/hospital_outfit_special_set",
+    },
     { label: "Hospital Outfit Set", href: "/all_products/hospital_outfit_set" },
     { label: "Toy", href: "/all_products/toy" },
-    { label: "Pillow", href: "/all_products/pillow" },
   ];
-
-  const totalAmount = cartItems.reduce((acc, item) => {
-    const itemPrice =
-      item.price +
-      item.options.reduce((optAcc, opt) => optAcc + (opt.extraPrice || 0), 0);
-    return acc + itemPrice;
-  }, 0);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-sm shadow-xs">
@@ -90,6 +82,7 @@ export default function Header() {
             RosallieBaby
           </Link>
         )}
+
         {isMobile && (
           <Link
             href="/"
@@ -98,6 +91,7 @@ export default function Header() {
             RosallieBaby
           </Link>
         )}
+
         {!isMobile && (
           <nav className="flex items-center space-x-8">
             {menuItems.map((item) => (
@@ -112,6 +106,7 @@ export default function Header() {
             ))}
           </nav>
         )}
+
         <div className="flex items-center md:space-x-4 cursor-pointer">
           <Button
             variant="ghost"
@@ -122,18 +117,15 @@ export default function Header() {
             <Search className="h-5 w-5" />
           </Button>
 
-          {/* User/Profile ikon */}
           <Button
             variant="ghost"
             size="icon"
             className="text-gray-700 hover:text-blue-600"
             onClick={handleUserClick}
           >
-            <User
-              className={"h-5 w-5 "}
-            />
+            <User className="h-5 w-5" />
           </Button>
-          {/* Favorites ikon: Sadece kullanıcı giriş yaptıysa */}
+
           {user && !isMobile && (
             <Button
               variant="ghost"
@@ -141,26 +133,29 @@ export default function Header() {
               className="text-gray-700 hover:text-pink-600"
               onClick={() => router.push("/profile/favorites")}
             >
-              <Heart className="h-5 w-5 " />
+              <Heart className="h-5 w-5" />
             </Button>
           )}
 
-          {/* Cart ikon */}
           <Button
             variant="ghost"
             size="icon"
             className="relative text-gray-700 hover:text-blue-600"
-            onClick={() => setCartOpen(true)}
+            onClick={() => {
+              if (!user) return router.push("/account/login");
+              setCartOpen(true);
+            }}
           >
             <ShoppingBag className="h-5 w-5" />
-            {cartItems.length > 0 && (
+            {cartItemsCount > 0 && (
               <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white">
-                {cartItems.length}
+                {cartItemsCount}
               </span>
             )}
           </Button>
         </div>
-        {/* Menu Sheet */}
+
+        {/* Mobile Menu Sheet */}
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetContent side="left" className="w-full h-full">
             <div className="flex justify-between items-center py-4 px-6 border-b border-gray-200">
@@ -178,25 +173,12 @@ export default function Header() {
                   <span>|</span>
                   <Link
                     href="/account/register"
-                    className="text-black hover:text-gray-600 transition-colors text-xl "
+                    className="text-black hover:text-gray-600 transition-colors text-xl"
                   >
                     Register
                   </Link>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative text-gray-700 hover:text-gray-900"
-                onClick={() => setCartOpen(true)}
-              >
-                <ShoppingBag className="h-10 w-10" />
-                {cartItems.length > 0 && (
-                  <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white">
-                    {cartItems.length}
-                  </span>
-                )}
-              </Button>
             </div>
             <div className="mt-4 flex flex-col gap-0">
               {menuItems.map((item) => (
@@ -212,6 +194,7 @@ export default function Header() {
             </div>
           </SheetContent>
         </Sheet>
+
         {/* Cart Sheet */}
         <Sheet open={cartOpen} onOpenChange={setCartOpen}>
           <SheetContent
@@ -219,59 +202,18 @@ export default function Header() {
             className="w-full sm:w-[540px] lg:w-[700px] p-0 flex flex-col"
           >
             <SheetHeader className="p-4 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <SheetTitle className="text-xl font-bold text-gray-800">
-                  My Cart ({cartItems.length})
-                </SheetTitle>
-                <SheetClose asChild>
-                  <button className="text-gray-400 hover:text-gray-600 transition-colors">
-                    <X className="h-6 w-6" />
-                  </button>
-                </SheetClose>
-              </div>
+              <SheetTitle className="text-xl font-bold text-gray-800">
+                My Cart
+              </SheetTitle>
+              <SheetClose asChild>
+                <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                  <X className="h-6 w-6" />
+                </button>
+              </SheetClose>
             </SheetHeader>
 
-            <div className="flex-1 overflow-y-auto px-4">
-              {cartItems.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
-                  <p>Sepetiniz boş.</p>
-                </div>
-              ) : (
-                cartItems.map((item) => <CartItem key={item.id} item={item} />)
-              )}
-            </div>
-
-            <div className="sticky bottom-0 shadow-top">
-              <Button
-                asChild
-                className="w-full rounded-none bg-gray-100 hover:bg-gray-200 text-white font-semibold py-3 h-auto"
-              >
-                <Link href="/payment">
-                  <span className="mr-2 text-black">GO TO PAYMENT STEP</span>
-                  <ShoppingBag className="h-5 w-5 text-black" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="w-full rounded-none bg-[#829969] hover:bg-[#6f855a] text-white hover:text-gray-50 font-semibold py-3 h-auto"
-              >
-                <Link
-                  href="/cart"
-                  className="flex w-full px-0 justify-between items-center"
-                >
-                  <div className="flex flex-col items-start">
-                    <span className="text-xs">Total</span>
-                    <span className="text-lg font-bold">
-                      €{totalAmount.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="uppercase text-sm">Go to Cart</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </div>
-                </Link>
-              </Button>
+            <div className="flex-1 overflow-y-auto">
+              <Cart onCartUpdate={(count) => setCartItemsCount(count)} />
             </div>
           </SheetContent>
         </Sheet>

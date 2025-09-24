@@ -3,25 +3,40 @@
 import React from "react";
 import { Trash2, Plus, Minus, Edit } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
-  const basePrice = item.price;
-  const oldPrice = item.oldPrice || 0;
-  const quantity = item.quantity;
-  const hasOptions = item.options && item.options.length > 0;
+  console.log("item:", item);
+  const product = item?.product || {};
+  const basePrice = product?.price || 0;
+  const oldPrice = product?.oldPrice || 0;
+  const category = product?.category || {};
+  const quantity = item?.quantity || 1;
 
-  const finalPrice =
-    basePrice + (hasOptions ? item.options[0].extraPrice || 0 : 0);
+  // Extra fiyatları direkt state'ten alıyoruz
+  const strollerCoverPrice = item?.strollerCover ? 149 : 0;
+  const hatToyPrice =
+    item?.hatToyOption && item.hatToyOption !== "none" ? 149 : 0;
+
+  const finalPrice = (basePrice + strollerCoverPrice + hatToyPrice) * quantity;
   const finalOldPrice =
-    oldPrice + (hasOptions ? item.options[0].extraPrice || 0 : 0);
+    (oldPrice + strollerCoverPrice + hatToyPrice) * quantity;
+
+  const imageSrc = product?.mainImage || "/placeholder.png";
+
+  // Options gösterilecek mi kontrolü
+  const hasOptions =
+    (item?.customName && item.customName !== "none") ||
+    item?.strollerCover ||
+    (item?.hatToyOption && item.hatToyOption !== "none");
 
   return (
     <div className="flex flex-row w-full justify-start items-start gap-4 p-2 border-b border-gray-200">
       {/* Product Image */}
       <div className="relative w-1/3 sm:w-32 h-40 flex-shrink-0 rounded-md overflow-hidden">
         <Image
-          src={item.image}
-          alt={item.name}
+          src={imageSrc}
+          alt={product?.name || "Product Image"}
           fill
           style={{ objectFit: "cover" }}
           className="rounded-md"
@@ -32,7 +47,9 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
       <div className="flex flex-col flex-1 w-2/3">
         {/* Product Name and Remove Button */}
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-medium text-sm sm:text-base">{item.name}</h3>
+          <h3 className="font-medium text-sm sm:text-base">
+            {product?.name || "Unnamed Product"}
+          </h3>
           <button
             onClick={() => onRemove(item.id)}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -46,12 +63,12 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
           <p className="font-semibold">
             Price:{" "}
             <span className="font-bold text-sm sm:text-base">
-              €{item.price.toFixed(2)}
+              €{finalPrice.toFixed(2)}
             </span>
           </p>
           <p className="text-gray-500 mt-0.5">
             Product Code:{" "}
-            <span className="font-normal">{item.productCode}</span>
+            <span className="font-normal">{product?.id || "N/A"}</span>
           </p>
         </div>
 
@@ -59,21 +76,21 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
         {hasOptions && (
           <div className="mt-1 text-gray-700 text-xs sm:text-sm">
             <h4 className="font-semibold mb-0.5">Product Options</h4>
-            {item.options.map((option, index) => (
-              <div
-                key={index}
-                className="flex items-center text-gray-500 mt-0.5"
-              >
-                <span>
-                  {option.label} - {option.value}
-                </span>
-                {option.extraPrice && (
-                  <span className="text-gray-500">
-                    (+€{option.extraPrice.toFixed(2)})
-                  </span>
-                )}
+            {item?.customName && item.customName !== "none" && (
+              <div className="flex items-center text-gray-500 mt-0.5">
+                <span>Custom Name: {item.customName}</span>
               </div>
-            ))}
+            )}
+            {item?.strollerCover && (
+              <div className="flex items-center text-gray-500 mt-0.5">
+                <span>Stroller Cover (+€149)</span>
+              </div>
+            )}
+            {item?.hatToyOption && item.hatToyOption !== "none" && (
+              <div className="flex items-center text-gray-500 mt-0.5">
+                <span>Hat & Toy Option: {item.hatToyOption} (+€149)</span>
+              </div>
+            )}
           </div>
         )}
 
@@ -91,7 +108,7 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
                 <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
               </button>
               <span className="w-6 text-center font-medium text-xs">
-                {item.quantity}
+                {quantity}
               </span>
               <button
                 onClick={() => onIncrease(item.id)}
@@ -112,10 +129,12 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
             <span className="font-bold text-sm sm:text-base text-gray-800">
               €{finalPrice.toFixed(2)}
             </span>
-            <button className="flex items-center text-xs sm:text-sm text-gray-500 hover:text-gray-800 transition-colors mt-1">
-              <span className="mr-1">Edit</span>
-              <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-            </button>
+            <Link href={`/all_products/${category}/${product.id}`}>
+              <button className="flex items-center text-xs sm:text-sm text-gray-500 hover:text-gray-800 transition-colors mt-1">
+                <span className="mr-1">Edit</span>
+                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+              </button>
+            </Link>
           </div>
         </div>
       </div>

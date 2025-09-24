@@ -150,7 +150,7 @@ export default function Footer() {
             ©2025 RosallieBaby.com All rights reserved
             <span className="hidden md:inline"> | </span>
           </span>
-          <span className="block md:inline">Developed by Ceyhun Türkmen</span>
+          <span className="block md:inline">Developed by .jhun</span>
         </p>
       </div>
     </>

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MessageSquareText, Star, X, Info } from "lucide-react";
+import { MessageSquareText, Star, X } from "lucide-react";
 
 import {
   ShoppingCart,
@@ -32,7 +32,6 @@ export default function ProductDetail() {
   const [selected, setSelected] = useState("plain");
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const [selectedStars, setSelectedStars] = useState(0);
 
@@ -42,6 +41,7 @@ export default function ProductDetail() {
   const [error, setError] = useState(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [strollerCover, setStrollerCover] = useState(false);
 
   // Ürün verisini API'den çekmek için useEffect
   useEffect(() => {
@@ -65,6 +65,7 @@ export default function ProductDetail() {
 
     fetchProduct();
   }, [id]);
+
   // Mevcut state'lerin yanına ekleyin
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -90,7 +91,6 @@ export default function ProductDetail() {
   if (isLoading) {
     return <Loading />;
   }
-
   if (error) {
     return (
       <div className="flex items-center justify-center h-screen text-xl font-semibold text-red-600">
@@ -131,10 +131,14 @@ export default function ProductDetail() {
     // Doğrudan state'i kullanın, DOM'dan okumaya gerek yok
     const customNameInput = document.getElementById("name");
     const customName = customNameInput?.value.trim() || null;
+    const hatToyOption = selected || null;
 
-    // Kontroller
     if (!customName) {
-      toast.error("Lütfen isim alanını doldurun!");
+      toast.error("Please fill in the name field!");
+      return;
+    }
+    if (!hatToyOption) {
+      toast.error("Please select a Hat & Toy option!");
       return;
     }
 
@@ -145,9 +149,9 @@ export default function ProductDetail() {
         body: JSON.stringify({
           productId: product.id,
           quantity: 1,
-          strollerCover: false, // Düzeltme: Güncel state'i kullanıyoruz.
+          strollerCover, // Düzeltme: Güncel state'i kullanıyoruz.
           customName,
-          hatToyOption: "none",
+          hatToyOption,
         }),
       });
 
@@ -159,6 +163,7 @@ export default function ProductDetail() {
       toast.error("Sepete eklerken bir hata oluştu!");
     }
   };
+
   const handleWhatsapp = () => {
     window.open("https://wa.me/905551234567", "_blank");
   };
@@ -220,7 +225,7 @@ export default function ProductDetail() {
                   className="w-full flex-shrink-0 snap-center flex justify-center"
                 >
                   <Image
-                    src={img.url}
+                    src={img.url} // Resim URL'si için 'url' alanını kullandık
                     alt={`Image ${index + 1}`}
                     width={500}
                     height={500}
@@ -261,7 +266,7 @@ export default function ProductDetail() {
                         onClick={() => setActiveIndex(realIndex)}
                       >
                         <Image
-                          src={img.url}
+                          src={img.url} // Resim URL'si için 'url' alanını kullandık
                           alt={`Thumbnail ${realIndex + 1}`}
                           width={80}
                           height={120}
@@ -290,7 +295,7 @@ export default function ProductDetail() {
               </button>
 
               <Image
-                src={product.subImages[activeIndex].url}
+                src={product.subImages[activeIndex].url} // Resim URL'si için 'url' alanını kullandık
                 alt="Main Image"
                 width={0}
                 height={0}
@@ -313,6 +318,7 @@ export default function ProductDetail() {
         <div className="flex flex-col gap-5 lg:col-span-1">
           <div className="flex justify-between items-start">
             <h1 className="text-sm">{product.name}</h1>
+
             <Button
               variant="ghost"
               size="icon"
@@ -342,6 +348,21 @@ export default function ProductDetail() {
           </div>
 
           <div className="flex flex-col gap-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="stroller-cover"
+                checked={strollerCover}
+                onCheckedChange={(checked) => setStrollerCover(!!checked)}
+              />
+              <Label
+                htmlFor="stroller-cover"
+                className="text-base font-semibold cursor-pointer"
+              >
+                I want personalized stroller cover{" "}
+                <span className="text-gray-500">(+€ 549.00)</span>
+              </Label>
+            </div>
+
             <div className="flex flex-col gap-2 relative">
               <div className="flex items-center gap-1 relative">
                 <Label htmlFor="name">Enter Your Name *</Label>
@@ -362,6 +383,34 @@ export default function ProductDetail() {
                 >
                   Preview
                 </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="hat-toy" className="text-base font-semibold">
+                Hat & Toy Option *
+              </Label>
+              <div className="flex gap-2">
+                <div
+                  onClick={() => setSelected("ruffle")}
+                  className={`px-3 py-2 border-2 rounded-sm cursor-pointer text-sm transition ${
+                    selected === "ruffle"
+                      ? "border-stone-600 bg-stone-200 font-medium"
+                      : "border-gray-200 hover:border-gray-400"
+                  }`}
+                >
+                  Ruffle (+€149.00)
+                </div>
+                <div
+                  onClick={() => setSelected("plain")}
+                  className={`px-3 py-2 border-2 rounded-sm cursor-pointer text-sm transition ${
+                    selected === "plain"
+                      ? "border-stone-600 bg-stone-200 font-medium"
+                      : "border-gray-200 hover:border-gray-400"
+                  }`}
+                >
+                  Plain
+                </div>
               </div>
             </div>
           </div>
@@ -521,7 +570,7 @@ export default function ProductDetail() {
             </button>
 
             <Image
-              src={product.subImages[activeIndex].url}
+              src={product.subImages[activeIndex].url} // Resim URL'si için 'url' alanını kullandık
               alt="Main Image"
               width={0}
               height={0}
