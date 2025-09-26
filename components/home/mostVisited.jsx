@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect,useState } from "react";
 import ProductCard from "./productCard";
 import {
   Carousel,
@@ -10,54 +10,37 @@ import {
 } from "@/components/ui/carousel";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-// Örnek ürün verisi
-const products = [
-  {
-    id: 1,
-    name: "Tuğkan",
-    mainImage: "/muslinSets/muslin1main.webp",
-    subImage1: "/muslinSets/muslin1sub.webp",
-    description: "Anchor Muslin 6-Piece Baby Hospital Outfit Set",
-    oldPrice: 2399,
-    price: 1899,
-    discount: 17,
-  },
-  {
-    id: 2,
-    name: "Defne",
-    mainImage: "/muslinSets/muslin2main.webp",
-    subImage1: "/muslinSets/muslin2sub.webp",
-    description: "Flowery Muslin 6-Piece Baby Hospital Outfit Set",
-    oldPrice: 2399,
-    price: 1899,
-    discount: 24,
-  },
-  {
-    id: 3,
-    name: "Sarp",
-    mainImage: "/muslinSets/muslin3main.webp",
-    subImage1: "/muslinSets/muslin3sub.webp",
-    description: "Rabbit Muslin 6-Piece Baby Hospital Outfit Set",
-    oldPrice: 2299,
-    price: 1999,
-    discount: 13,
-  },
-  {
-    id: 4,
-    name: "Aren",
-    mainImage: "/muslinSets/muslin4main.webp",
-    subImage1: "/muslinSets/muslin4sub.webp",
-    description:
-      "Personalized Embroidered Muslin 7-Piece Baby Hospital Outfit Set",
-    oldPrice: 2399,
-    price: 1799,
-    discount: 25,
-  },
-];
-
 export default function MostVisited() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const isMobile = useIsMobile();
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(
+          "/api/products/category/hospital_outfit_set"
+        );
+        if (!response.ok) throw new Error("Ürünler alınamadı");
+        const data = await response.json();
+        setProducts(data.products || []);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []); // Dependency array ekledik, sadece component mount olunca çalışır
+  console.log("products", products);
+
+  if (loading) return <p className="text-center py-12">Yükleniyor...</p>;
+  if (error) return <p className="text-center py-12 text-red-500">{error}</p>;
+  if (products.length === 0)
+    return <p className="text-center py-12">Bu kategoride ürün yok.</p>;
+  
   return (
     <section
       className={`container mx-auto  ${isMobile ? "px-1 py-8" : "px-5 py-12"}`}

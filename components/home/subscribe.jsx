@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
@@ -7,6 +7,37 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function SubscribeSection() {
   const isMobile = useIsMobile();
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState(""); // success veya error mesajı
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus(""); // önce mesajı temizle
+
+    if (!email) {
+      setStatus("Please enter a valid email.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setStatus(data.error || "Something went wrong.");
+        return;
+      }
+
+      setStatus("Successfully subscribed! 🎉");
+      setEmail(""); // inputu temizle
+    } catch (error) {
+      setStatus("Something went wrong. Try again later.");
+    }
+  };
 
   return (
     <section className="w-full bg-cover bg-center py-16 md:py-24 relative">
@@ -30,10 +61,15 @@ export default function SubscribeSection() {
         </p>
 
         {/* Email Form */}
-        <form className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-0 max-w-lg mx-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-0 max-w-lg mx-auto"
+        >
           <Input
             type="email"
             placeholder="Your email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full md:w-auto flex-1 px-5 py-3 rounded-none text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 bg-white"
           />
           <Button
@@ -45,6 +81,9 @@ export default function SubscribeSection() {
             JOIN US!
           </Button>
         </form>
+
+        {/* Status Message */}
+        {status && <p className="mt-4 text-white font-semibold">{status}</p>}
       </div>
     </section>
   );

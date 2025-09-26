@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/admin/sideBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,49 +15,42 @@ import {
 } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-// örnek başlangıç verisi
-const initialUsers = [
-  {
-    id: 1,
-    firstName: "Ahmet",
-    lastName: "Yılmaz",
-    phone: "05001234567",
-    email: "ahmet@example.com",
-    addresses: [
-      "İstanbul, Kadıköy, Moda Mah. No:12",
-      "Ankara, Çankaya, Kızılay Cad. No:45",
-    ],
-  },
-  {
-    id: 2,
-    firstName: "Ayşe",
-    lastName: "Demir",
-    phone: "05007654321",
-    email: "ayse@example.com",
-    addresses: ["İzmir, Konak, Alsancak Mah. No:33"],
-  },
-  {
-    id: 3,
-    firstName: "Mehmet",
-    lastName: "Kaya",
-    phone: "05009876543",
-    email: "mehmet@example.com",
-    addresses: ["Bursa, Nilüfer, FSM Bulvarı No:20"],
-  },
-];
-
 export default function Users() {
   const isMobile = useIsMobile();
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  // Dinamik olarak kullanıcıları fetch et
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const res = await fetch("/api/user/all"); // yeni route: tüm kullanıcılar
+        const data = await res.json();
+        if (res.ok) {
+          setUsers(data.users || []);
+        } else {
+          console.error(data.error || "Kullanıcılar alınamadı");
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUsers();
+  }, []);
+
+  if (loading) return <p className="text-white p-4">Loading...</p>;
+
+  // Filtreleme
   const filteredUsers = users.filter(
     (u) =>
-      u.firstName.toLowerCase().includes(search.toLowerCase()) ||
-      u.lastName.toLowerCase().includes(search.toLowerCase()) ||
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.surname.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -66,9 +59,42 @@ export default function Users() {
     currentPage * 15
   );
 
-  const handleDelete = (id) => {
-    setUsers(users.filter((u) => u.id !== id));
-    setSelectedIds(selectedIds.filter((sid) => sid !== id));
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`/api/user/all/${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Silme başarısız");
+
+      // Eğer başarılıysa state'i güncelle
+      setUsers(users.filter((u) => u.id !== id));
+      setSelectedIds(selectedIds.filter((sid) => sid !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Kullanıcı silinirken bir hata oluştu");
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    try {
+      // Seçilen kullanıcıları sırayla sil
+      for (const id of selectedIds) {
+        const res = await fetch(`/api/user/all/${id}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Silme başarısız");
+      }
+
+      // State'i güncelle
+      setUsers(users.filter((u) => !selectedIds.includes(u.id)));
+      setSelectedIds([]);
+    } catch (err) {
+      console.error(err);
+      alert("Seçilen kullanıcılar silinirken bir hata oluştu");
+    }
   };
 
   const handleSelectAll = (e) => {
@@ -109,9 +135,7 @@ export default function Users() {
                   : "bg-stone-700 text-stone-400 cursor-not-allowed"
               }`}
               disabled={selectedIds.length === 0}
-              onClick={() =>
-                setUsers(users.filter((u) => !selectedIds.includes(u.id)))
-              }
+              onClick={() => handleDeleteSelected()}
             >
               Seçilenleri Sil ({selectedIds.length})
             </Button>
@@ -146,6 +170,9 @@ export default function Users() {
                 <th className="px-2 py-2 border-b border-stone-800">Telefon</th>
                 <th className="px-2 py-2 border-b border-stone-800">Email</th>
                 <th className="px-2 py-2 border-b border-stone-800">
+                  Adresler
+                </th>
+                <th className="px-2 py-2 border-b border-stone-800">
                   İşlemler
                 </th>
               </tr>
@@ -164,52 +191,52 @@ export default function Users() {
                     {user.id}
                   </td>
                   <td className="px-2 py-2 border-b border-stone-800">
-                    {user.firstName}
+                    {user.name}
                   </td>
                   <td className="px-2 py-2 border-b border-stone-800">
-                    {user.lastName}
+                    {user.surname}
                   </td>
                   <td className="px-2 py-2 border-b border-stone-800">
-                    {user.phone}
+                    {user.phone || "-"}
                   </td>
                   <td className="px-2 py-2 border-b border-stone-800">
                     {user.email}
                   </td>
-                  <td className="px-2 py-2 border-b border-stone-800 flex flex-col sm:flex-row gap-2">
+                  <td className="px-2 py-2 border-b border-stone-800">
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
                           size="sm"
                           variant="default"
-                          className="hover:bg-amber-600 w-full sm:w-auto"
+                          className="hover:bg-amber-600"
                           onClick={() => setSelectedUser(user)}
                         >
-                          Detay
+                          Adresleri Gör
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="bg-stone-900 text-white">
                         <DialogHeader>
                           <DialogTitle>
-                            {selectedUser?.firstName} {selectedUser?.lastName} -
-                            Adresleri
+                            {user.name} {user.surname} - Adresleri
                           </DialogTitle>
                           <DialogDescription>
-                            Kullanıcıya kayıtlı adres bilgileri
+                            Kullanıcıya kayıtlı adresler
                           </DialogDescription>
                         </DialogHeader>
                         <ul className="mt-4 space-y-2">
-                          {selectedUser?.addresses?.map((addr, idx) => (
+                          {user.addresses?.map((addr) => (
                             <li
-                              key={idx}
+                              key={addr.id}
                               className="border-b border-stone-700 pb-2"
                             >
-                              {addr}
+                              {addr.title}: {addr.address}, {addr.city}
                             </li>
                           ))}
                         </ul>
                       </DialogContent>
                     </Dialog>
-
+                  </td>
+                  <td className="px-2 py-2 border-b border-stone-800 flex flex-col sm:flex-row gap-2">
                     <Button
                       variant="default"
                       size="sm"

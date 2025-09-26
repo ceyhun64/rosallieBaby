@@ -34,7 +34,6 @@ export async function POST(request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await request.json();
-    console.log("POST body:", body);
 
     const {
       title,
@@ -70,7 +69,6 @@ export async function POST(request) {
       },
     });
 
-    console.log("Yeni adres eklendi:", newAddress);
 
     return NextResponse.json({ address: newAddress }, { status: 201 });
   } catch (error) {

@@ -14,7 +14,7 @@ export default function CartSummarySheet({ subtotal }) {
         className="w-full rounded-none bg-gray-100 hover:bg-gray-200 text-black font-semibold py-3 h-auto flex items-center justify-center"
       >
         <Link
-          href="/payment"
+          href="/checkout"
           className="flex items-center gap-2 w-full justify-center"
         >
           <span>GO TO PAYMENT STEP</span>

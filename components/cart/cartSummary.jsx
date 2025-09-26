@@ -24,7 +24,7 @@ export default function CartSummary({ subtotal }) {
       </div>
       <Button className="w-full mt-6 bg-[#809363] hover:bg-green-900 text-white font-semibold rounded-none flex items-center justify-center h-12">
         <Link
-          href="/payment"
+          href="/checkout"
           className="flex items-center justify-center gap-2 w-full"
         >
           <span>COMPLETE PURCHASE</span>

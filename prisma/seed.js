@@ -1,15 +1,16 @@
-import { PrismaClient } from "../lib/generated/prisma/index.js"; // custom path
+import { PrismaClient } from "../lib/generated/prisma/index.js";
 import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const users = [
+  // Kullanıcı verileri
+  const usersData = [
     {
       name: "Ali",
       surname: "Yılmaz",
       email: "ali@example.com",
-      password: "123456", // raw şifre
+      password: "123456",
     },
     {
       name: "Ayşe",
@@ -25,23 +26,21 @@ async function main() {
     },
   ];
 
-  // Şifreleri hashle
-  const hashedUsers = await Promise.all(
-    users.map(async (u) => ({
-      ...u,
-      password: await bcrypt.hash(u.password, 10),
-    }))
-  );
-
-  await prisma.user.createMany({
-    data: hashedUsers,
-    skipDuplicates: true,
-  });
+  // Kullanıcıları hashlenmiş şifre ile oluştur
+  const users = [];
+  for (const u of usersData) {
+    const hashedPassword = await bcrypt.hash(u.password, 10);
+    const user = await prisma.user.create({
+      data: { ...u, password: hashedPassword },
+    });
+    users.push(user);
+  }
 
   console.log("Kullanıcı seed tamamlandı!");
-  // 1. ürün
-  await prisma.product.create({
-    data: {
+
+  // Ürün verileri
+  const productsData = [
+    {
       name: "Astronaut Muslin Hospital Outfit",
       mainImage: "/allProducts/product1main.webp",
       description:
@@ -50,19 +49,13 @@ async function main() {
       price: 2399,
       discount: 20,
       category: "hospital_outfit_set",
-      subImages: {
-        create: [
-          { url: "/allProducts/product1sub1.webp" },
-          { url: "/allProducts/product1sub2.webp" },
-          { url: "/allProducts/product1sub3.webp" },
-        ],
-      },
+      subImages: [
+        "/allProducts/product1sub1.webp",
+        "/allProducts/product1sub2.webp",
+        "/allProducts/product1sub3.webp",
+      ],
     },
-  });
-
-  // 2. ürün
-  await prisma.product.create({
-    data: {
+    {
       name: "Cute Baby Toy Set",
       mainImage: "/allProducts/product2main.webp",
       description: "Soft and colorful toy set for newborns.",
@@ -70,37 +63,25 @@ async function main() {
       price: 1199,
       discount: 20,
       category: "toy",
-      subImages: {
-        create: [
-          { url: "/allProducts/product2sub1.webp" },
-          { url: "/allProducts/product2sub2.webp" },
-        ],
-      },
+      subImages: [
+        "/allProducts/product2sub1.webp",
+        "/allProducts/product2sub2.webp",
+      ],
     },
-  });
-
-  // 3. ürün
-  await prisma.product.create({
-    data: {
+    {
       name: "Comfy Baby Pillow",
       mainImage: "/allProducts/product3main.webp",
       description: "Soft pillow for newborn comfort and safety.",
       oldPrice: 899,
       price: 699,
       discount: 22,
-      category: "hospital_outfit_special_set", // pillow yerine
-      subImages: {
-        create: [
-          { url: "/allProducts/product3sub1.webp" },
-          { url: "/allProducts/product3sub2.webp" },
-        ],
-      },
+      category: "hospital_outfit_special_set",
+      subImages: [
+        "/allProducts/product3sub1.webp",
+        "/allProducts/product3sub2.webp",
+      ],
     },
-  });
-
-  // 4. ürün
-  await prisma.product.create({
-    data: {
+    {
       name: "Hospital Essentials Set",
       mainImage: "/allProducts/product4main.webp",
       description: "Complete essentials set for newborn care in hospital.",
@@ -108,18 +89,12 @@ async function main() {
       price: 3499,
       discount: 13,
       category: "hospital_outfit_set",
-      subImages: {
-        create: [
-          { url: "/allProducts/product4sub1.webp" },
-          { url: "/allProducts/product4sub2.webp" },
-        ],
-      },
+      subImages: [
+        "/allProducts/product4sub1.webp",
+        "/allProducts/product4sub2.webp",
+      ],
     },
-  });
-
-  // 5. ürün
-  await prisma.product.create({
-    data: {
+    {
       name: "Colorful Rattle Toy",
       mainImage: "/allProducts/product5main.webp",
       description: "Fun and safe rattle toy for newborns.",
@@ -127,33 +102,22 @@ async function main() {
       price: 399,
       discount: 20,
       category: "toy",
-      subImages: {
-        create: [{ url: "/allProducts/product5sub1.webp" }],
-      },
+      subImages: ["/allProducts/product5sub1.webp"],
     },
-  });
-
-  // 6. ürün
-  await prisma.product.create({
-    data: {
+    {
       name: "Soft Baby Blanket Pillow",
       mainImage: "/allProducts/product6main.webp",
       description: "Cozy blanket pillow for newborn naps.",
       oldPrice: 1299,
       price: 999,
       discount: 23,
-      category: "hospital_outfit_special_set", // pillow yerine
-      subImages: {
-        create: [
-          { url: "/allProducts/product6sub1.webp" },
-          { url: "/allProducts/product6sub2.webp" },
-        ],
-      },
+      category: "hospital_outfit_special_set",
+      subImages: [
+        "/allProducts/product6sub1.webp",
+        "/allProducts/product6sub2.webp",
+      ],
     },
-  });
-  // 7. ürün
-  await prisma.product.create({
-    data: {
+    {
       name: "Newborn Sleep Sack",
       mainImage: "/allProducts/product7main.webp",
       description: "Soft sleep sack to keep your baby cozy.",
@@ -161,15 +125,9 @@ async function main() {
       price: 1599,
       discount: 20,
       category: "hospital_outfit_set",
-      subImages: {
-        create: [{ url: "/allProducts/product7sub1.webp" }],
-      },
+      subImages: ["/allProducts/product7sub1.webp"],
     },
-  });
-
-  // 8. ürün
-  await prisma.product.create({
-    data: {
+    {
       name: "Baby Teether Set",
       mainImage: "/allProducts/product8main.webp",
       description: "Safe and colorful teethers for babies.",
@@ -177,33 +135,22 @@ async function main() {
       price: 449,
       discount: 25,
       category: "toy",
-      subImages: {
-        create: [
-          { url: "/allProducts/product8sub1.webp" },
-          { url: "/allProducts/product8sub2.webp" },
-        ],
-      },
+      subImages: [
+        "/allProducts/product8sub1.webp",
+        "/allProducts/product8sub2.webp",
+      ],
     },
-  });
-
-  // 9. ürün
-  await prisma.product.create({
-    data: {
+    {
       name: "Plush Animal Pillow",
       mainImage: "/allProducts/product9main.webp",
       description: "Cute plush animal pillow for newborn comfort.",
       oldPrice: 1099,
       price: 849,
       discount: 23,
-      category: "hospital_outfit_special_set", // pillow yerine
-      subImages: {
-        create: [{ url: "/allProducts/product9sub1.webp" }],
-      },
+      category: "hospital_outfit_special_set",
+      subImages: ["/allProducts/product9sub1.webp"],
     },
-  });
-  // 10. ürün
-  await prisma.product.create({
-    data: {
+    {
       name: "Hospital Baby Care Set",
       mainImage: "/allProducts/product10main.webp",
       description: "Essential set for hospital baby care.",
@@ -211,17 +158,12 @@ async function main() {
       price: 4299,
       discount: 14,
       category: "hospital_outfit_set",
-      subImages: {
-        create: [
-          { url: "/allProducts/product10sub1.webp" },
-          { url: "/allProducts/product10sub2.webp" },
-        ],
-      },
+      subImages: [
+        "/allProducts/product10sub1.webp",
+        "/allProducts/product10sub2.webp",
+      ],
     },
-  });
-  // 11. ürün
-  await prisma.product.create({
-    data: {
+    {
       name: "Deluxe Muslin Hospital Special Outfit",
       mainImage: "/allProducts/product11main.webp",
       description:
@@ -230,19 +172,13 @@ async function main() {
       price: 4999,
       discount: 17,
       category: "hospital_outfit_special_set",
-      subImages: {
-        create: [
-          { url: "/allProducts/product11sub1.webp" },
-          { url: "/allProducts/product11sub2.webp" },
-          { url: "/allProducts/product11sub3.webp" },
-        ],
-      },
+      subImages: [
+        "/allProducts/product11sub1.webp",
+        "/allProducts/product11sub2.webp",
+        "/allProducts/product11sub3.webp",
+      ],
     },
-  });
-
-  // 12. ürün
-  await prisma.product.create({
-    data: {
+    {
       name: "Luxury Baby Hospital Essentials Set",
       mainImage: "/allProducts/product12main.webp",
       description: "Complete luxury essentials set for hospital newborn care.",
@@ -250,18 +186,12 @@ async function main() {
       price: 5899,
       discount: 16,
       category: "hospital_outfit_special_set",
-      subImages: {
-        create: [
-          { url: "/allProducts/product12sub1.webp" },
-          { url: "/allProducts/product12sub2.webp" },
-        ],
-      },
+      subImages: [
+        "/allProducts/product12sub1.webp",
+        "/allProducts/product12sub2.webp",
+      ],
     },
-  });
-
-  // 13. ürün
-  await prisma.product.create({
-    data: {
+    {
       name: "Premium Newborn Hospital Outfit Special",
       mainImage: "/allProducts/product13main.webp",
       description:
@@ -270,76 +200,90 @@ async function main() {
       price: 3799,
       discount: 15,
       category: "hospital_outfit_special_set",
-      subImages: {
-        create: [
-          { url: "/allProducts/product13sub1.webp" },
-          { url: "/allProducts/product13sub2.webp" },
-        ],
+      subImages: [
+        "/allProducts/product13sub1.webp",
+        "/allProducts/product13sub2.webp",
+      ],
+    },
+  ];
+
+  for (const p of productsData) {
+    await prisma.product.create({
+      data: {
+        ...p,
+        subImages: { create: p.subImages.map((url) => ({ url })) },
       },
+    });
+  }
+
+  console.log("Ürün seed tamamlandı!");
+
+  // Adres verileri
+  const addressesData = [
+    {
+      userId: users[0].id,
+      title: "Home",
+      firstName: "Ali",
+      lastName: "Yılmaz",
+      address: "123 Main Street, Kadıköy",
+      district: "Kadıköy",
+      city: "Istanbul",
+      zip: "34710",
+      phone: "5551234567",
+      country: "Turkey",
+    },
+    {
+      userId: users[0].id,
+      title: "Work",
+      firstName: "Ali",
+      lastName: "Yılmaz",
+      address: "456 Office Street, Beşiktaş",
+      district: "Beşiktaş",
+      city: "Istanbul",
+      zip: "34330",
+      phone: "5559876543",
+      country: "Turkey",
+    },
+    {
+      userId: users[1].id,
+      title: "Home",
+      firstName: "Ayşe",
+      lastName: "Demir",
+      address: "789 Apartment Ave, Çankaya",
+      district: "Çankaya",
+      city: "Ankara",
+      zip: "06510",
+      phone: "5551112233",
+      country: "Turkey",
+    },
+    {
+      userId: users[2].id,
+      title: "Home",
+      firstName: "Mehmet",
+      lastName: "Kaya",
+      address: "101 New Street, Konak",
+      district: "Konak",
+      city: "Izmir",
+      zip: "35000",
+      phone: "5552223344",
+      country: "Turkey",
+    },
+  ];
+
+  for (const addr of addressesData) {
+    await prisma.address.create({ data: addr });
+  }
+
+  console.log("Adres seed tamamlandı!");
+
+  await prisma.settings.create({
+    data: {
+      logo: "/logo/logo.webp",
+      heroBg: "/heroes/heroes1.webp",
+      heroMobileBg: "/heroes/heroes2.webp",
     },
   });
-
-  console.log("10 seed ürünü başarıyla eklendi!");
 }
-const addresses = [
-  {
-    userId: 1, // Ali Yılmaz
-    title: "Home",
-    firstName: "Ali",
-    lastName: "Yılmaz",
-    address: "123 Main Street, Kadıköy",
-    district: "Kadıköy",
-    city: "Istanbul",
-    zip: "34710",
-    phone: "5551234567",
-    country: "Turkey",
-  },
-  {
-    userId: 1, // Ali Yılmaz
-    title: "Work",
-    firstName: "Ali",
-    lastName: "Yılmaz",
-    address: "456 Office Street, Beşiktaş",
-    district: "Beşiktaş",
-    city: "Istanbul",
-    zip: "34330",
-    phone: "5559876543",
-    country: "Turkey",
-  },
-  {
-    userId: 2, // Ayşe Demir
-    title: "Home",
-    firstName: "Ayşe",
-    lastName: "Demir",
-    address: "789 Apartment Ave, Çankaya",
-    district: "Çankaya",
-    city: "Ankara",
-    zip: "06510",
-    phone: "5551112233",
-    country: "Turkey",
-  },
-  {
-    userId: 3, // Mehmet Kaya
-    title: "Home",
-    firstName: "Mehmet",
-    lastName: "Kaya",
-    address: "101 New Street, Konak",
-    district: "Konak",
-    city: "Izmir",
-    zip: "35000",
-    phone: "5552223344",
-    country: "Turkey",
-  },
-];
-
-// Adresleri tek tek ekle
-for (const addr of addresses) {
-  await prisma.address.create({
-    data: addr,
-  });
-}
-
-console.log("Sahte adresler başarıyla eklendi!");
 
 main()
   .catch((e) => {

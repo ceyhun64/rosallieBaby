@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "@/components/admin/sideBar";
 import {
   Card,
@@ -16,121 +16,91 @@ import {
   Users,
   Settings,
 } from "lucide-react";
-import { Line } from "react-chartjs-2";
 import Link from "next/link";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
 import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
 export default function AdminDashboard() {
   const isMobile = useIsMobile();
+  const [kpiData, setKpiData] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
 
-  const kpiData = [
-    {
-      id: "products",
-      title: "Ürünler",
-      stat: "128",
-      description: "Ürünleri görüntüle ve yönet",
-      icon: <Package size={24} color="#60A5FA" />,
-      href: "/admin/products",
-    },
-    {
-      id: "orders",
-      title: "Siparişler",
-      stat: "53",
-      description: "Siparişleri takip et ve yönet",
-      icon: <ShoppingCart size={24} color="#34D399" />,
-      href: "/admin/orders",
-    },
-    {
-      id: "subscribers",
-      title: "Aboneler",
-      stat: "432",
-      description: "Abone listesini görüntüle",
-      icon: <CreditCard size={24} color="#FBBF24" />,
-      href: "/admin/subscribers",
-    },
-    {
-      id: "users",
-      title: "Kullanıcılar",
-      stat: "87",
-      description: "Kullanıcıları yönet",
-      icon: <Users size={24} color="#A78BFA" />,
-      href: "/admin/users",
-    },
-    {
-      id: "settings",
-      title: "Ayarlar",
-      stat: "",
-      description: "Site ayarlarını yönet",
-      icon: <Settings size={24} color="#F472B6" />,
-      href: "/admin/settings",
-    },
-  ];
+  useEffect(() => {
+    const fetchKPI = async () => {
+      try {
+        const [productsRes, usersRes, ordersRes, subsRes] = await Promise.all([
+          fetch("/api/products"),
+          fetch("/api/user/all"),
+          fetch("/api/order"),
+          fetch("/api/subscribe"),
+        ]);
 
-  const chartFakeData = {
-    labels: ["Oca", "Şub", "Mar", "Nis", "May", "Haz"],
-    datasets: [
-      {
-        label: "Satışlar",
-        data: [12, 19, 14, 20, 18, 24],
-        borderColor: "#60A5FA",
-        backgroundColor: "rgba(96,165,250,0.2)",
-        tension: 0.4,
-      },
-      {
-        label: "Yeni Kullanıcılar",
-        data: [5, 10, 8, 12, 9, 14],
-        borderColor: "#34D399",
-        backgroundColor: "rgba(52,211,153,0.2)",
-        tension: 0.4,
-      },
-    ],
-  };
+        const productsData = await productsRes.json();
+        const usersData = await usersRes.json();
+        const ordersData = await ordersRes.json();
+        const subscribersData = await subsRes.json();
 
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: { labels: { color: "white" } },
-    },
-    scales: {
-      x: { ticks: { color: "white" }, grid: { color: "#2c2c2c" } },
-      y: { ticks: { color: "white" }, grid: { color: "#2c2c2c" } },
-    },
-  };
+        console.log("ordersData:", ordersData);
+        // KPI verilerini oluştur
+        setKpiData([
+          {
+            id: "products",
+            title: "Ürünler",
+            stat: productsData.products?.length || 0,
+            description: "Ürünleri görüntüle ve yönet",
+            icon: <Package size={24} color="#60A5FA" />,
+            href: "/admin/products",
+          },
+          {
+            id: "orders",
+            title: "Siparişler",
+            stat: ordersData.orders?.length || 0,
+            description: "Siparişleri takip et ve yönet",
+            icon: <ShoppingCart size={24} color="#34D399" />,
+            href: "/admin/orders",
+          },
+          {
+            id: "subscribers",
+            title: "Aboneler",
+            stat: subscribersData.length || 0,
+            description: "Abone listesini görüntüle",
+            icon: <CreditCard size={24} color="#FBBF24" />,
+            href: "/admin/subscribers",
+          },
+          {
+            id: "users",
+            title: "Kullanıcılar",
+            stat: usersData.users?.length || 0,
+            description: "Kullanıcıları yönet",
+            icon: <Users size={24} color="#A78BFA" />,
+            href: "/admin/users",
+          },
+          {
+            id: "settings",
+            title: "Ayarlar",
+            stat: "",
+            description: "Site ayarlarını yönet",
+            icon: <Settings size={24} color="#F472B6" />,
+            href: "/admin/settings",
+          },
+        ]);
 
-  const recentOrders = [
-    { id: "1024", total: 120 },
-    { id: "1025", total: 89 },
-    { id: "1026", total: 45 },
-    { id: "1027", total: 200 },
-  ];
+        // Son siparişler: en yeni 5 sipariş (id büyükten küçüğe)
+        const sortedOrders = (ordersData.orders || []).sort(
+          (a, b) => b.id - a.id
+        );
+        setRecentOrders(sortedOrders.slice(0, 5));
+      } catch (error) {
+        console.error("KPI fetch error:", error);
+      }
+    };
+
+    fetchKPI();
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-black text-white">
-      {/* Sidebar */}
       <Sidebar />
-
-      {/* Main content */}
       <main className={`flex-1 p-4 md:p-8 ${isMobile ? "" : "ml-64"}`}>
         <h1 className="text-2xl md:text-3xl font-bold mb-6 ms-12 mt-2">
           Yönetim Paneli
@@ -153,7 +123,7 @@ export default function AdminDashboard() {
                     <CardTitle className="text-white text-lg">
                       {card.title}
                     </CardTitle>
-                    {card.stat && (
+                    {card.stat !== "" && (
                       <CardDescription className="text-white text-xl font-bold">
                         {card.stat}
                       </CardDescription>
@@ -170,38 +140,74 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {/* Grafikler */}
+        {/* Son Siparişler */}
+        {/* Son Siparişler */}
         <div
-          className={`grid gap-4 ${
-            isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2"
-          }`}
+          className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-1"}`}
         >
-          <Card className="bg-stone-900 rounded-xl shadow-lg p-4">
-            <CardHeader>
-              <CardTitle className="text-white">
-                Satış & Kullanıcı Grafiği
-              </CardTitle>
-              <Separator className="mt-2" />
-            </CardHeader>
-            <CardContent>
-              <Line data={chartFakeData} options={chartOptions} />
-            </CardContent>
-          </Card>
-
           <Card className="bg-stone-900 rounded-xl shadow-lg p-4">
             <CardHeader>
               <CardTitle className="text-white">Son Siparişler</CardTitle>
               <Separator className="mt-2" />
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2">
+              <ul className="space-y-4">
                 {recentOrders.map((order) => (
                   <li
                     key={order.id}
-                    className="flex justify-between text-stone-200 border-b border-stone-800 pb-2"
+                    className="bg-stone-800 rounded-lg p-3 border border-stone-700"
                   >
-                    <span>Sipariş #{order.id}</span>
-                    <span className="text-teal-400">${order.total}</span>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-white">
+                        Sipariş #{order.id}
+                      </span>
+                      <span className="text-teal-400 font-bold">
+                        {order.currency || "TRY"} {order.totalPrice}
+                      </span>
+                    </div>
+
+                    {/* Kullanıcı Bilgisi */}
+                    <div className="text-stone-200 mb-2">
+                      <p>
+                        <span className="font-semibold">Müşteri:</span>{" "}
+                        {order.user?.name} {order.user?.surname} (
+                        {order.user?.email})
+                      </p>
+                      <p>
+                        <span className="font-semibold">Telefon:</span>{" "}
+                        {order.addresses?.[0]?.phone || "-"}
+                      </p>
+                    </div>
+
+                    {/* Adresler */}
+                    <div className="text-stone-300 mb-2">
+                      {order.addresses?.map((addr, idx) => (
+                        <p key={idx}>
+                          <span className="font-semibold">
+                            {addr.type} Adres:
+                          </span>{" "}
+                          {addr.address}, {addr.district}, {addr.city},{" "}
+                          {addr.country} - {addr.zip}
+                        </p>
+                      ))}
+                    </div>
+
+                    {/* Sipariş Ürünleri */}
+                    <div className="text-stone-300">
+                      <span className="font-semibold">Ürünler:</span>
+                      <ul className="ml-4 mt-1">
+                        {order.items?.map((item) => (
+                          <li key={item.id} className="flex justify-between">
+                            <span>
+                              {item.product?.name} x{item.quantity}
+                            </span>
+                            <span>
+                              {item.totalPrice} {order.currency || "TRY"}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </li>
                 ))}
               </ul>

@@ -129,18 +129,6 @@ export default function ProductDetail() {
     if (!product) return;
 
     // Doğrudan state'i kullanın, DOM'dan okumaya gerek yok
-    const customNameInput = document.getElementById("name");
-    const customName = customNameInput?.value.trim() || null;
-    const hatToyOption = selected || null;
-
-    if (!customName) {
-      toast.error("Please fill in the name field!");
-      return;
-    }
-    if (!hatToyOption) {
-      toast.error("Please select a Hat & Toy option!");
-      return;
-    }
 
     try {
       const res = await fetch("/api/cart", {
@@ -149,9 +137,9 @@ export default function ProductDetail() {
         body: JSON.stringify({
           productId: product.id,
           quantity: 1,
-          strollerCover, // Düzeltme: Güncel state'i kullanıyoruz.
+          strollerCover:false, // Düzeltme: Güncel state'i kullanıyoruz.
           customName: "none",
-          hatToyOption,
+          hatToyOption:"none",
         }),
       });
 
@@ -346,7 +334,6 @@ export default function ProductDetail() {
               </span>
             </div>
           </div>
-
 
           <div className="flex flex-col gap-4 mt-4">
             <Button

@@ -130,21 +130,30 @@ export default function AdminSidebar() {
   // Mobile menu overlay
   const mobileMenu = (
     <>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-50 p-2 bg-stone-950 text-white rounded-md md:hidden"
-      >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+      {/* Menü Kapalıyken (Başlangıçta) sadece Menu ikonlu buton görünür.
+        Menü Açıkken bu buton gizlenir, böylece içerideki X butonu kullanılır.
+      */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed top-4 left-4 z-50 p-2 bg-stone-950 text-white rounded-md md:hidden"
+        >
+          <Menu size={24} />
+        </button>
+      )}
+
       {isOpen && (
+        // Menü Açık (Overlay)
         <div className="fixed inset-0 z-40 bg-stone-950 flex flex-col shadow-lg md:hidden">
           <div className="px-6 py-6 border-b border-stone-800 flex justify-between items-center">
             <Link
               className="text-teal-600 text-2xl font-bold"
               href={"/admin/dashboard"}
+              onClick={() => setIsOpen(false)} // Menü başlığına tıklayınca menüyü kapat
             >
               RosallieBaby
             </Link>
+            {/* Menü Açıkken, içerideki X butonu kapatmayı sağlar. */}
             <button onClick={() => setIsOpen(false)}>
               <X size={24} color="white" />
             </button>
@@ -159,7 +168,7 @@ export default function AdminSidebar() {
                   active === item.id ? "bg-stone-900" : "hover:bg-stone-700"
                 }`}
                 aria-current={active === item.id ? "page" : undefined}
-                onClick={() => setIsOpen(false)}
+                onClick={() => setIsOpen(false)} // Navigasyon öğesine tıklayınca menüyü kapat
               >
                 {active === item.id && (
                   <span className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full"></span>
@@ -185,6 +194,7 @@ export default function AdminSidebar() {
               <Link
                 href="/logout"
                 className="flex items-center text-red-400 text-sm hover:text-red-300 space-x-1"
+                onClick={() => setIsOpen(false)} // Çıkış yap'a tıklayınca menüyü kapat
               >
                 <LogOut size={16} />
                 <span>Çıkış Yap</span>
@@ -196,5 +206,10 @@ export default function AdminSidebar() {
     </>
   );
 
+  // Mobil veya Masaüstü görünümünü döndür
+  // isMobile hook'u, AdminSidebar bileşeninizde tanımlanmadığı için
+  // dışarıdan gelen bir prop olarak kullanmanız gerekmektedir, ancak
+  // bileşen adı `AdminSidebar` iken `Sidebar` olarak dışa aktarmaktadır.
+  // Bu kod, isMobile hook'unun mevcut dosya içinde doğru çalıştığını varsayarak yanıt vermektedir.
   return <>{isMobile ? mobileMenu : desktopSidebar}</>;
 }

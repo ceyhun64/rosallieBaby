@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import CartItemComponent from "./cartItem";
 import CartSummary from "./cartSummary";
 import Loading from "../layout/loading";
+import Link from "next/link";
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState([]);

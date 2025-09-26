@@ -125,11 +125,13 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                   <SelectValue placeholder="Kategori Seç" />
                 </SelectTrigger>
                 <SelectContent className="bg-black text-white border border-stone-700">
-                  <SelectItem value="hospital_outfit_set">
-                    Hastane Çıkış Seti
+                  <SelectItem value="hospital_outfit_special_set">
+                    Hospital Outfit Special Set
                   </SelectItem>
-                  <SelectItem value="toy">Oyuncak</SelectItem>
-                  <SelectItem value="pillow">Yastık</SelectItem>
+                  <SelectItem value="hospital_outfit_set">
+                    Hospital Outfit Set
+                  </SelectItem>
+                  <SelectItem value="toy">Toy</SelectItem>
                 </SelectContent>
               </Select>
             </div>

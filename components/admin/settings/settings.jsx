@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/admin/sideBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,53 +10,125 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Settings() {
   const isMobile = useIsMobile();
-  const [siteName, setSiteName] = useState("RosallieBaby.com");
-  const [description, setDescription] = useState("Bebek ürünleri mağazası");
-  const [logo, setLogo] = useState("/logo/logo.webp");
 
-  const [heroTitle, setHeroTitle] = useState("Hoş Geldiniz!");
-  const [heroSubtitle, setHeroSubtitle] = useState(
-    "En kaliteli bebek ürünlerini keşfedin."
-  );
-  const [heroBg, setHeroBg] = useState("/heroes/heroes1.webp");
-  const [heroMobileBg, setHeroMobileBg] = useState("/heroes/heroes2.webp");
+  const [logo, setLogo] = useState("");
+  const [heroBg, setHeroBg] = useState("");
+  const [heroMobileBg, setHeroMobileBg] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const handleLogoChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setLogo(reader.result);
-      reader.readAsDataURL(file);
+  // İlk açılışta DB’den ayarları al
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const res = await fetch("/api/setting");
+        if (!res.ok) throw new Error("Ayarlar getirilemedi");
+        const data = await res.json();
+
+        setLogo(data.logo || "/logo/logo.webp");
+        setHeroBg(data.heroBg || "/heroes/heroes1.webp");
+        setHeroMobileBg(data.heroMobileBg || "/heroes/heroes2.webp");
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     }
-  };
+    fetchSettings();
+  }, []);
 
-  const handleHeroBgChange = (e) => {
+  const handleLogoChange = async (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setHeroBg(reader.result);
-      reader.readAsDataURL(file);
-    }
-  };
+    if (!file) return;
 
-  const handleHeroMobileBgChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setHeroMobileBg(reader.result);
-      reader.readAsDataURL(file);
-    }
-  };
+    const formData = new FormData();
+    formData.append("file", file);
 
-  const handleSave = () => {
-    console.log("Kaydedilen ayarlar:", {
-      siteName,
-      description,
-      logo,
-      hero: { title: heroTitle, subtitle: heroSubtitle, background: heroBg },
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
     });
-    alert("Ayarlar kaydedildi!");
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Upload failed:", text);
+      return;
+    }
+
+    const data = await res.json();
+    if (data.path) setLogo(data.path);
   };
+
+  const handleHeroBgChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Upload failed:", text);
+      return;
+    }
+
+    const data = await res.json();
+    if (data.path) setHeroBg(data.path); // artık sadece URL kaydediliyor
+  };
+
+  const handleHeroMobileBgChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Upload failed:", text);
+      return;
+    }
+
+    const data = await res.json();
+    if (data.path) setHeroMobileBg(data.path);
+  };
+
+  const handleSave = async () => {
+    try {
+      const payload = {
+        logo,
+        heroBg,
+        heroMobileBg,
+      };
+
+      console.log("payload:", payload);
+      const res = await fetch("/api/setting", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Güncelleme başarısız!");
+
+      alert("Ayarlar kaydedildi ✅");
+    } catch (err) {
+      console.error(err);
+      alert("Kaydedilemedi ❌");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-white">
+        Yükleniyor...
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-black text-white flex-col md:flex-row">
@@ -89,9 +161,7 @@ export default function Settings() {
         </div>
 
         {/* Logo Yükleme */}
-        {/* Logo Yükleme */}
         <div className="p-6 bg-stone-900 rounded-xl shadow-lg mb-6 flex flex-col md:flex-row items-center md:items-start gap-4">
-          {/* Logo ve Input */}
           <div className="flex flex-col md:flex-row items-center md:items-start gap-4 w-full md:w-auto">
             <Image
               src={logo}
@@ -113,25 +183,6 @@ export default function Settings() {
         <div className="p-6 bg-stone-900 rounded-xl shadow-lg space-y-6">
           <h2 className="text-xl font-semibold">Hero Bölümü</h2>
 
-          {/* Başlık ve Alt Başlık */}
-          <div className="flex flex-col gap-4">
-            <Input
-              type="text"
-              placeholder="Hero Başlığı"
-              value={heroTitle}
-              onChange={(e) => setHeroTitle(e.target.value)}
-              className="bg-black border border-stone-700 text-white placeholder-stone-400"
-            />
-            <Input
-              type="text"
-              placeholder="Hero Alt Başlığı"
-              value={heroSubtitle}
-              onChange={(e) => setHeroSubtitle(e.target.value)}
-              className="bg-black border border-stone-700 text-white placeholder-stone-400"
-            />
-          </div>
-
-          {/* Görseller */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Desktop Hero */}
             <div className="bg-stone-800 p-4 rounded-lg flex flex-col items-center">

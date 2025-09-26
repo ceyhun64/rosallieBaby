@@ -10,7 +10,6 @@ import {
   X,
   Menu,
   Heart,
-  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -201,10 +200,11 @@ export default function Header() {
             side="right"
             className="w-full sm:w-[540px] lg:w-[700px] p-0 flex flex-col"
           >
-            <SheetHeader className="p-4 border-b border-gray-200">
-              <SheetTitle className="text-xl font-bold text-gray-800">
+            <SheetHeader className="!flex !items-center !justify-between p-4 border-b border-gray-200">
+              <SheetTitle className="text-xl font-bold text-gray-800 truncate min-w-0">
                 My Cart
               </SheetTitle>
+
               <SheetClose asChild>
                 <button className="text-gray-400 hover:text-gray-600 transition-colors">
                   <X className="h-6 w-6" />

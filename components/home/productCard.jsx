@@ -7,6 +7,12 @@ export default function ProductCard({ product }) {
   const [isHovered, setIsHovered] = useState(false);
   const isMobile = useIsMobile();
 
+  // Hover sırasında ikinci resmi göster
+  const hoverImage =
+    isHovered && product.subImages && product.subImages.length > 0
+      ? product.subImages[0].url
+      : product.mainImage;
+
   return (
     <div className="flex-none p-2 w-full max-w-sm mx-auto cursor-pointer">
       <div
@@ -21,14 +27,10 @@ export default function ProductCard({ product }) {
           } overflow-hidden rounded-t-lg`}
         >
           <Image
-            src={
-              isHovered && product.subImage1 && !isMobile
-                ? product.subImage1
-                : product.mainImage
-            }
+            src={hoverImage}
             alt={product.description}
             width={400}
-            height={1000}
+            height={400}
             className="w-full h-full object-cover p-3 transition-all duration-300"
           />
 
@@ -36,9 +38,9 @@ export default function ProductCard({ product }) {
           {!isMobile && isHovered && (
             <button
               className="absolute bottom-3 left-1/2 transform -translate-x-1/2 
-               bg-white text-black px-6 py-3 rounded-full border-2 border-black 
-               w-48 text-center opacity-90 hover:opacity-100 hover:bg-orange-50 hover:text-gray-600 
-               transition-all duration-300 mb-3"
+              bg-white text-black px-6 py-3 rounded-full border-2 border-black 
+              w-48 text-center opacity-90 hover:opacity-100 hover:bg-orange-50 hover:text-gray-600 
+              transition-all duration-300 mb-3"
             >
               Add to Cart
             </button>
@@ -79,7 +81,7 @@ export default function ProductCard({ product }) {
             >
               <span
                 className={`${
-                  isMobile ? "text-xs" : "text-sm "
+                  isMobile ? "text-xs" : "text-sm"
                 } text-gray-400 line-through`}
               >
                 €{product.oldPrice.toFixed(2)}

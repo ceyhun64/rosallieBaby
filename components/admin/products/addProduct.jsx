@@ -97,17 +97,19 @@ export default function AddProductDialog({
                   onValueChange={(val) =>
                     setNewProduct({ ...newProduct, category: val })
                   }
-                  defaultValue="hospital_outfit_set"
+                  defaultValue="hospital_outfit_special_set"
                 >
                   <SelectTrigger className="bg-black border border-stone-700 text-white w-full">
                     <SelectValue placeholder="Kategori Seç" />
                   </SelectTrigger>
                   <SelectContent className="bg-black text-white border border-stone-700">
-                    <SelectItem value="hospital_outfit_set">
-                      Hastane Çıkış Seti
+                    <SelectItem value="hospital_outfit_special_set">
+                      Hospital Outfit Specail Set
                     </SelectItem>
-                    <SelectItem value="toy">Oyuncak</SelectItem>
-                    <SelectItem value="pillow">Yastık</SelectItem>
+                    <SelectItem value="hospital_outfit_set">
+                      Hospital Outfit Set
+                    </SelectItem>
+                    <SelectItem value="toy">Toy</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

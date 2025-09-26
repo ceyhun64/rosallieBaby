@@ -253,19 +253,22 @@ export default function Products() {
               </SelectTrigger>
               <SelectContent className="bg-black text-white border border-stone-700">
                 <SelectItem value="all" className="hover:bg-stone-800">
-                  Tüm Ürünler
+                  All Products
+                </SelectItem>
+                <SelectItem
+                  value="hospital_outfit_special_set"
+                  className="hover:bg-stone-800"
+                >
+                  Hospital Outfit Special Set
                 </SelectItem>
                 <SelectItem
                   value="hospital_outfit_set"
                   className="hover:bg-stone-800"
                 >
-                  Hastane Çıkış Seti
+                  Hospital Outfit Set
                 </SelectItem>
                 <SelectItem value="toy" className="hover:bg-stone-800">
-                  Oyuncak
-                </SelectItem>
-                <SelectItem value="pillow" className="hover:bg-stone-800">
-                  Yastık
+                  Toy
                 </SelectItem>
               </SelectContent>
             </Select>

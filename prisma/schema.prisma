@@ -14,8 +14,16 @@ enum Category {
   toy
 }
 
+enum OrderStatus {
+  pending // ödeme bekleniyor
+  paid // ödeme başarılı
+  shipped // kargoya verildi
+  delivered // teslim edildi
+  cancelled // iptal
+}
+
 model Product {
-  id          Int        @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   name        String
   mainImage   String
   description String
@@ -24,10 +32,11 @@ model Product {
   discount    Int
   category    Category
   subImages   SubImage[]
-  favorites   Favorite[] // Product ile Favorite ilişkisi
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  favorites   Favorite[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   CartItem    CartItem[]
+  OrderItem   OrderItem[] // 🔹 yeni ilişki
 }
 
 model SubImage {
@@ -46,7 +55,8 @@ model User {
   phone     String?
   favorites Favorite[]
   cartItems CartItem[]
-  addresses Address[] // User ile Address ilişkisi
+  addresses Address[]
+  orders    Order[] // 🔹 yeni ilişki
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
@@ -59,7 +69,7 @@ model Favorite {
   productId Int
   createdAt DateTime @default(now())
 
-  @@unique([userId, productId]) // Aynı ürünü bir kullanıcı favori olarak yalnızca bir kez ekleyebilir
+  @@unique([userId, productId])
 }
 
 model CartItem {
@@ -67,9 +77,9 @@ model CartItem {
   userId        Int
   productId     Int
   quantity      Int      @default(1)
-  strollerCover Boolean? // sadece ürün 1 için geçerli
-  customName    String? // ürün 1 ve 2 için
-  hatToyOption  String? // sadece ürün 1 için
+  strollerCover Boolean?
+  customName    String?
+  hatToyOption  String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -83,7 +93,7 @@ model Address {
   id        Int      @id @default(autoincrement())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
-  title     String // Örn: "Home", "Office"
+  title     String
   firstName String
   lastName  String
   address   String
@@ -94,4 +104,64 @@ model Address {
   country   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Subscribe {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Settings {
+  id           Int      @id @default(1)
+  logo         String   @db.VarChar(500)
+  heroBg       String   @db.VarChar(500)
+  heroMobileBg String   @db.VarChar(500)
+  updatedAt    DateTime @updatedAt
+}
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  userId        Int
+  status        OrderStatus @default(pending)
+  totalPrice    Int
+  paidPrice     Int
+  currency      String
+  paymentMethod String
+  transactionId String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     OrderItem[]
+  addresses OrderAddress[]
+}
+
+model OrderItem {
+  id         Int @id @default(autoincrement())
+  orderId    Int
+  productId  Int
+  quantity   Int
+  unitPrice  Int
+  totalPrice Int
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model OrderAddress {
+  id        Int    @id @default(autoincrement())
+  orderId   Int
+  type      String
+  firstName String
+  lastName  String
+  address   String
+  district  String
+  city      String
+  zip       String
+  phone     String
+  country   String
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
