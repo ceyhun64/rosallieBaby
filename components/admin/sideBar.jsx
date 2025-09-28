@@ -116,7 +116,7 @@ export default function AdminSidebar() {
         <div className="flex flex-col">
           <span className="text-white font-semibold">Barış Beyazgül</span>
           <Link
-            href="/logout"
+            href="/admin"
             className="flex items-center text-red-400 text-sm hover:text-red-300 space-x-1"
           >
             <LogOut size={16} />

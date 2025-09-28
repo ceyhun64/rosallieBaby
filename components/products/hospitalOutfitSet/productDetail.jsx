@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MessageSquareText, Star, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import {
   ShoppingCart,
@@ -27,6 +28,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import Loading from "@/components/layout/loading";
 
 export default function ProductDetail() {
+  const router = useRouter();
+
   const { id } = useParams();
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState("plain");
@@ -41,7 +44,11 @@ export default function ProductDetail() {
   const [error, setError] = useState(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [strollerCover, setStrollerCover] = useState(false);
+
+  //review
+  const [reviews, setReviews] = useState([]);
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [reviewComment, setReviewComment] = useState("");
 
   // Ürün verisini API'den çekmek için useEffect
   useEffect(() => {
@@ -65,6 +72,78 @@ export default function ProductDetail() {
 
     fetchProduct();
   }, [id]);
+  // Ürün ve review verilerini fetch etme
+  useEffect(() => {
+    async function fetchReviews() {
+      if (!id) return;
+      try {
+        const res = await fetch(`/api/review/${id}`);
+        if (!res.ok) throw new Error("Could not fetch reviews");
+        const data = await res.json();
+        setReviews(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchReviews();
+  }, [id, isReviewModalOpen]); // modal açıldığında da refresh olsun
+
+  const handleSubmitReview = async () => {
+    if (selectedStars === 0 || !reviewTitle || !reviewComment) {
+      toast.error("Please fill all required fields and select stars.");
+      return;
+    }
+
+    try {
+      // Oturum kontrolü
+      const sessionRes = await fetch("/api/account/check");
+      const sessionData = await sessionRes.json();
+
+      if (!sessionData.user) {
+        toast.error("You must log in to submit a review!");
+        router.push("/account/login");
+        return;
+      }
+
+      // Review submit
+      const res = await fetch("/api/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.id,
+          rating: selectedStars,
+          title: reviewTitle,
+          comment: reviewComment,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.error === "You have already reviewed this product.") {
+          toast.error("You have already reviewed this product.");
+        } else {
+          toast.error(data.error || "Failed to submit review");
+        }
+        return;
+      }
+
+      toast.success("Review submitted successfully!");
+      setReviewTitle("");
+      setReviewComment("");
+      setSelectedStars(0);
+      setIsReviewModalOpen(false);
+
+      // Yorumları yeniden fetch et
+      const updatedReviewsRes = await fetch(`/api/review/${id}`);
+      const updatedReviews = await updatedReviewsRes.json();
+      setReviews(updatedReviews);
+    } catch (err) {
+      console.error(err);
+      toast.error("An error occurred while submitting the review.");
+    }
+  };
 
   // Mevcut state'lerin yanına ekleyin
   const [isFavorite, setIsFavorite] = useState(false);
@@ -128,32 +207,39 @@ export default function ProductDetail() {
   const handleAddToCart = async () => {
     if (!product) return;
 
-    // Doğrudan state'i kullanın, DOM'dan okumaya gerek yok
-
     try {
+      const sessionRes = await fetch("/api/account/check");
+      const sessionData = await sessionRes.json();
+
+      if (!sessionData.user) {
+        toast.error("You must log in before adding to cart!");
+        window.location.href = "/account/login";
+        return;
+      }
+
       const res = await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productId: product.id,
           quantity: 1,
-          strollerCover:false, // Düzeltme: Güncel state'i kullanıyoruz.
+          strollerCover: false,
           customName: "none",
-          hatToyOption:"none",
+          hatToyOption: "none",
         }),
       });
 
       if (!res.ok) throw new Error("Failed to add to cart");
 
-      toast.success("Ürün sepete eklendi!");
+      toast.success("Product added to cart!");
     } catch (error) {
       console.error(error);
-      toast.error("Sepete eklerken bir hata oluştu!");
+      toast.error("An error occurred while adding to cart!");
     }
   };
 
   const handleWhatsapp = () => {
-    window.open("https://wa.me/905551234567", "_blank");
+    window.open("https://wa.me/905432266322", "_blank");
   };
 
   const formatDescription = (desc) => {
@@ -170,33 +256,47 @@ export default function ProductDetail() {
     });
   };
   const handleFavoriteToggle = async () => {
-    if (isFavorite) {
-      // Favorilerden çıkarmak için DELETE isteği
-      const res = await fetch(`/api/favorites/${product.id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (res.ok) {
-        setIsFavorite(false);
-        toast.success("Ürün favorilerden kaldırıldı.");
-      } else {
-        toast.error("Favorilerden kaldırılırken bir hata oluştu.");
+    try {
+      // Kullanıcı giriş kontrolü
+      const sessionRes = await fetch("/api/account/check");
+      const sessionData = await sessionRes.json();
+
+      if (!sessionData.user) {
+        toast.error("You must log in to manage favorites!");
+        router.push("/account/login");
+        return;
       }
-    } else {
-      // Favorilere eklemek için POST isteği
-      const res = await fetch("/api/favorites", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: product.id }),
-      });
-      if (res.ok) {
-        setIsFavorite(true);
-        toast.success("Ürün favorilere eklendi!");
+
+      if (isFavorite) {
+        const res = await fetch(`/api/favorites/${product.id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (res.ok) {
+          setIsFavorite(false);
+          toast.success("Product removed from favorites.");
+        } else {
+          toast.error("An error occurred while removing from favorites.");
+        }
       } else {
-        toast.error("Favorilere eklenirken bir hata oluştu.");
+        const res = await fetch("/api/favorites", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId: product.id }),
+        });
+        if (res.ok) {
+          setIsFavorite(true);
+          toast.success("Product added to favorites!");
+        } else {
+          toast.error("An error occurred while adding to favorites!");
+        }
       }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred. Please try again!");
     }
   };
+
   const handleOpenReviewModal = () => setIsReviewModalOpen(true);
   const handleCloseReviewModal = () => setIsReviewModalOpen(false);
 
@@ -207,25 +307,27 @@ export default function ProductDetail() {
         {isMobile ? (
           <div className="lg:col-span-2 flex justify-center items-center">
             <div className="flex overflow-x-auto snap-x snap-mandatory w-full pb-4">
-              {product.subImages.map((img, index) => (
-                <div
-                  key={index}
-                  className="w-full flex-shrink-0 snap-center flex justify-center"
-                >
-                  <Image
-                    src={img.url} // Resim URL'si için 'url' alanını kullandık
-                    alt={`Image ${index + 1}`}
-                    width={500}
-                    height={500}
-                    className="h-[270px] w-full object-contain cursor-pointer"
-                    onClick={() => {
-                      setActiveIndex(index);
-                      setIsImageModalOpen(true);
-                    }}
-                    unoptimized
-                  />
-                </div>
-              ))}
+              {[{ url: product.mainImage }, ...product.subImages].map(
+                (img, index) => (
+                  <div
+                    key={index}
+                    className="w-full flex-shrink-0 snap-center flex justify-center"
+                  >
+                    <Image
+                      src={img.url} // mainImage ve subImages için 'url' kullanıyoruz
+                      alt={`Image ${index + 1}`}
+                      width={500}
+                      height={500}
+                      className="h-[270px] w-full object-contain cursor-pointer"
+                      onClick={() => {
+                        setActiveIndex(index);
+                        setIsImageModalOpen(true);
+                      }}
+                      unoptimized
+                    />
+                  </div>
+                )
+              )}
             </div>
           </div>
         ) : (
@@ -238,32 +340,30 @@ export default function ProductDetail() {
                 <ChevronUp size={20} />
               </button>
 
-              <div className="flex flex-col gap-2">
-                {product.subImages
-                  .slice(activeIndex, activeIndex + 3)
-                  .map((img, index) => {
-                    const realIndex = activeIndex + index;
-                    return (
-                      <div
-                        key={realIndex}
-                        className={`flex justify-center items-center cursor-pointer ${
-                          realIndex === activeIndex
-                            ? "border-gray-900"
-                            : "border-transparent hover:border-gray-400"
-                        }`}
-                        onClick={() => setActiveIndex(realIndex)}
-                      >
-                        <Image
-                          src={img.url} // Resim URL'si için 'url' alanını kullandık
-                          alt={`Thumbnail ${realIndex + 1}`}
-                          width={80}
-                          height={120}
-                          className="h-24 w-auto object-contain"
-                          unoptimized
-                        />
-                      </div>
-                    );
-                  })}
+              <div className="flex flex-col gap-2 max-h-[500px] overflow-y-auto">
+                {product.subImages.map((img, index) => {
+                  const realIndex = index + 1; // 0: mainImage, subImages 1+
+                  return (
+                    <div
+                      key={realIndex}
+                      className={`flex justify-center items-center cursor-pointer border-2 transition ${
+                        activeIndex === realIndex
+                          ? "border-stone-600"
+                          : "border-transparent hover:border-gray-400"
+                      }`}
+                      onClick={() => setActiveIndex(realIndex)}
+                    >
+                      <Image
+                        src={img.url}
+                        alt={`Thumbnail ${realIndex}`}
+                        width={80}
+                        height={120}
+                        className="h-24 w-auto object-contain"
+                        unoptimized
+                      />
+                    </div>
+                  );
+                })}
               </div>
 
               <button
@@ -277,14 +377,18 @@ export default function ProductDetail() {
             <div className="relative flex-1 flex justify-center items-center">
               <button
                 onClick={handlePrevImage}
-                className="absolute left-2 bg-white p-2 shadow hover:bg-gray-100 border border-gray-400"
+                className="absolute left-2 bg-white p-2 shadow hover:bg-gray-100 border border-gray-400 z-10"
               >
                 <ChevronLeft size={24} />
               </button>
 
               <Image
-                src={product.subImages[activeIndex].url} // Resim URL'si için 'url' alanını kullandık
-                alt="Main Image"
+                src={
+                  activeIndex === 0
+                    ? product.mainImage
+                    : product.subImages[activeIndex - 1]?.url
+                }
+                alt={`Image ${activeIndex + 1}`}
                 width={0}
                 height={0}
                 sizes="100vw"
@@ -295,7 +399,7 @@ export default function ProductDetail() {
 
               <button
                 onClick={handleNextImage}
-                className="absolute right-2 bg-white p-2 shadow hover:bg-gray-100 border border-gray-400"
+                className="absolute right-2 bg-white p-2 shadow hover:bg-gray-100 border border-gray-400 z-10"
               >
                 <ChevronRight size={24} />
               </button>
@@ -392,9 +496,33 @@ export default function ProductDetail() {
           </Button>
         </div>
         <div className="border border-gray-200 p-4 rounded-md">
-          <p className="text-gray-500 text-sm">
-            No reviews yet for this product.
-          </p>
+          {reviews.length === 0 ? (
+            <p className="text-gray-500 text-sm">
+              No reviews yet for this product.
+            </p>
+          ) : (
+            reviews.map((rev) => (
+              <div key={rev.id} className="border-b last:border-b-0 py-2">
+                <p className="font-semibold">{rev.title}</p>
+                <div className="flex items-center gap-1 mt-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      size={16}
+                      className={
+                        i < rev.rating ? "text-yellow-500" : "text-gray-300"
+                      }
+                    />
+                  ))}
+                </div>
+                <p className="text-gray-600 mt-1">{rev.comment}</p>
+                <p className="text-gray-400 text-xs mt-1">
+                  {rev.user?.name} {rev.user?.surname} -{" "}
+                  {new Date(rev.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -451,6 +579,8 @@ export default function ProductDetail() {
                   id="title"
                   placeholder="Write your title"
                   className="mt-2"
+                  value={reviewTitle}
+                  onChange={(e) => setReviewTitle(e.target.value)}
                 />
               </div>
 
@@ -466,10 +596,15 @@ export default function ProductDetail() {
                   rows={4}
                   placeholder="Write your review here..."
                   className="w-full mt-2 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 resize-none"
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
                 />
               </div>
 
-              <Button className="w-full py-4 bg-green-700 text-white font-bold hover:bg-green-800 transition rounded-md">
+              <Button
+                className="w-full py-4 bg-green-700 text-white font-bold hover:bg-green-800 transition rounded-md"
+                onClick={handleSubmitReview}
+              >
                 Submit Review
               </Button>
             </div>
@@ -490,7 +625,7 @@ export default function ProductDetail() {
             </button>
 
             <Image
-              src={product.subImages[activeIndex].url} // Resim URL'si için 'url' alanını kullandık
+              src={product.mainImage} // Resim URL'si için 'url' alanını kullandık
               alt="Main Image"
               width={0}
               height={0}

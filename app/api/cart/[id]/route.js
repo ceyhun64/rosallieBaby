@@ -12,7 +12,7 @@ export async function DELETE(req, { params }) {
 
   try {
     await prisma.cartItem.delete({
-      where: { id: cartItemId, userId: session.user.id },
+      where: { id: cartItemId },
     });
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -37,7 +37,7 @@ export async function PATCH(req, { params }) {
 
   try {
     const updated = await prisma.cartItem.update({
-      where: { id: cartItemId, userId: session.user.id },
+      where: { id: cartItemId },
       data: { quantity },
     });
     return NextResponse.json(updated);

@@ -1,19 +1,18 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/db"; // prisma client yolu
+import prisma from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function GET(req) {
-  // Burada session veya auth ile kullanıcıyı bul
   const session = await getServerSession(authOptions);
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   try {
     const cartItems = await prisma.cartItem.findMany({
       where: { userId: session.user.id },
-      include: { product: true }, // ürün detaylarını da al
+      include: { product: true },
     });
-
     return NextResponse.json(cartItems);
   } catch (error) {
     console.error(error);
@@ -30,18 +29,16 @@ export async function POST(req) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { productId, quantity, strollerCover, customName, hatToyOption } = body;
+  const { productId, quantity, customName } = body;
 
   try {
-    // Eğer aynı kullanıcı + aynı ürün + aynı opsiyonlar varsa, quantity artır
+    // aynı ürün + aynı customName varsa quantity artır
     const existing = await prisma.cartItem.findUnique({
       where: {
-        userId_productId_strollerCover_customName_hatToyOption: {
+        userId_productId_customName: {
           userId: session.user.id,
           productId,
-          strollerCover: strollerCover ?? null,
           customName: customName ?? null,
-          hatToyOption: hatToyOption ?? null,
         },
       },
     });
@@ -59,9 +56,7 @@ export async function POST(req) {
         userId: session.user.id,
         productId,
         quantity: quantity || 1,
-        strollerCover,
         customName,
-        hatToyOption,
       },
     });
 
@@ -70,6 +65,25 @@ export async function POST(req) {
     console.error(error);
     return NextResponse.json(
       { error: "Failed to add to cart" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req) {
+  const session = await getServerSession(authOptions);
+  if (!session)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  try {
+    await prisma.cartItem.deleteMany({
+      where: { userId: session.user.id },
+    });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Failed to delete cart items" },
       { status: 500 }
     );
   }

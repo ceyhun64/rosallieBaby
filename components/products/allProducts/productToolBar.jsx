@@ -59,21 +59,47 @@ export default function ProductToolbar({ products }) {
     "Newest",
   ];
 
-  const categories = [
-    { name: "Muslin", count: 28 },
-    { name: "Sleep Buddy", count: 5 },
+  // GÜNCELLENDİ: Statik count kaldırıldı. Artık sadece isim ve filtre değeri var.
+  const staticCategories = [
+    { name: "Muslin", value: "hospital_outfit_set" },
+    { name: "Sleep Buddy", value: "toy" },
   ];
 
-  // Filtreleme + sıralama + arama
-  const filteredProducts = useMemo(() => {
-    let result = [...products];
+  // Yardımcı fonksiyon: Category'ye tıklandığında hem masaüstü hem mobil için çalışır.
+  const handleCategoryClick = (categoryValue) => {
+    setSelectedCategory(
+      selectedCategory === categoryValue ? null : categoryValue
+    );
+  };
 
-    // 1. Search
+  // 1. Filtreleme (Sadece Arama Filtresi Uygulanmış Hali)
+  // Bu, kategorilere ait ürün sayılarını bulmak için kullanılır.
+  const searchFilteredProducts = useMemo(() => {
     if (search.trim()) {
-      result = result.filter((p) =>
+      return products.filter((p) =>
         p.description.toLowerCase().includes(search.toLowerCase())
       );
     }
+    return products;
+  }, [products, search]);
+
+  // 2. Kategori Ürün Sayıları (DİNAMİK)
+  const categoriesWithCount = useMemo(() => {
+    return staticCategories.map((category) => {
+      // Sadece arama filtresinden geçmiş ürünleri sayar.
+      const count = searchFilteredProducts.filter(
+        (p) => p.category === category.value
+      ).length;
+      return {
+        ...category,
+        count: count,
+      };
+    });
+  }, [staticCategories, searchFilteredProducts]);
+
+  // 3. Nihai Filtreleme + Sıralama
+  const filteredProducts = useMemo(() => {
+    let result = [...searchFilteredProducts]; // Başlangıçta arama filtresinden geçmiş ürünlerle başla.
 
     // 2. Category filter
     if (selectedCategory) {
@@ -105,7 +131,15 @@ export default function ProductToolbar({ products }) {
     }
 
     return result;
-  }, [products, search, selectedCategory, activeSort]);
+  }, [searchFilteredProducts, selectedCategory, activeSort]);
+
+  // Mevcut kategori adına karşılık gelen değeri bulur (mobil filtre UI'da gösterim için).
+  const currentCategoryName = categoriesWithCount.find(
+    (c) => c.value === selectedCategory
+  )?.name;
+
+  // Toplam gösterilen ürün sayısı (Toolbar'ın üstüne eklemek isterseniz)
+  // const totalProductsCount = filteredProducts.length;
 
   return (
     <div className="flex flex-col md:flex-row gap-6">
@@ -134,26 +168,21 @@ export default function ProductToolbar({ products }) {
                 </AccordionTrigger>
                 <AccordionContent>
                   <ul className="space-y-2 text-sm text-gray-700">
-                    {categories.map((category) => (
+                    {/* DİNAMİK KATEGORİ LİSTESİ */}
+                    {categoriesWithCount.map((category) => (
                       <li key={category.name}>
                         <button
-                          onClick={() =>
-                            setSelectedCategory(
-                              selectedCategory === category.name
-                                ? null
-                                : category.name
-                            )
-                          }
+                          onClick={() => handleCategoryClick(category.value)}
                           className={cn(
                             "flex justify-between items-center w-full text-left",
-                            selectedCategory === category.name
+                            selectedCategory === category.value
                               ? "font-semibold text-teal-600"
                               : ""
                           )}
                         >
                           <span>{category.name}</span>
                           <span className="text-gray-500">
-                            ({category.count})
+                            ({category.count}) {/* DİNAMİK SAYI */}
                           </span>
                         </button>
                       </li>
@@ -197,10 +226,12 @@ export default function ProductToolbar({ products }) {
             <Sheet>
               <SheetTrigger asChild>
                 <button className="flex-1 flex items-center justify-center py-2 text-gray-900 hover:text-black">
-                  <Filter className="w-4 h-4 mr-1" /> Filter
+                  <Filter className="w-4 h-4 mr-1" />{" "}
+                  {selectedCategory ? currentCategoryName : "Filter"}
                 </button>
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-4">
+                {/* ⚠️ SheetTitle/SheetHeader EKSİK, erişilebilirlik uyarısı için buraya eklenmeli! */}
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">Sub Categories</h3>
                   <SheetClose asChild>
@@ -211,26 +242,21 @@ export default function ProductToolbar({ products }) {
                 </div>
 
                 <ul className="space-y-2 text-sm text-gray-700">
-                  {categories.map((category) => (
+                  {/* DİNAMİK KATEGORİ LİSTESİ */}
+                  {categoriesWithCount.map((category) => (
                     <li key={category.name}>
                       <button
-                        onClick={() =>
-                          setSelectedCategory(
-                            selectedCategory === category.name
-                              ? null
-                              : category.name
-                          )
-                        }
+                        onClick={() => handleCategoryClick(category.value)}
                         className={cn(
                           "flex justify-between items-center w-full text-left",
-                          selectedCategory === category.name
+                          selectedCategory === category.value
                             ? "font-semibold text-teal-600"
                             : ""
                         )}
                       >
                         <span>{category.name}</span>
                         <span className="text-gray-500">
-                          ({category.count})
+                          ({category.count}) {/* DİNAMİK SAYI */}
                         </span>
                       </button>
                     </li>
@@ -250,6 +276,7 @@ export default function ProductToolbar({ products }) {
                 </button>
               </SheetTrigger>
               <SheetContent side="bottom" className="p-4 bg-white shadow-lg">
+                {/* ⚠️ SheetTitle/SheetHeader EKSİK, erişilebilirlik uyarısı için buraya eklenmeli! */}
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-lg font-semibold mb-3">Sort</h4>
                   <SheetClose asChild>

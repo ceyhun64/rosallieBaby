@@ -1,4 +1,0 @@
--- AlterTable
-ALTER TABLE `settings` MODIFY `logo` VARCHAR(500) NOT NULL,
-    MODIFY `heroBg` VARCHAR(500) NOT NULL,
-    MODIFY `heroMobileBg` VARCHAR(500) NOT NULL;

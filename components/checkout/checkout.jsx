@@ -10,10 +10,11 @@ import StepPaymentCard from "@/components/checkout/stepPayment";
 import BasketSummaryCard from "@/components/checkout/cartSummary"; // Sepet özet bileşeni
 import { email } from "zod";
 
+
 // Kargo Seçenekleri (Sabit tutuldu)
 const cargoOptions = [
-  { id: "standart", name: "Standart Kargo", fee: 12.0 },
-  { id: "express", name: "Express Kargo", fee: 22.0 },
+  { id: "standart", name: "Standard Shipping", fee: 12.0 },
+  { id: "express", name: "Express Shipping", fee: 22.0 },
 ];
 
 // Yeni Adres Formu için başlangıç state'i
@@ -331,15 +332,23 @@ export default function PaymentPage() {
         console.log("order result:", orderResult);
 
         if (orderResult.status === "success") {
+          try {
+            // Ödeme başarılı, kullanıcının sepetini temizle
+            await fetch("/api/cart", {
+              method: "DELETE",
+            });
+          } catch (err) {
+            console.error("Failed to clear cart after successful order:", err);
+            // Burada kullanıcıya hata mesajı göstermek isteğe bağlı
+          }
+
           // Başarılı yönlendirme
           router.push("/checkout/success");
         } else {
-          alert("Sipariş kaydı oluşturulamadı: " + (orderResult.error || ""));
+          router.push("/checkout/unsuccess");
         }
       } else {
-        alert(
-          "Ödeme Başarısız: " + (result.errorMessage || result.error || "")
-        );
+        router.push("/checkout/unsuccess");
       }
     } catch (err) {
       console.error("Payment Error:", err);
@@ -367,7 +376,7 @@ export default function PaymentPage() {
   return (
     <div className="container mx-auto p-4 md:p-8 max-w-7xl">
       <h1 className="text-3xl font-bold mb-8 text-center text-gray-900">
-        Ödeme İşlemleri
+        Payment Transactions
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -439,7 +448,7 @@ export default function PaymentPage() {
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
                 <path d="m9 12 2 2 4-4" />
               </svg>
-              Ödemeleriniz SSL ile korunmaktadır.
+              Your payments are protected by SSL.
             </p>
           </div>
         </div>

@@ -1,7 +1,6 @@
-// components/payment/PaymentStepper.jsx
 import React from "react";
-// Shadcn bileşenlerine ihtiyacınız varsa buraya import edin
 
+// StepIndicator Component
 const StepIndicator = ({ step, currentStep, label }) => {
   const isActive = step === currentStep;
   const isCompleted = step < currentStep;
@@ -34,16 +33,13 @@ const StepIndicator = ({ step, currentStep, label }) => {
   );
 };
 
+// PaymentStepper Component
 export default function PaymentStepper({ currentStep }) {
   return (
     <div className="flex justify-between mb-6 text-sm font-medium text-center">
-      <StepIndicator step={1} currentStep={currentStep} label="Adres" />
-      <StepIndicator step={2} currentStep={currentStep} label="Kargo" />
-      <StepIndicator
-        step={3}
-        currentStep={currentStep}
-        label="Kart Bilgileri"
-      />
+      <StepIndicator step={1} currentStep={currentStep} label="Address" />
+      <StepIndicator step={2} currentStep={currentStep} label="Shipping" />
+      <StepIndicator step={3} currentStep={currentStep} label="Card Info" />
     </div>
   );
 }

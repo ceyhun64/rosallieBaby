@@ -4,6 +4,11 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 async function main() {
+  const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminName = process.env.ADMIN_NAME;
+  const adminSurname = process.env.ADMIN_SURNAME;
+
   // Kullanıcı verileri
   const usersData = [
     {
@@ -36,173 +41,220 @@ async function main() {
     users.push(user);
   }
 
+  // Check if admin already exists
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail },
+  });
+
+  if (!existingAdmin) {
+    await prisma.user.create({
+      data: {
+        name: adminName,
+        surname: adminSurname,
+        email: adminEmail,
+        password: hashedPassword,
+        role: "ADMIN", // Enum role
+      },
+    });
+    console.log("Admin kullanıcı oluşturuldu:", adminEmail);
+  } else {
+    console.log("Admin kullanıcı zaten mevcut:", adminEmail);
+  }
+
   console.log("Kullanıcı seed tamamlandı!");
 
   // Ürün verileri
   const productsData = [
+    // Önceki toy ürünleri
     {
       name: "Astronaut Muslin Hospital Outfit",
-      mainImage: "/allProducts/product1main.webp",
+      mainImage: "/allProducts/toy1main.webp",
       description:
         "Soft muslin outfit for newborns. Includes hat, gloves, bib, toy, jumpsuit, and pillowcase.",
       oldPrice: 2999,
       price: 2399,
       discount: 20,
-      category: "hospital_outfit_set",
+      category: "toy",
       subImages: [
-        "/allProducts/product1sub1.webp",
-        "/allProducts/product1sub2.webp",
-        "/allProducts/product1sub3.webp",
+        "/allProducts/toy1sub1.webp",
+        "/allProducts/toy1sub2.webp",
+        "/allProducts/toy1sub3.webp",
       ],
     },
     {
       name: "Cute Baby Toy Set",
-      mainImage: "/allProducts/product2main.webp",
+      mainImage: "/allProducts/toy2main.webp",
       description: "Soft and colorful toy set for newborns.",
       oldPrice: 1499,
       price: 1199,
       discount: 20,
       category: "toy",
-      subImages: [
-        "/allProducts/product2sub1.webp",
-        "/allProducts/product2sub2.webp",
-      ],
-    },
-    {
-      name: "Comfy Baby Pillow",
-      mainImage: "/allProducts/product3main.webp",
-      description: "Soft pillow for newborn comfort and safety.",
-      oldPrice: 899,
-      price: 699,
-      discount: 22,
-      category: "hospital_outfit_special_set",
-      subImages: [
-        "/allProducts/product3sub1.webp",
-        "/allProducts/product3sub2.webp",
-      ],
-    },
-    {
-      name: "Hospital Essentials Set",
-      mainImage: "/allProducts/product4main.webp",
-      description: "Complete essentials set for newborn care in hospital.",
-      oldPrice: 3999,
-      price: 3499,
-      discount: 13,
-      category: "hospital_outfit_set",
-      subImages: [
-        "/allProducts/product4sub1.webp",
-        "/allProducts/product4sub2.webp",
-      ],
+      subImages: ["/allProducts/toy2sub1.webp", "/allProducts/toy2sub2.webp"],
     },
     {
       name: "Colorful Rattle Toy",
-      mainImage: "/allProducts/product5main.webp",
+      mainImage: "/allProducts/toy3main.webp",
       description: "Fun and safe rattle toy for newborns.",
       oldPrice: 499,
       price: 399,
       discount: 20,
       category: "toy",
-      subImages: ["/allProducts/product5sub1.webp"],
-    },
-    {
-      name: "Soft Baby Blanket Pillow",
-      mainImage: "/allProducts/product6main.webp",
-      description: "Cozy blanket pillow for newborn naps.",
-      oldPrice: 1299,
-      price: 999,
-      discount: 23,
-      category: "hospital_outfit_special_set",
-      subImages: [
-        "/allProducts/product6sub1.webp",
-        "/allProducts/product6sub2.webp",
-      ],
-    },
-    {
-      name: "Newborn Sleep Sack",
-      mainImage: "/allProducts/product7main.webp",
-      description: "Soft sleep sack to keep your baby cozy.",
-      oldPrice: 1999,
-      price: 1599,
-      discount: 20,
-      category: "hospital_outfit_set",
-      subImages: ["/allProducts/product7sub1.webp"],
+      subImages: ["/allProducts/toy3sub1.webp"],
     },
     {
       name: "Baby Teether Set",
-      mainImage: "/allProducts/product8main.webp",
+      mainImage: "/allProducts/toy4main.webp",
       description: "Safe and colorful teethers for babies.",
       oldPrice: 599,
       price: 449,
       discount: 25,
       category: "toy",
+      subImages: ["/allProducts/toy4sub1.webp", "/allProducts/toy4sub2.webp"],
+    },
+    {
+      name: "Soft Plush Toy Set",
+      mainImage: "/allProducts/toy5main.webp",
+      description: "Soft and cuddly plush toys for newborns.",
+      oldPrice: 1299,
+      price: 999,
+      discount: 23,
+      category: "toy",
+      subImages: ["/allProducts/toy5sub1.webp", "/allProducts/toy5sub2.webp"],
+    },
+
+    // Yeni hospital_outfit_set ürünleri
+    {
+      name: "Newborn Hospital Essentials Set",
+      mainImage: "/allProducts/hospital1main.webp",
+      description: "Complete essentials set for hospital newborn care.",
+      oldPrice: 3999,
+      price: 3499,
+      discount: 13,
+      category: "hospital_outfit_set",
       subImages: [
-        "/allProducts/product8sub1.webp",
-        "/allProducts/product8sub2.webp",
+        "/allProducts/hospital1sub1.webp",
+        "/allProducts/hospital1sub2.webp",
+        "/allProducts/hospital1sub3.webp",
       ],
     },
     {
-      name: "Plush Animal Pillow",
-      mainImage: "/allProducts/product9main.webp",
-      description: "Cute plush animal pillow for newborn comfort.",
-      oldPrice: 1099,
-      price: 849,
-      discount: 23,
-      category: "hospital_outfit_special_set",
-      subImages: ["/allProducts/product9sub1.webp"],
+      name: "Luxury Hospital Baby Care Set",
+      mainImage: "/allProducts/hospital2main.webp",
+      description: "Luxury newborn care set for hospital stay.",
+      oldPrice: 5999,
+      price: 4999,
+      discount: 17,
+      category: "hospital_outfit_set",
+      subImages: [
+        "/allProducts/hospital2sub1.webp",
+        "/allProducts/hospital2sub2.webp",
+      ],
     },
     {
-      name: "Hospital Baby Care Set",
-      mainImage: "/allProducts/product10main.webp",
-      description: "Essential set for hospital baby care.",
+      name: "Hospital Muslin Outfit Set",
+      mainImage: "/allProducts/hospital3main.webp",
+      description: "Muslin outfit including hat, mittens, and blanket.",
+      oldPrice: 4499,
+      price: 3799,
+      discount: 15,
+      category: "hospital_outfit_set",
+      subImages: [
+        "/allProducts/hospital3sub1.webp",
+        "/allProducts/hospital3sub2.webp",
+      ],
+    },
+    {
+      name: "Complete Hospital Newborn Set",
+      mainImage: "/allProducts/hospital4main.webp",
+      description: "Everything needed for newborn care in hospital.",
+      oldPrice: 6999,
+      price: 5899,
+      discount: 16,
+      category: "hospital_outfit_set",
+      subImages: [
+        "/allProducts/hospital4sub1.webp",
+        "/allProducts/hospital4sub2.webp",
+        "/allProducts/hospital4sub3.webp",
+      ],
+    },
+    {
+      name: "Hospital Baby Comfort Set",
+      mainImage: "/allProducts/hospital5main.webp",
+      description: "Soft and cozy set for hospital newborn comfort.",
       oldPrice: 4999,
       price: 4299,
       discount: 14,
       category: "hospital_outfit_set",
       subImages: [
-        "/allProducts/product10sub1.webp",
-        "/allProducts/product10sub2.webp",
+        "/allProducts/hospital5sub1.webp",
+        "/allProducts/hospital5sub2.webp",
       ],
     },
     {
-      name: "Deluxe Muslin Hospital Special Outfit",
-      mainImage: "/allProducts/product11main.webp",
-      description:
-        "Premium muslin hospital outfit set for newborns, including hat, blanket, and toy.",
+      name: "Newborn Hospital Essentials Set",
+      mainImage: "/allProducts/hospital1main.webp",
+      description: "Complete essentials set for hospital newborn care.",
+      oldPrice: 3999,
+      price: 3499,
+      discount: 13,
+      category: "hospital_outfit_special_set",
+      subImages: [
+        "/allProducts/hospital1sub1.webp",
+        "/allProducts/hospital1sub2.webp",
+        "/allProducts/hospital1sub3.webp",
+      ],
+    },
+    {
+      name: "Luxury Hospital Baby Care Set",
+      mainImage: "/allProducts/hospital2main.webp",
+      description: "Luxury newborn care set for hospital stay.",
       oldPrice: 5999,
       price: 4999,
       discount: 17,
       category: "hospital_outfit_special_set",
       subImages: [
-        "/allProducts/product11sub1.webp",
-        "/allProducts/product11sub2.webp",
-        "/allProducts/product11sub3.webp",
+        "/allProducts/hospital2sub1.webp",
+        "/allProducts/hospital2sub2.webp",
       ],
     },
     {
-      name: "Luxury Baby Hospital Essentials Set",
-      mainImage: "/allProducts/product12main.webp",
-      description: "Complete luxury essentials set for hospital newborn care.",
-      oldPrice: 6999,
-      price: 5899,
-      discount: 16,
-      category: "hospital_outfit_special_set",
-      subImages: [
-        "/allProducts/product12sub1.webp",
-        "/allProducts/product12sub2.webp",
-      ],
-    },
-    {
-      name: "Premium Newborn Hospital Outfit Special",
-      mainImage: "/allProducts/product13main.webp",
-      description:
-        "Special newborn outfit set with muslin fabric, hat, mittens, and toy.",
+      name: "Hospital Muslin Outfit Set",
+      mainImage: "/allProducts/hospital3main.webp",
+      description: "Muslin outfit including hat, mittens, and blanket.",
       oldPrice: 4499,
       price: 3799,
       discount: 15,
       category: "hospital_outfit_special_set",
       subImages: [
-        "/allProducts/product13sub1.webp",
-        "/allProducts/product13sub2.webp",
+        "/allProducts/hospital3sub1.webp",
+        "/allProducts/hospital3sub2.webp",
+      ],
+    },
+    {
+      name: "Complete Hospital Newborn Set",
+      mainImage: "/allProducts/hospital4main.webp",
+      description: "Everything needed for newborn care in hospital.",
+      oldPrice: 6999,
+      price: 5899,
+      discount: 16,
+      category: "hospital_outfit_special_set",
+      subImages: [
+        "/allProducts/hospital4sub1.webp",
+        "/allProducts/hospital4sub2.webp",
+        "/allProducts/hospital4sub3.webp",
+      ],
+    },
+    {
+      name: "Hospital Baby Comfort Set",
+      mainImage: "/allProducts/hospital5main.webp",
+      description: "Soft and cozy set for hospital newborn comfort.",
+      oldPrice: 4999,
+      price: 4299,
+      discount: 14,
+      category: "hospital_outfit_special_set",
+      subImages: [
+        "/allProducts/hospital5sub1.webp",
+        "/allProducts/hospital5sub2.webp",
       ],
     },
   ];
@@ -279,8 +331,8 @@ async function main() {
   await prisma.settings.create({
     data: {
       logo: "/logo/logo.webp",
-      heroBg: "/heroes/heroes1.webp",
-      heroMobileBg: "/heroes/heroes2.webp",
+      heroBg: "/heroes/heroes2.jpg",
+      heroMobileBg: "/heroes/heroes1.jpg",
     },
   });
 }

@@ -20,8 +20,8 @@ export default function ProductCard({ product }) {
           <div className="relative w-full aspect-[2.5/4] overflow-hidden">
             <Image
               src={
-                !isMobile && isHovered && product.subImage1
-                  ? product.subImage1
+                !isMobile && isHovered && product.subImages?.[0]?.url
+                  ? product.subImages[0].url
                   : product.mainImage
               }
               alt={product.description}

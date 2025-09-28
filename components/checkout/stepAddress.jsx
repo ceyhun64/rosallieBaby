@@ -1,4 +1,3 @@
-// components/payment/StepAddress.jsx
 import React from "react";
 import {
   Card,
@@ -40,22 +39,22 @@ export default function StepAddress({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Adres Seçimi</CardTitle>
+        <CardTitle>Address Selection</CardTitle>
         <CardDescription>
-          Teslimat ve fatura için kayıtlı adreslerinizden birini seçiniz veya
-          yeni bir adres ekleyiniz.
+          Choose one of your saved addresses for shipping and billing, or add a
+          new one.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Kayıtlı Adresler Select Input */}
+        {/* Saved Addresses Select Input */}
         {user && user.addresses.length > 0 ? (
           <div className="space-y-2">
-            <Label htmlFor="address-select">Kayıtlı Adreslerim</Label>
+            <Label htmlFor="address-select">My Saved Addresses</Label>
             <Select
               value={selectedAddress || ""}
               onValueChange={(val) => {
                 setSelectedAddress(val);
-                setIsAddingNewAddress(false); // Kayıtlı adres seçilirse formu kapat
+                setIsAddingNewAddress(false); // Close form when a saved address is selected
               }}
             >
               <SelectTrigger id="address-select">
@@ -63,7 +62,7 @@ export default function StepAddress({
                   placeholder={
                     selectedAddressObject
                       ? `${selectedAddressObject.title} - ${selectedAddressObject.city}`
-                      : "Adres seçiniz"
+                      : "Select Address"
                   }
                 />
               </SelectTrigger>
@@ -78,25 +77,22 @@ export default function StepAddress({
             </Select>
           </div>
         ) : (
-          <p className="text-gray-500 text-sm">
-            Kayıtlı adresiniz bulunmamaktadır.
-          </p>
+          <p className="text-gray-500 text-sm">You have no saved addresses.</p>
         )}
 
         <Separator />
 
-        {/* Yeni Adres Ekle Butonu */}
-        {/* Buton Tıklaması: isAddingNewAddress state'ini değiştirir */}
+        {/* Add New Address Button */}
         {!isAddingNewAddress ? (
           <Button
             variant="outline"
             className="w-full"
             onClick={() => {
               setIsAddingNewAddress(true);
-              setSelectedAddress(""); // Yeni adres eklenirken seçim kaldırılır
+              setSelectedAddress(""); // Clear selection when adding new address
             }}
           >
-            + Yeni Adres Ekle
+            + Add New Address
           </Button>
         ) : (
           <Button
@@ -104,46 +100,45 @@ export default function StepAddress({
             className="w-full"
             onClick={() => setIsAddingNewAddress(false)}
           >
-            Kayıtlı Adreslere Geri Dön
+            Back to Saved Addresses
           </Button>
         )}
 
-        {/* Yeni Adres Ekleme Formu */}
+        {/* New Address Form */}
         {isAddingNewAddress && (
           <form
             onSubmit={handleAddNewAddress}
             className="space-y-4 p-4 border rounded-md bg-gray-50"
           >
-            <CardTitle className="text-lg">Yeni Adres Bilgileri</CardTitle>
+            <CardTitle className="text-lg">New Address Information</CardTitle>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Adres Başlık, İsim, Soyisim alanları... */}
               <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="title">Adres Başlığı (örn: Ev, İş)</Label>
+                <Label htmlFor="title">Address Title (e.g., Home, Work)</Label>
                 <Input
                   id="title"
                   value={newAddressForm.title}
                   onChange={handleAddressFormChange}
-                  placeholder="Ev Adresim"
+                  placeholder="My Home"
                 />
               </div>
               <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="firstName">Adınız (*)</Label>
+                <Label htmlFor="firstName">First Name (*)</Label>
                 <Input
                   id="firstName"
                   value={newAddressForm.firstName}
                   onChange={handleAddressFormChange}
-                  placeholder="Adınız"
+                  placeholder="First Name"
                   required
                 />
               </div>
               <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="lastName">Soyadınız (*)</Label>
+                <Label htmlFor="lastName">Last Name (*)</Label>
                 <Input
                   id="lastName"
                   value={newAddressForm.lastName}
                   onChange={handleAddressFormChange}
-                  placeholder="Soyadınız"
+                  placeholder="Last Name"
                   required
                 />
               </div>
@@ -151,40 +146,40 @@ export default function StepAddress({
 
             <div className="space-y-2">
               <Label htmlFor="address">
-                Adres Detayı (Sokak, Bina No, Kat vb.) (*)
+                Address Details (Street, Building No, Floor, etc.) (*)
               </Label>
               <Textarea
                 id="address"
                 value={newAddressForm.address}
                 onChange={handleAddressFormChange}
-                placeholder="Örn: Çiçek Sokak No: 5/A Kat: 3"
+                placeholder="e.g., Flower Street No: 5/A Floor: 3"
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="city">İl (*)</Label>
+                <Label htmlFor="city">City (*)</Label>
                 <Input
                   id="city"
                   value={newAddressForm.city}
                   onChange={handleAddressFormChange}
-                  placeholder="İstanbul"
+                  placeholder="Istanbul"
                   required
                 />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="district">İlçe (*)</Label>
+                <Label htmlFor="district">District (*)</Label>
                 <Input
                   id="district"
                   value={newAddressForm.district}
                   onChange={handleAddressFormChange}
-                  placeholder="Kadıköy"
+                  placeholder="Kadikoy"
                   required
                 />
               </div>
               <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="zip">Posta Kodu</Label>
+                <Label htmlFor="zip">Postal Code</Label>
                 <Input
                   id="zip"
                   value={newAddressForm.zip}
@@ -193,7 +188,7 @@ export default function StepAddress({
                 />
               </div>
               <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="phone">Telefon</Label>
+                <Label htmlFor="phone">Phone</Label>
                 <Input
                   id="phone"
                   value={newAddressForm.phone}
@@ -204,12 +199,12 @@ export default function StepAddress({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="country">Ülke (*)</Label>
-              <Input id="country" value="Türkiye" readOnly disabled />
+              <Label htmlFor="country">Country (*)</Label>
+              <Input id="country" value="Turkey" readOnly disabled />
             </div>
 
             <Button type="submit" className="w-full" disabled={isSavingAddress}>
-              {isSavingAddress ? "Kaydediliyor..." : "Adresi Kaydet ve Seç"}
+              {isSavingAddress ? "Saving..." : "Save and Select Address"}
             </Button>
           </form>
         )}
@@ -219,7 +214,7 @@ export default function StepAddress({
           onClick={() => setStep(2)}
           disabled={!selectedAddress || isAddingNewAddress}
         >
-          Kargo Seçimine Git
+          Go to Shipping Selection
         </Button>
       </CardFooter>
     </Card>

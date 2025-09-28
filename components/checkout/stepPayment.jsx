@@ -1,4 +1,3 @@
-// components/payment/StepPaymentCard.jsx
 import React from "react";
 import {
   Card,
@@ -17,7 +16,7 @@ export default function StepPaymentCard({
   setHolderName,
   cardNumber,
   setCardNumber,
-  formattedCardNumber, // Kart numarasının gösterim formatı
+  formattedCardNumber, // Formatted card number for display
   expireMonth,
   setExpireMonth,
   expireYear,
@@ -34,27 +33,27 @@ export default function StepPaymentCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Kart Bilgileri</CardTitle>
+        <CardTitle>Card Information</CardTitle>
         <CardDescription>
-          Ödeme işlemini tamamlamak için kart bilgilerinizi giriniz.
+          Enter your card details to complete the payment.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="holderName">Kart Sahibi Adı Soyadı</Label>
+          <Label htmlFor="holderName">Card Holder Name</Label>
           <Input
             id="holderName"
-            placeholder="Kart üzerindeki Ad Soyad"
+            placeholder="Name on the Card"
             value={holderName}
             onChange={(e) => setHolderName(e.target.value.toUpperCase())}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="cardNumber">Kart Numarası</Label>
+          <Label htmlFor="cardNumber">Card Number</Label>
           <Input
             id="cardNumber"
             placeholder="XXXX XXXX XXXX XXXX"
-            maxLength={16 + 3}
+            maxLength={19} // 16 digits + 3 spaces
             value={formattedCardNumber}
             onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, ""))}
           />
@@ -62,10 +61,10 @@ export default function StepPaymentCard({
 
         <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="expireMonth">Ay</Label>
+            <Label htmlFor="expireMonth">Month</Label>
             <Input
               id="expireMonth"
-              placeholder="AA"
+              placeholder="MM"
               maxLength={2}
               value={expireMonth}
               onChange={(e) =>
@@ -74,7 +73,7 @@ export default function StepPaymentCard({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="expireYear">Yıl</Label>
+            <Label htmlFor="expireYear">Year</Label>
             <Input
               id="expireYear"
               placeholder="YY"
@@ -97,10 +96,10 @@ export default function StepPaymentCard({
       </CardContent>
       <CardFooter className="flex justify-between w-full">
         <Button variant="outline" onClick={() => setStep(2)}>
-          Geri
+          Back
         </Button>
         <Button onClick={handlePayment} disabled={!isFormValid}>
-          {totalPrice.toFixed(2)}₺ Ödemeyi Tamamla
+          Complete Payment {totalPrice.toFixed(2)}₺
         </Button>
       </CardFooter>
     </Card>

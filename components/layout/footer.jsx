@@ -9,21 +9,21 @@ const footerSections = [
   {
     title: "Agreements",
     links: [
-      { label: "Distance Sales Agreement", href: "/mesafeli-satis-sozlesmesi" },
-      { label: "Privacy Policy", href: "/gizlilik-sozlesmesi" },
-      { label: "Cancellation & Refund Policy", href: "/iptal-iade-sartlari" },
+      { label: "Distance Sales Agreement", href: "/contract/distance_selling" },
+      { label: "Privacy Policy", href: "/contract/privacy_policy" },
+      { label: "Cancellation & Refund Policy", href: "/contract/cancellation" },
     ],
   },
   {
     title: "My Account",
     links: [
-      { label: "Sign In", href: "/giris" },
-      { label: "Register", href: "/kayit-ol" },
+      { label: "Sign In", href: "/account/login" },
+      { label: "Register", href: "/account/register" },
     ],
   },
   {
     title: "About Us",
-    links: [{ label: "Contact", href: "/iletisim" }],
+    links: [{ label: "Contact", href: "/contact" }],
   },
 ];
 
@@ -43,9 +43,7 @@ export default function Footer() {
         <div className="container mx-auto px-4">
           {/* Link Columns */}
           <div
-            className={`grid ${
-              isMobile ? "grid-cols-1" : "grid-cols-3"
-            } gap-8 md:gap-16`}
+            className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-3"} gap-8 md:gap-16`}
           >
             {footerSections.map((section, index) => (
               <div key={index}>
@@ -102,7 +100,7 @@ export default function Footer() {
 
           {/* Bottom Section: Social Media and Payment Icons */}
           <div className="border-t mt-12 pt-8 flex flex-row items-center justify-between">
-            {/* Social Media Icons - sol */}
+            {/* Social Media Icons */}
             <div className="flex items-center space-x-4">
               <Link href="#" aria-label="Facebook">
                 <Facebook
@@ -118,26 +116,11 @@ export default function Footer() {
               </Link>
             </div>
 
-            {/* Payment Icons - sağ */}
+            {/* Payment Icons */}
             <div className="flex items-center space-x-1">
-              <Image
-                src="/footer/Visa.svg"
-                alt="Visa logo"
-                width={40}
-                height={20}
-              />
-              <Image
-                src="/footer/Maestro.svg"
-                alt="Maestro logo"
-                width={40}
-                height={20}
-              />
-              <Image
-                src="/footer/Mastercard.svg"
-                alt="Mastercard logo"
-                width={40}
-                height={20}
-              />
+              <Image src="/footer/Visa.svg" alt="Visa logo" width={40} height={20} />
+              <Image src="/footer/Maestro.svg" alt="Maestro logo" width={40} height={20} />
+              <Image src="/footer/Mastercard.svg" alt="Mastercard logo" width={40} height={20} />
             </div>
           </div>
         </div>
@@ -150,7 +133,17 @@ export default function Footer() {
             ©2025 RosallieBaby.com All rights reserved
             <span className="hidden md:inline"> | </span>
           </span>
-          <span className="block md:inline">Developed by .jhun</span>
+          <span className="block md:inline">
+            Developed by{" "}
+            <a
+              href="https://wa.me/905541496377"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-800 underline font-bold"
+            >
+              .jhun
+            </a>
+          </span>
         </p>
       </div>
     </>

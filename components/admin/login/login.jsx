@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
+import { signIn } from "next-auth/react";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -14,19 +15,36 @@ export default function AdminLogin() {
   const [loginMessage, setLoginMessage] = useState("");
   const router = useRouter();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (email === "admin@gmail.com" && password === "123456") {
-      setLoginMessage("Giriş başarılı! Yönlendiriliyorsunuz...");
-      router.push("/admin/dashboard");
-    } else {
+
+    // NextAuth login
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+
+    if (res?.error) {
       setLoginMessage("Hatalı email veya şifre!");
+      return;
     }
+
+    // Admin role kontrolü
+    const sessionRes = await fetch("/api/account/check");
+    const sessionData = await sessionRes.json();
+
+    if (!sessionData.user || sessionData.user.role !== "ADMIN") {
+      setLoginMessage("Bu alan sadece adminlere açıktır!");
+      return;
+    }
+
+    setLoginMessage("Giriş başarılı! Yönlendiriliyorsunuz...");
+    router.push("/admin/dashboard");
   };
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-white font-sans">
-      {/* Right side: Image (gizli mobil) */}
       <div className="hidden md:flex flex-2 relative">
         <img
           src="/login/adminLogin.jpg"
@@ -36,10 +54,8 @@ export default function AdminLogin() {
         <div className="absolute inset-0 bg-black/20" />
       </div>
 
-      {/* Left side: Form */}
       <div className="flex flex-1 flex-col justify-center items-center p-4 md:p-8 bg-black">
         <div className="w-full max-w-sm bg-stone-900 p-6 md:p-8 rounded-lg shadow-lg">
-          {/* RosallieBaby Başlığı */}
           <h1 className="text-4xl md:text-5xl font-extrabold text-teal-600 mb-4 text-center">
             RosallieBaby
           </h1>
@@ -49,7 +65,6 @@ export default function AdminLogin() {
           </h2>
 
           <form onSubmit={handleLogin} className="space-y-4">
-            {/* Email */}
             <div>
               <Label htmlFor="email" className="text-stone-300 mb-2">
                 * Email
@@ -64,7 +79,6 @@ export default function AdminLogin() {
               />
             </div>
 
-            {/* Password */}
             <div>
               <Label htmlFor="password" className="text-stone-300 mb-2">
                 * Password

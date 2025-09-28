@@ -1,4 +1,3 @@
-// components/payment/StepCargo.jsx
 import React from "react";
 import {
   Card,
@@ -26,9 +25,9 @@ export default function StepCargo({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Kargo Seçimi</CardTitle>
+        <CardTitle>Shipping Selection</CardTitle>
         <CardDescription>
-          Siparişinizin teslim edileceği kargo firmasını seçiniz.
+          Choose the shipping company for delivering your order.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -37,7 +36,7 @@ export default function StepCargo({
           onValueChange={(val) => setSelectedCargo(val)}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Kargo firması seçiniz" />
+            <SelectValue placeholder="Select a shipping company" />
           </SelectTrigger>
           <SelectContent>
             {cargoOptions.map((c) => (
@@ -50,10 +49,10 @@ export default function StepCargo({
       </CardContent>
       <CardFooter className="flex justify-between w-full">
         <Button variant="outline" onClick={() => setStep(1)}>
-          Geri
+          Back
         </Button>
         <Button onClick={() => setStep(3)} disabled={!selectedCargo}>
-          Kart Bilgilerine Git
+          Go to Card Info
         </Button>
       </CardFooter>
     </Card>

@@ -24,11 +24,13 @@ export const authOptions = {
         );
         if (!isValid) return null;
 
+        // 🔹 Role bilgisi ekleniyor
         return {
           id: user.id,
           name: user.name,
           surname: user.surname,
           email: user.email,
+          role: user.role, // role alanı ekleniyor
         };
       },
     }),
@@ -44,6 +46,7 @@ export const authOptions = {
         token.name = user.name;
         token.surname = user.surname;
         token.email = user.email;
+        token.role = user.role; // 🔹 role token'a ekleniyor
       }
       return token;
     },
@@ -53,6 +56,7 @@ export const authOptions = {
         name: token.name,
         surname: token.surname,
         email: token.email,
+        role: token.role, // 🔹 role session'a ekleniyor
       };
       return session;
     },

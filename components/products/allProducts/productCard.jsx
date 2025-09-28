@@ -20,8 +20,8 @@ export default function ProductCard({ product }) {
           <div className="relative w-full aspect-[2.5/4] overflow-hidden">
             <Image
               src={
-                !isMobile && isHovered && product.subImage1
-                  ? product.subImage1
+                !isMobile && isHovered && product.subImages?.[0]?.url
+                  ? product.subImages[0].url
                   : product.mainImage
               }
               alt={product.description}
@@ -30,7 +30,7 @@ export default function ProductCard({ product }) {
             />
 
             {/* Sepete Ekle Butonu */}
-            {(isHovered ) && (
+            {isHovered && (
               <button
                 className="absolute bottom-4 left-4 right-4 bg-teal-600 text-white font-semibold 
                 text-sm md:text-base text-center py-2 px-3 border border-white 

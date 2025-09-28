@@ -17,17 +17,17 @@ export default function BasketSummaryCard({
   selectedCargoFee,
   totalPrice,
 }) {
-  // item'ın detaylarını yeni veri yapısına göre oluşturur.
+  // Construct item details based on the new data structure
   const getItemDetails = (item) => {
     const details = [];
     if (item.customName) {
-      details.push(`Kişiselleştirme: "${item.customName}"`);
+      details.push(`Personalization: "${item.customName}"`);
     }
     if (item.strollerCover) {
-      details.push("Bebek Arabası Örtüsü Dahil");
+      details.push("Includes Stroller Cover");
     }
     if (item.hatToyOption && item.hatToyOption !== "none") {
-      details.push(`Şapka/Oyuncak: ${item.hatToyOption}`);
+      details.push(`Hat/Toy: ${item.hatToyOption}`);
     }
     return details;
   };
@@ -35,13 +35,12 @@ export default function BasketSummaryCard({
   return (
     <Card className="sticky top-6 lg:h-fit">
       <CardHeader>
-        <CardTitle className="text-xl">Sepet Özeti</CardTitle>
+        <CardTitle className="text-xl">Basket Summary</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Ürün Listesi */}
+        {/* Product List */}
         <div className="space-y-4">
           {basketItemsData.map((item) => {
-            // "product" nesnesi yoksa bu öğeyi atla
             if (!item.product) return null;
 
             const product = item.product;
@@ -67,7 +66,7 @@ export default function BasketSummaryCard({
                     </div>
                   )}
                   <p className="text-xs text-gray-500 mt-1">
-                    {item.quantity} Adet
+                    {item.quantity} pcs
                   </p>
                 </div>
                 <div className="text-right flex flex-col items-end">
@@ -87,21 +86,21 @@ export default function BasketSummaryCard({
 
         <Separator />
 
-        {/* Fiyat Detayları */}
+        {/* Price Details */}
         <div className="space-y-2 text-sm">
           <div className="flex justify-between font-normal">
-            <span>Ara Toplam</span>
+            <span>Subtotal</span>
             <span className="font-medium">{subTotal.toFixed(2)}₺</span>
           </div>
           <div className="flex justify-between font-normal">
-            <span>Teslimat / Kargo</span>
+            <span>Shipping / Delivery</span>
             <span
               className={`font-medium ${
                 selectedCargoFee === 0 ? "text-green-600" : ""
               }`}
             >
               {selectedCargoFee === 0
-                ? "Ücretsiz"
+                ? "Free"
                 : `+${selectedCargoFee.toFixed(2)}₺`}
             </span>
           </div>
@@ -109,16 +108,16 @@ export default function BasketSummaryCard({
 
         <Separator />
 
-        {/* Genel Toplam */}
+        {/* Total */}
         <div className="flex justify-between text-lg font-bold">
-          <span>Toplam</span>
+          <span>Total</span>
           <span>{totalPrice.toFixed(2)}₺</span>
         </div>
       </CardContent>
       <CardFooter>
         <Link href="/cart" className="w-full">
           <Button variant="outline" className="w-full">
-            Sepeti Düzenle
+            Edit Basket
           </Button>
         </Link>
       </CardFooter>
