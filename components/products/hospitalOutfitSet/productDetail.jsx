@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ import Loading from "@/components/layout/loading";
 
 export default function ProductDetail() {
   const router = useRouter();
+  const completePurchaseRef = useRef(null);
 
   const { id } = useParams();
   const isMobile = useIsMobile();
@@ -232,6 +233,15 @@ export default function ProductDetail() {
       if (!res.ok) throw new Error("Failed to add to cart");
 
       toast.success("Product added to cart!");
+
+      // *** BURASI GÜNCELLENDİ: Sepete ekleme başarılı olduktan sonra kaydır ***
+      if (completePurchaseRef.current) {
+        completePurchaseRef.current.scrollIntoView({
+          behavior: "smooth", // Yumuşak kaydırma efekti
+          block: "start", // Elementin sayfanın başlangıcında görünmesini sağlar
+        });
+      }
+      // *************************************************************************
     } catch (error) {
       console.error(error);
       toast.error("An error occurred while adding to cart!");
@@ -472,7 +482,9 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
-      <CompletePurchase />
+      <div ref={completePurchaseRef}>
+        <CompletePurchase />
+      </div>
       <div className="mt-8 flex flex-col items-start md:items-center text-left md:text-center">
         <h2 className="text-xl font-medium text-green-800">
           Product Description
@@ -482,7 +494,6 @@ export default function ProductDetail() {
           {formatDescription(product.description)}
         </div>
       </div>
-
       <div className="mt-12 mb-8">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-medium text-gray-800">Reviews</h3>
@@ -525,7 +536,6 @@ export default function ProductDetail() {
           )}
         </div>
       </div>
-
       {isReviewModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 bg-opacity-50">
           <div className="relative bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-4">
@@ -611,9 +621,7 @@ export default function ProductDetail() {
           </div>
         </div>
       )}
-
       <Bestseller />
-
       {isImageModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
           <div className="relative w-full h-full flex items-center justify-center p-4">

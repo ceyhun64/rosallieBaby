@@ -9,6 +9,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useIsMobile } from "@/hooks/use-mobile";
+import Loading from "@/components/layout/loading";
 
 export default function MuslinSets() {
   const [products, setProducts] = useState([]);
@@ -36,7 +37,7 @@ export default function MuslinSets() {
   }, []); // Dependency array ekledik, sadece component mount olunca çalışır
   console.log("products", products);
 
-  if (loading) return <p className="text-center py-12">Yükleniyor...</p>;
+  if (loading) return <Loading />;
   if (error) return <p className="text-center py-12 text-red-500">{error}</p>;
   if (products.length === 0)
     return <p className="text-center py-12">Bu kategoride ürün yok.</p>;

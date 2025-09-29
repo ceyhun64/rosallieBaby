@@ -15,7 +15,7 @@ export default function Breadcrumb() {
   const segments = pathname.split("/").filter(Boolean);
 
   return (
-    <nav className="text-sm breadcrumbs mb-4">
+    <nav className="text-xs sm:text-sm breadcrumbs mb-4">
       <ol className="flex items-center space-x-2">
         <li>
           <Link href="/" className="text-gray-500 hover:text-gray-700">

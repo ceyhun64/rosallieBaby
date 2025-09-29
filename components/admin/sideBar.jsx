@@ -16,8 +16,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useRouter } from "next/navigation";
 
 export default function AdminSidebar() {
+  const router = useRouter();
   const pathname = usePathname() ?? "";
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
@@ -73,6 +75,23 @@ export default function AdminSidebar() {
     }
   }
 
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        // Logout başarılı, yönlendir
+        router.push("/admin"); // istediğin login sayfası
+      } else {
+        console.error("Logout başarısız");
+      }
+    } catch (err) {
+      console.error("Logout hatası:", err);
+    }
+  };
+
   // Desktop sidebar
   const desktopSidebar = (
     <aside className="fixed left-0 top-0 w-64 h-screen bg-stone-950 flex flex-col shadow-lg">
@@ -115,13 +134,13 @@ export default function AdminSidebar() {
         />
         <div className="flex flex-col">
           <span className="text-white font-semibold">Barış Beyazgül</span>
-          <Link
-            href="/admin"
+          <button
+            onClick={handleLogout}
             className="flex items-center text-red-400 text-sm hover:text-red-300 space-x-1"
           >
             <LogOut size={16} />
             <span>Çıkış Yap</span>
-          </Link>
+          </button>
         </div>
       </div>
     </aside>

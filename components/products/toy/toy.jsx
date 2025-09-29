@@ -39,7 +39,7 @@ export default async function Toy() {
       <div className="flex items-center gap-2 mb-4">
         <Label
           className={`text-3xl font-semibold ${
-            isMobile ? "text-xl" : "text-3xl"
+            isMobile ? "text-3xl" : "text-xl"
           }`}
         >
           Toy

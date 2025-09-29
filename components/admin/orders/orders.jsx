@@ -25,8 +25,7 @@ import {
   ArrowRight, // Yeni ikon
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-// Varsayımsal olarak toast bildirim kütüphanesi
-// import { toast } from 'sonner';
+import Loading from "@/components/layout/loading";
 
 export default function Orders() {
   const isMobile = useIsMobile();
@@ -459,14 +458,7 @@ export default function Orders() {
     );
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen text-white">
-        <Loader className="w-12 h-12 animate-spin" />
-        <span className="ml-4">Siparişler yükleniyor...</span>
-      </div>
-    );
-  }
+  if (loading) return <Loading />;
 
   return (
     <div className="flex min-h-screen bg-black text-white">

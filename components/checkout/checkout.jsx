@@ -9,7 +9,7 @@ import StepCargo from "@/components/checkout/stepCargo";
 import StepPaymentCard from "@/components/checkout/stepPayment";
 import BasketSummaryCard from "@/components/checkout/cartSummary"; // Sepet özet bileşeni
 import { email } from "zod";
-
+import Loading from "@/components/layout/loading";
 
 // Kargo Seçenekleri (Sabit tutuldu)
 const cargoOptions = [
@@ -356,13 +356,7 @@ export default function PaymentPage() {
     }
   };
   // --- SAYFA DÜZENİ VE YÜKLEME KONTROLÜ (Değişmedi) ---
-  if (loading) {
-    return (
-      <div className="container mx-auto p-8 text-center">
-        Kullanıcı ve Sepet verileri yükleniyor...
-      </div>
-    );
-  }
+  if (loading) return <Loading />;
 
   if (error) {
     return (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,8 @@ export default function ProductDetail() {
   const router = useRouter();
   const { id } = useParams();
   const isMobile = useIsMobile();
+  const completePurchaseRef = useRef(null);
+
   const [selected, setSelected] = useState("plain");
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -503,7 +505,9 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
-      <CompletePurchase />
+      <div ref={completePurchaseRef}>
+        <CompletePurchase />
+      </div>
       <div className="mt-8 flex flex-col items-start md:items-center text-left md:text-center">
         <h2 className="text-xl font-medium text-green-800">
           Product Description
@@ -555,7 +559,6 @@ export default function ProductDetail() {
           )}
         </div>
       </div>
-
       {isReviewModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 bg-opacity-50">
           <div className="relative bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-4">
@@ -641,9 +644,7 @@ export default function ProductDetail() {
           </div>
         </div>
       )}
-
       <Bestseller />
-
       {isImageModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
           <div className="relative w-full h-full flex items-center justify-center p-4">

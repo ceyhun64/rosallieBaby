@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import ProductCard from "./productCard";
 import {
   Carousel,
@@ -9,6 +9,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useIsMobile } from "@/hooks/use-mobile";
+import Loading from "@/components/layout/loading";
 
 export default function MostVisited() {
   const [products, setProducts] = useState([]);
@@ -36,11 +37,11 @@ export default function MostVisited() {
   }, []); // Dependency array ekledik, sadece component mount olunca çalışır
   console.log("products", products);
 
-  if (loading) return <p className="text-center py-12">Yükleniyor...</p>;
+  if (loading) return <Loading />;
   if (error) return <p className="text-center py-12 text-red-500">{error}</p>;
   if (products.length === 0)
     return <p className="text-center py-12">Bu kategoride ürün yok.</p>;
-  
+
   return (
     <section
       className={`container mx-auto  ${isMobile ? "px-1 py-8" : "px-5 py-12"}`}

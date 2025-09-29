@@ -1,19 +1,25 @@
 // app/api/auth/logout/route.ts
 import { NextResponse } from "next/server";
-import { getServerSession, signOut } from "next-auth/next";
-import { authOptions } from "../../auth/[...nextauth]/route";
 
-export async function POST(req) {
-  const session = await getServerSession(authOptions);
+export async function POST() {
+  // Response oluştur
+  const res = NextResponse.json({ message: "Çıkış başarılı" });
 
-  if (!session) {
-    return NextResponse.json(
-      { message: "Zaten çıkış yapmışsınız" },
-      { status: 200 }
-    );
-  }
+  // JWT strategy kullanıyorsun → session cookie'yi silmek yeterli
+  // Prod ortamda HTTPS ise cookie adı __Secure-next-auth.session-token
+  const cookieName =
+    process.env.NODE_ENV === "production"
+      ? "__Secure-next-auth.session-token"
+      : "next-auth.session-token";
 
-  // NextAuth session logout
-  // Eğer client-side signOut kullanırsan buraya gerek kalmaz
-  return NextResponse.json({ message: "Çıkış başarılı" }, { status: 200 });
+  // Cookie'yi sil
+  res.cookies.set(cookieName, "", {
+    maxAge: 0, // hemen sil
+    path: "/", // tüm pathlerde geçerli
+    httpOnly: true, // client JS erişimi yok
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production", // prod’da secure
+  });
+
+  return res;
 }

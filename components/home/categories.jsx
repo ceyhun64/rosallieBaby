@@ -5,19 +5,19 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const categories = [
   {
-    title: "Hospital Outfit Sets",
+    title: "Hospital Outfit Specaial Sets",
     imageUrl: "/categories/category1.webp",
-    href: "/all_products/hospital-outfit-set",
+    href: "/all_products/hospital_outfit_special_set",
+  },
+  {
+    title: "Hospital Outfit Sets",
+    imageUrl: "/categories/category2.webp",
+    href: "/all_products/hospital_outfit_set",
   },
   {
     title: "Toys",
-    imageUrl: "/categories/category2.webp",
-    href: "/all_products/toy",
-  },
-  {
-    title: "Pillows",
     imageUrl: "/categories/category3.webp",
-    href: "/all_products/pillow",
+    href: "/all_products/toy",
   },
 ];
 
@@ -66,7 +66,6 @@ export default function Categories() {
               imageUrl={category.imageUrl}
               href={category.href}
             />
-           
 
             {isMobile && index === activeIndex && (
               <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">

@@ -11,7 +11,7 @@ export default async function AdminDashboardPage() {
 
   // Eğer giriş yoksa veya role ADMIN değilse login sayfasına yönlendir
   if (!session || session.user.role !== "ADMIN") {
-    redirect("/admin/login");
+    redirect("/admin");
   }
 
   return (
