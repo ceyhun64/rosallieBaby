@@ -8,8 +8,8 @@ export default function Heroes() {
   const router = useRouter();
   const isMobile = useIsMobile();
 
-  const [heroBg, setHeroBg] = useState("");
-  const [heroMobileBg, setHeroMobileBg] = useState("");
+  const [heroBg, setHeroBg] = useState(null);
+  const [heroMobileBg, setHeroMobileBg] = useState(null);
 
   useEffect(() => {
     async function fetchSettings() {
@@ -26,24 +26,32 @@ export default function Heroes() {
     fetchSettings();
   }, []);
 
-  const bgImage = isMobile ? heroMobileBg : heroBg;
-
   return (
     <section
-      className={`relative w-full cursor-pointer ${
-        isMobile ? "h-[50vh]" : "h-[120vh]"
-      }`}
+      className="relative w-full cursor-pointer"
       onClick={() => router.push("/all_products")}
     >
-      {bgImage && (
-        <Image
-          src={bgImage}
-          alt="Hero background"
-          fill
-          className="object-cover"
-          priority
-        />
-      )}
+      {isMobile
+        ? heroMobileBg && (
+            <Image
+              src={heroMobileBg}
+              alt="Hero mobile background"
+              width={1080}
+              height={1350}
+              className="w-full h-auto object-cover"
+              priority
+            />
+          )
+        : heroBg && (
+            <Image
+              src={heroBg}
+              alt="Hero desktop background"
+              width={1920}
+              height={800}
+              className="w-full h-auto object-cover"
+              priority
+            />
+          )}
     </section>
   );
 }

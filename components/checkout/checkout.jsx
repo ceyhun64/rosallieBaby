@@ -8,7 +8,6 @@ import StepAddress from "@/components/checkout/stepAddress";
 import StepCargo from "@/components/checkout/stepCargo";
 import StepPaymentCard from "@/components/checkout/stepPayment";
 import BasketSummaryCard from "@/components/checkout/cartSummary"; // Sepet özet bileşeni
-import { email } from "zod";
 import Loading from "@/components/layout/loading";
 
 // Kargo Seçenekleri (Sabit tutuldu)
