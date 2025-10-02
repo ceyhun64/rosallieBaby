@@ -99,7 +99,7 @@ export default function StepPaymentCard({
           Back
         </Button>
         <Button onClick={handlePayment} disabled={!isFormValid}>
-          Complete Payment {totalPrice.toFixed(2)}₺
+          Complete Payment {totalPrice.toFixed(2)}€
         </Button>
       </CardFooter>
     </Card>

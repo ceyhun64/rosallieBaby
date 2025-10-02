@@ -19,6 +19,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import countries from "@/public/countries.json";
 
 export default function StepAddress({
   user,
@@ -45,6 +46,7 @@ export default function StepAddress({
           new one.
         </CardDescription>
       </CardHeader>
+
       <CardContent className="space-y-6">
         {/* Saved Addresses Select Input */}
         {user && user.addresses.length > 0 ? (
@@ -54,7 +56,7 @@ export default function StepAddress({
               value={selectedAddress || ""}
               onValueChange={(val) => {
                 setSelectedAddress(val);
-                setIsAddingNewAddress(false); // Close form when a saved address is selected
+                setIsAddingNewAddress(false);
               }}
             >
               <SelectTrigger id="address-select">
@@ -89,7 +91,7 @@ export default function StepAddress({
             className="w-full"
             onClick={() => {
               setIsAddingNewAddress(true);
-              setSelectedAddress(""); // Clear selection when adding new address
+              setSelectedAddress("");
             }}
           >
             + Add New Address
@@ -113,7 +115,7 @@ export default function StepAddress({
             <CardTitle className="text-lg">New Address Information</CardTitle>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2 md:col-span-1">
+              <div className="space-y-2">
                 <Label htmlFor="title">Address Title (e.g., Home, Work)</Label>
                 <Input
                   id="title"
@@ -122,7 +124,7 @@ export default function StepAddress({
                   placeholder="My Home"
                 />
               </div>
-              <div className="space-y-2 md:col-span-1">
+              <div className="space-y-2">
                 <Label htmlFor="firstName">First Name (*)</Label>
                 <Input
                   id="firstName"
@@ -132,7 +134,7 @@ export default function StepAddress({
                   required
                 />
               </div>
-              <div className="space-y-2 md:col-span-1">
+              <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name (*)</Label>
                 <Input
                   id="lastName"
@@ -158,27 +160,27 @@ export default function StepAddress({
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="space-y-2 col-span-2 md:col-span-1">
+              <div className="space-y-2">
                 <Label htmlFor="city">City (*)</Label>
                 <Input
                   id="city"
                   value={newAddressForm.city}
                   onChange={handleAddressFormChange}
-                  placeholder="Istanbul"
+                  placeholder="City"
                   required
                 />
               </div>
-              <div className="space-y-2 col-span-2 md:col-span-1">
+              <div className="space-y-2">
                 <Label htmlFor="district">District (*)</Label>
                 <Input
                   id="district"
                   value={newAddressForm.district}
                   onChange={handleAddressFormChange}
-                  placeholder="Kadikoy"
+                  placeholder="District"
                   required
                 />
               </div>
-              <div className="space-y-2 md:col-span-1">
+              <div className="space-y-2">
                 <Label htmlFor="zip">Postal Code</Label>
                 <Input
                   id="zip"
@@ -187,20 +189,58 @@ export default function StepAddress({
                   placeholder="34700"
                 />
               </div>
-              <div className="space-y-2 md:col-span-1">
+
+              {/* Phone Field */}
+              <div className="space-y-1">
                 <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={newAddressForm.phone}
-                  onChange={handleAddressFormChange}
-                  placeholder="5XX XXX XX XX"
-                />
+                <div className="flex rounded-md border border-gray-300 overflow-hidden">
+                  {/* Country Code Select */}
+                  <Select
+                    value={newAddressForm.countryCode || "90"}
+                    onValueChange={(val) =>
+                      handleAddressFormChange({
+                        target: { id: "countryCode", value: val },
+                      })
+                    }
+                  >
+                    <SelectTrigger className="flex-[0.7_0_0] h-full px-2 rounded-none border-none bg-gray-100">
+                      {/* Sadece code gösterecek */}
+                      <span className="text-sm">
+                        +{newAddressForm.countryCode || "90"}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countries.map((c) => (
+                        <SelectItem key={c.iso} value={c.code}>
+                          +{c.code} {c.country}{" "}
+                          {/* dropdown'ta hem code hem ülke */}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Phone Number */}
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="Phone number"
+                    className="flex-[3_1_0] border-none rounded-none focus-visible:ring-0 min-w-0 px-3"
+                    value={newAddressForm.phone}
+                    onChange={handleAddressFormChange}
+                  />
+                </div>
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="country">Country (*)</Label>
-              <Input id="country" value="Turkey" readOnly disabled />
+              <Input
+                id="country"
+                placeholder="Enter country"
+                value={newAddressForm.country}
+                onChange={handleAddressFormChange}
+                required
+              />
             </div>
 
             <Button type="submit" className="w-full" disabled={isSavingAddress}>
@@ -209,6 +249,7 @@ export default function StepAddress({
           </form>
         )}
       </CardContent>
+
       <CardFooter className="justify-end">
         <Button
           onClick={() => setStep(2)}

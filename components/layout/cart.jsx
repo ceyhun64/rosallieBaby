@@ -4,14 +4,16 @@ import React, { useState, useEffect } from "react";
 import CartItem from "./cartItem";
 import CartSummary from "./cartSummary";
 import Loading from "../layout/loading";
-import { ShoppingBag } from "lucide-react"; // en üstte ekle
+import { ShoppingBag } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import CompletePurchase from "./completePurchase";
+
 export default function Cart({ onCartUpdate }) {
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCompletePurchase, setShowCompletePurchase] = useState(false); // 🔹 yeni
 
-  // Fetch cart items
   useEffect(() => {
     fetchCart();
   }, []);
@@ -23,7 +25,7 @@ export default function Cart({ onCartUpdate }) {
       if (!res.ok) throw new Error("Failed to fetch cart data.");
       const data = await res.json();
       setCartItems(data);
-      if (onCartUpdate) onCartUpdate(data.length); // Notify Header
+      if (onCartUpdate) onCartUpdate(data.length);
     } catch (err) {
       console.error(err);
     } finally {
@@ -46,7 +48,7 @@ export default function Cart({ onCartUpdate }) {
           i.id === id ? { ...i, quantity: updated.quantity } : i
         )
       );
-      if (onCartUpdate) onCartUpdate(cartItems.length); // Update count
+      if (onCartUpdate) onCartUpdate(cartItems.length);
     } catch (err) {
       console.error(err);
     }
@@ -122,6 +124,27 @@ export default function Cart({ onCartUpdate }) {
           ))
         )}
       </div>
+
+      {cartItems.length > 0 && !showCompletePurchase && (
+        <div className="flex justify-end p-4">
+          <Button
+            className="bg-teal-600 hover:bg-teal-700 text-white rounded-none"
+            onClick={() => setShowCompletePurchase(true)}
+          >
+            Show Suggested Products
+          </Button>
+        </div>
+      )}
+
+      {/* Switch ile önerilen ürünler */}
+      {showCompletePurchase && (
+        <CompletePurchase
+          onClose={() => setShowCompletePurchase(false)}
+          onCartUpdate={(newCartItems) => setCartItems(newCartItems)}
+        />
+      )}
+
+      {/* Summary */}
       <div className="sticky bottom-0 bg-white shadow-top">
         <CartSummary subtotal={subtotal} />
       </div>

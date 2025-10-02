@@ -5,9 +5,9 @@ import Sidebar from "./sideBar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import countries from "@/public/countries.json";
 
 export default function Addresses() {
   const [addresses, setAddresses] = useState([]);
@@ -251,19 +251,122 @@ function AddressForm({ formData, setFormData, onSave }) {
         onSave();
       }}
     >
-      {/* ... form alanları aynı kalıyor ... */}
+      {/* Address Title */}
       <div className="space-y-1 md:col-span-2">
-        <Label htmlFor="addressTitle">
+        <Label htmlFor="title">
           <span className="text-red-500">*</span> Address Title
         </Label>
         <Input
-          id="addressTitle"
+          id="title"
           placeholder="(home, work, etc...)"
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
         />
       </div>
-      {/* diğer inputlar */}
+
+      {/* First Name */}
+      <div className="space-y-1">
+        <Label htmlFor="firstName">
+          <span className="text-red-500">*</span> First Name
+        </Label>
+        <Input
+          id="firstName"
+          value={formData.firstName}
+          onChange={(e) =>
+            setFormData({ ...formData, firstName: e.target.value })
+          }
+        />
+      </div>
+
+      {/* Last Name */}
+      <div className="space-y-1">
+        <Label htmlFor="lastName">
+          <span className="text-red-500">*</span> Last Name
+        </Label>
+        <Input
+          id="lastName"
+          value={formData.lastName}
+          onChange={(e) =>
+            setFormData({ ...formData, lastName: e.target.value })
+          }
+        />
+      </div>
+
+      {/* Address */}
+      <div className="space-y-1 md:col-span-2">
+        <Label htmlFor="address">
+          <span className="text-red-500">*</span> Address
+        </Label>
+        <Input
+          id="address"
+          value={formData.address}
+          onChange={(e) =>
+            setFormData({ ...formData, address: e.target.value })
+          }
+        />
+      </div>
+
+      {/* District */}
+      <div className="space-y-1">
+        <Label htmlFor="district">
+          <span className="text-red-500">*</span> District
+        </Label>
+        <Input
+          id="district"
+          value={formData.district}
+          onChange={(e) =>
+            setFormData({ ...formData, district: e.target.value })
+          }
+        />
+      </div>
+
+      {/* City */}
+      <div className="space-y-1">
+        <Label htmlFor="city">
+          <span className="text-red-500">*</span> City
+        </Label>
+        <Input
+          id="city"
+          value={formData.city}
+          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+        />
+      </div>
+
+      {/* Zip */}
+      <div className="space-y-1">
+        <Label htmlFor="zip">Postal Code</Label>
+        <Input
+          id="zip"
+          value={formData.zip}
+          onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
+        />
+      </div>
+
+      {/* Phone */}
+      <div className="space-y-1">
+        <Label htmlFor="phone">Phone</Label>
+        <Input
+          id="phone"
+          value={formData.phone}
+          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+        />
+      </div>
+
+      {/* Country */}
+      <div className="space-y-1">
+        <Label htmlFor="country">
+          <span className="text-red-500">*</span> Country
+        </Label>
+        <Input
+          id="country"
+          value={formData.country}
+          onChange={(e) =>
+            setFormData({ ...formData, country: e.target.value })
+          }
+        />
+      </div>
+
+      {/* Save Button */}
       <div className="md:col-span-2 flex justify-start mt-6">
         <Button
           type="submit"

@@ -9,6 +9,7 @@ import Loading from "@/components/layout/loading";
 import Unauthorized from "../layout/unauthorized";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import countries from "@/public/countries.json"; // JSON dosyanın yolu
 
 export default function MyPersonalInformation() {
   const isMobile = useIsMobile();
@@ -47,11 +48,22 @@ export default function MyPersonalInformation() {
     e.preventDefault();
     setSaving(true);
     try {
+      // Telefonu +code + number formatına çevir
+      const fullPhone = formData.phone
+        ? `+${formData.countryCode || "90"}${formData.phone}`
+        : "";
+
+      const payload = {
+        ...formData,
+        phone: fullPhone, // backend'e bu gidecek
+      };
+
       const res = await fetch("/api/user", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
+
       if (!res.ok) throw new Error("Failed to update user");
       const data = await res.json();
       setUser(data.user);
@@ -118,21 +130,35 @@ export default function MyPersonalInformation() {
           <div className="space-y-1">
             <Label htmlFor="phone">Phone</Label>
             <div className="flex rounded-md border border-gray-300 overflow-hidden">
-              <span className="inline-flex items-center px-3 text-sm text-gray-500 bg-gray-100 border-r border-gray-300">
-                <img
-                  src="https://flagcdn.com/tr.svg"
-                  alt="Turkey Flag"
-                  className="w-5 h-auto mr-2"
-                />
-                <select className="bg-gray-100 appearance-none outline-none">
-                  <option>+90</option>
+              {/* Country Code */}
+              <div className="relative flex-[1_1_0]">
+                {/* Visible code box */}
+                <div className="flex items-center justify-end px-3 text-sm text-gray-500 bg-gray-100 border-r border-gray-300 h-full">
+                  +{formData.countryCode || "90"}
+                </div>
+
+                {/* Invisible select over it */}
+                <select
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  value={formData.countryCode || "90"}
+                  onChange={(e) =>
+                    setFormData({ ...formData, countryCode: e.target.value })
+                  }
+                >
+                  {countries.map((c) => (
+                    <option key={c.iso} value={c.code}>
+                      +{c.code} {c.country}
+                    </option>
+                  ))}
                 </select>
-              </span>
+              </div>
+
+              {/* Phone Number */}
               <Input
                 id="phone"
                 type="tel"
                 placeholder="Phone number"
-                className="flex-1 border-none rounded-none focus-visible:ring-0"
+                className="flex-[3_1_0] border-none rounded-none focus-visible:ring-0 min-w-0 px-3"
                 value={formData.phone}
                 onChange={(e) =>
                   setFormData({ ...formData, phone: e.target.value })

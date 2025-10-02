@@ -3,14 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  Search,
-  User,
-  ShoppingBag,
-  X,
-  Menu,
-  Heart,
-} from "lucide-react";
+import { Search, User, ShoppingBag, X, Menu, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -18,7 +11,9 @@ import {
   SheetHeader,
   SheetClose,
   SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
+import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Cart from "./cart"; // Cart componenti
 
@@ -157,28 +152,52 @@ export default function Header() {
         {/* Mobile Menu Sheet */}
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetContent side="left" className="w-full h-full">
-            <div className="flex justify-between items-center py-4 px-6 border-b border-gray-200">
+            <SheetHeader className="py-4 px-6 border-b border-gray-200">
               <div className="flex items-center gap-4">
+                {/* Kapatma butonu */}
                 <SheetClose asChild>
-                  <X className="h-6 w-6 text-gray-700 cursor-pointer" />
+                  <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                    <X className="h-6 w-6 cursor-pointer" />
+                  </button>
                 </SheetClose>
-                <div className="flex items-center gap-2 font-semibold text-sm">
-                  <Link
-                    href="/account/login"
-                    className="text-[#829969] hover:bg-[#6f855a] transition-colors text-xl"
+
+                {/* Kullanıcı işlemleri */}
+                {user ? (
+                  <button
+                    onClick={async () => {
+                      await fetch("/api/account/logout", { method: "POST" });
+                      setUser(null);
+                      setCartItemsCount(0);
+                      setMenuOpen(false);
+                    }}
+                    className="text-red-600 hover:text-red-800 transition-colors text-xl font-semibold"
                   >
-                    Login
-                  </Link>
-                  <span>|</span>
-                  <Link
-                    href="/account/register"
-                    className="text-black hover:text-gray-600 transition-colors text-xl"
-                  >
-                    Register
-                  </Link>
-                </div>
+                    Logout
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2 font-semibold text-sm">
+                    <Link
+                      href="/account/login"
+                      className="text-[#829969] hover:bg-[#6f855a] transition-colors text-xl"
+                    >
+                      Login
+                    </Link>
+                    <span>|</span>
+                    <Link
+                      href="/account/register"
+                      className="text-black hover:text-gray-600 transition-colors text-xl"
+                    >
+                      Register
+                    </Link>
+                  </div>
+                )}
               </div>
-            </div>
+
+              <SheetDescription>
+                Navigate through the site sections
+              </SheetDescription>
+            </SheetHeader>
+
             <div className="mt-4 flex flex-col gap-0">
               {menuItems.map((item) => (
                 <Link
@@ -194,22 +213,25 @@ export default function Header() {
           </SheetContent>
         </Sheet>
 
-        {/* Cart Sheet */}
         <Sheet open={cartOpen} onOpenChange={setCartOpen}>
           <SheetContent
             side="right"
             className="w-full sm:w-[540px] lg:w-[700px] p-0 flex flex-col"
           >
-            <SheetHeader className="!flex !items-center !justify-between p-4 border-b border-gray-200">
-              <SheetTitle className="text-xl font-bold text-gray-800 truncate min-w-0">
-                My Cart
+            <SheetHeader className="py-4 px-6 border-b border-gray-200">
+              <SheetTitle>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 font-semibold text-sm">
+                    <Label className={"text-2xl"}>My Cart</Label>
+                  </div>
+                  <SheetClose asChild>
+                    <X className="h-6 w-6 text-gray-700 cursor-pointer ms-50" />
+                  </SheetClose>
+                </div>
               </SheetTitle>
-
-              <SheetClose asChild>
-                <button className="text-gray-400 hover:text-gray-600 transition-colors">
-                  <X className="h-6 w-6" />
-                </button>
-              </SheetClose>
+              <SheetDescription>
+                Review the items in your shopping cart before checkout.
+              </SheetDescription>
             </SheetHeader>
 
             <div className="flex-1 overflow-y-auto">

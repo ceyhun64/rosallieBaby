@@ -41,7 +41,7 @@ export default function StepCargo({
           <SelectContent>
             {cargoOptions.map((c) => (
               <SelectItem key={c.id} value={c.id}>
-                {c.name} ({c.fee.toFixed(2)}₺)
+                {c.name} ({c.fee.toFixed(2)}€)
               </SelectItem>
             ))}
           </SelectContent>

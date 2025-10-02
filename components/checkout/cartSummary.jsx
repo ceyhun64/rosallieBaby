@@ -71,11 +71,11 @@ export default function BasketSummaryCard({
                 </div>
                 <div className="text-right flex flex-col items-end">
                   <span className="text-sm font-medium text-red-500">
-                    {(product.price * item.quantity).toFixed(2)}₺
+                    {(product.price * item.quantity).toFixed(2)}€
                   </span>
                   {product.oldPrice > product.price && (
                     <span className="text-xs line-through text-gray-400">
-                      {(product.oldPrice * item.quantity).toFixed(2)}₺
+                      {(product.oldPrice * item.quantity).toFixed(2)}€
                     </span>
                   )}
                 </div>
@@ -90,7 +90,7 @@ export default function BasketSummaryCard({
         <div className="space-y-2 text-sm">
           <div className="flex justify-between font-normal">
             <span>Subtotal</span>
-            <span className="font-medium">{subTotal.toFixed(2)}₺</span>
+            <span className="font-medium">{subTotal.toFixed(2)}€</span>
           </div>
           <div className="flex justify-between font-normal">
             <span>Shipping / Delivery</span>
@@ -101,7 +101,7 @@ export default function BasketSummaryCard({
             >
               {selectedCargoFee === 0
                 ? "Free"
-                : `+${selectedCargoFee.toFixed(2)}₺`}
+                : `+${selectedCargoFee.toFixed(2)}€`}
             </span>
           </div>
         </div>
@@ -111,7 +111,7 @@ export default function BasketSummaryCard({
         {/* Total */}
         <div className="flex justify-between text-lg font-bold">
           <span>Total</span>
-          <span>{totalPrice.toFixed(2)}₺</span>
+          <span>{totalPrice.toFixed(2)}€</span>
         </div>
       </CardContent>
       <CardFooter>

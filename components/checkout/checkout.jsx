@@ -26,7 +26,7 @@ const initialAddressForm = {
   city: "",
   zip: "",
   phone: "",
-  country: "Türkiye",
+  country: "",
 };
 
 // --- ANA BİLEŞEN ---
@@ -172,10 +172,19 @@ export default function PaymentPage() {
     setIsSavingAddress(true);
 
     try {
+      // Telefonu +code + number olarak birleştir
+      const fullPhone = `+${newAddressForm.countryCode}${newAddressForm.phone}`;
+
+      // API'ye gönderilecek payload
+      const payload = {
+        ...newAddressForm,
+        phone: fullPhone, // burada birleşmiş halde
+      };
+
       const res = await fetch("/api/address", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newAddressForm),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();

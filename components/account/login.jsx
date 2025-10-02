@@ -34,7 +34,7 @@ export default function Login() {
 
     if (result.ok) {
       setLoginMessage("Giriş başarılı");
-      router.push("/profile"); // başarılı login sonrası yönlendirme
+      router.push("/"); // başarılı login sonrası yönlendirme
     }
   };
 
