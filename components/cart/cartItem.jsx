@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
-  console.log("item:", item);
   const product = item?.product || {};
   const basePrice = product?.price || 0;
   const oldPrice = product?.oldPrice || 0;

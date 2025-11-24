@@ -28,7 +28,7 @@ model Product {
   id          Int         @id @default(autoincrement())
   name        String
   mainImage   String
-  description String
+  description String      @db.Text // 1000+ karakter için ideal
   oldPrice    Int
   price       Int
   discount    Int

@@ -106,7 +106,6 @@ export default function Settings() {
         heroMobileBg,
       };
 
-      console.log("payload:", payload);
       const res = await fetch("/api/setting", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },

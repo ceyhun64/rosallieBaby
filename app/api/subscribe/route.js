@@ -16,7 +16,6 @@ export async function GET() {
 // POST isteği: herkes email girerek abone olabilir
 export async function POST(req) {
   const { email } = await req.json();
-  console.log("email:", email);
 
   if (!email)
     return NextResponse.json({ error: "Email is required" }, { status: 400 });

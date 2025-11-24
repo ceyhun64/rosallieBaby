@@ -37,7 +37,6 @@ export async function DELETE(request, { params }) {
 export async function PUT(request, { params }) {
   try {
     const data = await request.json();
-    console.log("PUT body:", data);
 
     const product = await prisma.product.update({
       where: { id: Number(params.id) },

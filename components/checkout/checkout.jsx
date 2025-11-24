@@ -87,9 +87,7 @@ export default function PaymentPage() {
     fetchUser();
   }, []);
 
-  console.log("user:", user);
-  console.log("selectedAddress:", selectedAddress);
-
+ 
   // API'den sepeti çek (Değişmedi)
   useEffect(() => {
     async function fetchCart() {

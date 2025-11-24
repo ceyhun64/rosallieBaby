@@ -40,7 +40,6 @@ export default function AdminDashboard() {
         const ordersData = await ordersRes.json();
         const subscribersData = await subsRes.json();
 
-        console.log("ordersData:", ordersData);
         // KPI verilerini oluştur
         setKpiData([
           {
