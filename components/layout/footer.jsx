@@ -43,7 +43,9 @@ export default function Footer() {
         <div className="container mx-auto px-4">
           {/* Link Columns */}
           <div
-            className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-3"} gap-8 md:gap-16`}
+            className={`grid ${
+              isMobile ? "grid-cols-1" : "grid-cols-3"
+            } gap-8 md:gap-16`}
           >
             {footerSections.map((section, index) => (
               <div key={index}>
@@ -117,10 +119,13 @@ export default function Footer() {
             </div>
 
             {/* Payment Icons */}
-            <div className="flex items-center space-x-1">
-              <Image src="/footer/Visa.svg" alt="Visa logo" width={40} height={20} />
-              <Image src="/footer/Maestro.svg" alt="Maestro logo" width={40} height={20} />
-              <Image src="/footer/Mastercard.svg" alt="Mastercard logo" width={40} height={20} />
+            <div className="relative w-50 md:w-100 h-12">
+              <Image
+                src="/iyzico/logo_band_colored@3x.webp"
+                alt="iyzico"
+                fill
+                className="object-contain"
+              />
             </div>
           </div>
         </div>
