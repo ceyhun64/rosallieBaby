@@ -1,49 +1,48 @@
+"use client";
+
 import ProductToolbar from "./productToolBar";
 import { Label } from "@/components/ui/label";
 import Breadcrumb from "@/components/layout/breadcrumb";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useEffect, useState } from "react";
 
-// Server-side fetch fonksiyonu
 async function getProducts() {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/category/toy`,
-    { cache: "no-store" }
-  );
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/category/toy`,
+      { cache: "no-store" }
+    );
 
-  if (!res.ok) {
-    const text = await res.text();
-    console.error("Fetch error:", text);
-    throw new Error(`Fetch failed with status ${res.status}`);
+    if (!res.ok) {
+      // 404 → ürün yok
+      return [];
+    }
+
+    const data = await res.json();
+    return data.products || [];
+  } catch (error) {
+    console.error("Fetch error:", error);
+    return [];
   }
-
-  const data = await res.json();
-  return data.products;
 }
 
-// SSR component
-export default async function Toy() {
-  const products = await getProducts(); // server-side fetch
+export default function Toy() {
+  const [products, setProducts] = useState([]);
+  const isMobile = useIsMobile();
 
-  // useIsMobile hook sadece client-side çalışır, bu yüzden conditional render ile kullanabiliriz
-  let isMobile = false;
-  if (typeof window !== "undefined") {
-    isMobile = useIsMobile();
-  }
+  // client-side fetch (SSR’de 404 sonucu crash olmaz)
+  useEffect(() => {
+    getProducts().then((data) => setProducts(data));
+  }, []);
 
   return (
     <div className="p-4 md:p-8">
       {/* Breadcrumb */}
       <Breadcrumb />
 
-      {/* Başlık + ürün sayısı */}
+      {/* Başlık */}
       <div className="flex items-center gap-2 mb-4">
-        <Label
-          className={`text-3xl font-semibold ${
-            isMobile ? "text-3xl" : "text-xl"
-          }`}
-        >
-          Toy
-        </Label>
+        <Label className={`text-3xl font-semibold`}>Toy</Label>
         <span className="text-gray-600 text-lg">
           ({products.length} products)
         </span>
