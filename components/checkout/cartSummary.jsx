@@ -32,6 +32,8 @@ export default function BasketSummaryCard({
     return details;
   };
 
+  //kedlkekdşlkşede
+
   return (
     <Card className="sticky top-6 lg:h-fit">
       <CardHeader>
