@@ -35,7 +35,6 @@ export default function MuslinSets() {
     };
     fetchProducts();
   }, []); // Dependency array ekledik, sadece component mount olunca çalışır
-  console.log("products", products);
 
   if (loading) return <Loading />;
   if (error) return <p className="text-center py-12 text-red-500">{error}</p>;
