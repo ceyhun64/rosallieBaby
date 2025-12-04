@@ -60,7 +60,21 @@ function SheetContent({ className, children, side = "right", ...props }) {
         <SheetPrimitive.Title className="sr-only">Panel</SheetPrimitive.Title>
 
         {children}
-        <SheetPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
+        <SheetPrimitive.Close
+          className="
+    absolute top-4 right-4
+    w-8 h-8 
+    flex items-center justify-center
+    rounded-full
+    bg-white/80 
+    hover:bg-white 
+    shadow-sm hover:shadow-md
+    transition-all duration-200
+    text-gray-700
+    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300
+  "
+        >
+          <XIcon className="w-4 h-4" />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>
       </SheetPrimitive.Content>

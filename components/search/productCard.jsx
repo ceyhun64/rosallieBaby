@@ -1,6 +1,8 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
+import Link from "next/link";
+import { ShoppingBag } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function ProductCard({ product }) {
@@ -8,60 +10,78 @@ export default function ProductCard({ product }) {
   const isMobile = useIsMobile();
 
   return (
-    <div
-      className="w-full cursor-pointer flex flex-col"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Ürün Resmi */}
-      <div className="relative w-full overflow-hidden">
-        <div className="relative w-full h-60 md:h-72 lg:h-80 overflow-hidden">
-          <Image
-            src={
-              isHovered && product.subImage1
-                ? product.subImage1
-                : product.mainImage
-            }
-            alt={product.description}
-            width={400}
-            height={400}
-            className="w-full h-full object-cover transition-all duration-300"
-          />
+    <div className="group w-full cursor-pointer flex flex-col bg-white transition-all duration-500 hover:shadow-2xl">
+      <div
+        className="overflow-hidden relative flex-1 bg-gray-50"
+        onMouseEnter={() => !isMobile && setIsHovered(true)}
+        onMouseLeave={() => !isMobile && setIsHovered(false)}
+      >
+        <Link href={`/product/${product.id}`}>
+          <div className="relative w-full aspect-[1] overflow-hidden">
+            {/* Ürün Resmi */}
+            <Image
+              src={
+                !isMobile && isHovered && product.subImage1
+                  ? product.subImage1
+                  : product.mainImage
+              }
+              alt={product.description}
+              fill
+              className="object-cover transition-all duration-700 group-hover:scale-105"
+            />
 
-          {/* Sepete Ekle Butonu: Hover veya Mobile */}
-          {(isHovered || isMobile) && (
-            <button
-              className="absolute bottom-4 left-4 right-4 bg-teal-600 text-white font-semibold text-sm md:text-base py-2 border border-white 
-              transition-colors duration-300 hover:bg-orange-300"
-            >
-              ADD TO CART
-            </button>
-          )}
-        </div>
+            {/* Premium Gradient Overlay */}
+            {isHovered && (
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent transition-opacity duration-500" />
+            )}
 
-        {/* İndirim Rozeti */}
-        {product.discount > 0 && (
-          <div className="absolute top-2 left-2 bg-teal-600 text-white px-2 py-1 text-xs font-bold rounded">
-            %{product.discount}
+            {/* İndirim Rozeti - Premium */}
+            {product.discount > 0 && (
+              <div className="absolute top-4 left-4 z-10">
+                <div className="bg-black text-white px-3 py-1.5 text-xs font-medium tracking-wider">
+                  -{product.discount}%
+                </div>
+              </div>
+            )}
+
+            {/* Premium Hover Action Button */}
+            {isHovered && (
+              <div className="absolute inset-x-0 bottom-0 p-4 transform transition-all duration-500 ease-out">
+                <button className="w-full bg-white/80 text-black/80 font-medium text-sm py-3 px-4 
+                  flex items-center justify-center gap-2
+                  hover:bg-white/90 hover:text-black/90 
+                  transition-all duration-300 
+                  shadow-lg group/btn">
+                  <ShoppingBag size={18} className="transition-transform group-hover/btn:scale-110" />
+                  <span className="tracking-wide">ADD TO CART</span>
+                </button>
+              </div>
+            )}
           </div>
-        )}
+        </Link>
       </div>
 
-      {/* Ürün Bilgileri */}
-      <div className="p-2 md:p-4 text-center">
-        <p className="text-sm md:text-base text-gray-700 mb-1 font-['Arial']">
+      {/* Ürün Bilgileri - Premium Stil */}
+      <div className="p-5 text-center bg-white transition-all duration-300 group-hover:bg-gray-50">
+        <p className="text-xs md:text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed tracking-wide min-h-[40px]">
           {product.description}
         </p>
-        <div className="flex items-center justify-center space-x-2">
-          {product.oldPrice > 0 && (
-            <span className="text-gray-400 line-through text-sm">
-              €{product.oldPrice.toFixed(2)}
+
+        <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-col items-center gap-1">
+            {product.oldPrice > 0 && product.oldPrice > product.price && (
+              <span className="text-gray-400 line-through text-xs tracking-wide">
+                €{product.oldPrice.toFixed(2)}
+              </span>
+            )}
+            <span className="text-lg md:text-xl font-semibold text-black tracking-tight">
+              €{product.price.toFixed(2)}
             </span>
-          )}
-          <span className="text-lg md:text-xl font-bold text-teal-600">
-            €{product.price.toFixed(2)}
-          </span>
+          </div>
         </div>
+
+        {/* Premium Divider */}
+        <div className="mt-4 mx-auto w-12 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
     </div>
   );

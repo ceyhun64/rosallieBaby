@@ -1,3 +1,4 @@
+// ProductDetail.jsx
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -6,9 +7,7 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { MessageSquareText, Star, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { X } from "lucide-react";
 
 import {
   ShoppingCart,
@@ -22,173 +21,208 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumb from "@/components/layout/breadcrumb";
-import Bestseller from "./bestseller";
-import CompletePurchase from "./completePurchase";
+import Bestseller from "@/components/products/bestseller";
+import CompletePurchase from "@/components/products/completePurchase";
 import { useIsMobile } from "@/hooks/use-mobile";
-import Loading from "@/components/layout/loading";
+import { useRouter } from "next/navigation";
+import ReviewSection from "@/components/products/review";
+// import { useCart } from "@/contexts/cartContext"; // Yalnızca API çağrısı için kullanılan harici kancayı kaldırdık/yerine koyduk
+import { useFavorite } from "@/contexts/favoriteContext";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Misafir sepeti fonksiyonunu import ediyoruz
+import { addToGuestCart } from "@/utils/cart"; // varsayılan olarak utils/cart dosyasında olduğunu varsaydık
+
+// Skeleton Component (DEĞİŞMEDİ)
+function ProductDetailSkeleton({ isMobile }) {
+  // ... (Skeleton kodu aynı)
+  return (
+    <div className="container mx-auto px-4 md:px-8 py-0 md:py-8">
+      {/* Breadcrumb Skeleton */}
+      <div className="mb-6">
+        <Skeleton className="h-5 w-64" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 mb-16">
+        {/* Image Gallery Skeleton */}
+        {isMobile ? (
+          <div className="flex justify-center items-center">
+            <Skeleton className="w-full h-[300px] rounded-xs" />
+          </div>
+        ) : (
+          <div className="flex gap-6">
+            {/* Thumbnails Skeleton */}
+            <div className="flex flex-col items-center gap-3 w-24">
+              <Skeleton className="w-10 h-10 rounded-full" />
+              <div className="flex flex-col gap-3">
+                {[...Array(4)].map((_, i) => (
+                  <Skeleton key={i} className="w-20 h-28 rounded-xs" />
+                ))}
+              </div>
+              <Skeleton className="w-10 h-10 rounded-full" />
+            </div>
+
+            {/* Main Image Skeleton */}
+            <div className="flex-1">
+              <Skeleton className="w-full h-[600px] rounded-xs" />
+            </div>
+          </div>
+        )}
+
+        {/* Product Info Skeleton */}
+        <div className="flex flex-col gap-6">
+          {/* Title and Heart Skeleton */}
+          <div className="flex justify-between items-start pb-6 border-b border-gray-200">
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className="w-12 h-12 rounded-full" />
+          </div>
+
+          {/* Price Section Skeleton */}
+          <div className="flex items-center gap-6 py-4">
+            <Skeleton className="h-8 w-16" />
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-5 w-24" />
+              <Skeleton className="h-9 w-32" />
+            </div>
+          </div>
+
+          {/* Name Input Skeleton */}
+          <div className="flex flex-col gap-2 pt-4 border-t border-gray-200">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-12 w-full rounded-md" />
+          </div>
+
+          {/* Buttons Skeleton */}
+          <div className="flex flex-col gap-4 mt-4">
+            <Skeleton className="h-14 w-full rounded-none" />
+            <Skeleton className="h-14 w-full rounded-none" />
+          </div>
+
+          {/* Info Cards Skeleton */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-200">
+            <Skeleton className="h-20 w-full rounded-lg" />
+            <Skeleton className="h-20 w-full rounded-lg" />
+          </div>
+        </div>
+      </div>
+
+      {/* Description Skeleton */}
+      <div className="mt-16 mb-16 max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <Skeleton className="h-9 w-64 mx-auto mb-4" />
+          <Skeleton className="h-px w-24 mx-auto" />
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-3/4 mx-auto" />
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-5/6 mx-auto" />
+        </div>
+      </div>
+
+      {/* Reviews Skeleton */}
+      <div className="mb-16">
+        <Skeleton className="h-8 w-48 mb-6" />
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="border rounded-lg p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <div className="flex-1">
+                  <Skeleton className="h-5 w-32 mb-2" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              </div>
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ProductDetail() {
   const router = useRouter();
-  const completePurchaseRef = useRef(null);
   const { id } = useParams();
-  const isMobile = useIsMobile();
-  const [selected, setSelected] = useState("plain");
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [selectedStars, setSelectedStars] = useState(0);
-  const [previewName, setPreviewName] = useState("");
+  const completePurchaseRef = useRef(null);
 
-  // Ürün verisi için state'ler
+  // const { addToCart } = useCart(); // useCart yerine manuel state ve API/Local Storage kontrolü
+  const [isAddingToCart, setIsAddingToCart] = useState(false); // Sepete ekleme yüklenme durumu
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Kullanıcı giriş durumu
+
+  const {
+    isFavorited,
+    addFavorite,
+    removeFavorite,
+    loading: favLoading,
+  } = useFavorite();
+
+  const isMobile = useIsMobile();
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [product, setProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [activeIndex, setActiveIndex] = useState(0);
-  const [strollerCover, setStrollerCover] = useState(false);
+  const [customName, setCustomName] = useState("");
+  const [previewName, setPreviewName] = useState("");
 
-  //review
-  const [reviews, setReviews] = useState([]);
-  const [reviewTitle, setReviewTitle] = useState("");
-  const [reviewComment, setReviewComment] = useState("");
+  // Zoom states
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const imageRef = useRef(null);
 
-  // Ürün verisini API'den çekmek için useEffect
   useEffect(() => {
-    async function fetchProduct() {
+    async function fetchProductAndUserStatus() {
       if (!id) return;
       setIsLoading(true);
       setError(null);
       try {
+        // 1. Ürün verisini çek
         const res = await fetch(`/api/products/${id}`);
         if (!res.ok) {
-          throw new Error("Ürün verileri alınamadı.");
+          throw new Error("Failed to fetch product data.");
         }
         const data = await res.json();
         setProduct(data.product);
+
+        // 2. Kullanıcı giriş durumunu kontrol et (Örnek API uç noktası)
+        const userRes = await fetch("/api/account/check", {
+          method: "GET",
+          credentials: "include", // Cookie'leri göndermek için
+        });
+        const userData = await userRes.json();
+        setIsLoggedIn(!!userData.user); // user nesnesi varsa true
       } catch (err) {
         setError(err.message);
       } finally {
         setIsLoading(false);
       }
     }
-
-    fetchProduct();
+    fetchProductAndUserStatus();
   }, [id]);
 
-  // Ürün ve review verilerini fetch etme
-  useEffect(() => {
-    async function fetchReviews() {
-      if (!id) return;
-      try {
-        const res = await fetch(`/api/review/${id}`);
-        if (!res.ok) throw new Error("Could not fetch reviews");
-        const data = await res.json();
-        setReviews(data);
-      } catch (err) {
-        console.error(err);
-      }
-    }
+  if (isLoading || favLoading)
+    return <ProductDetailSkeleton isMobile={isMobile} />;
 
-    fetchReviews();
-  }, [id, isReviewModalOpen]); // modal açıldığında da refresh olsun
-
-  const handleSubmitReview = async () => {
-    if (selectedStars === 0 || !reviewTitle || !reviewComment) {
-      toast.error("Please fill all required fields and select stars.");
-      return;
-    }
-
-    try {
-      // Oturum kontrolü
-      const sessionRes = await fetch("/api/account/check");
-      const sessionData = await sessionRes.json();
-
-      if (!sessionData.user) {
-        toast.error("You must log in to submit a review!");
-        router.push("/account/login");
-        return;
-      }
-
-      // Review submit
-      const res = await fetch("/api/review", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productId: product.id,
-          rating: selectedStars,
-          title: reviewTitle,
-          comment: reviewComment,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (data.error === "You have already reviewed this product.") {
-          toast.error("You have already reviewed this product.");
-        } else {
-          toast.error(data.error || "Failed to submit review");
-        }
-        return;
-      }
-
-      toast.success("Review submitted successfully!");
-      setReviewTitle("");
-      setReviewComment("");
-      setSelectedStars(0);
-      setIsReviewModalOpen(false);
-
-      // Yorumları yeniden fetch et
-      const updatedReviewsRes = await fetch(`/api/review/${id}`);
-      const updatedReviews = await updatedReviewsRes.json();
-      setReviews(updatedReviews);
-    } catch (err) {
-      console.error(err);
-      toast.error("An error occurred while submitting the review.");
-    }
-  };
-
-  // Mevcut state'lerin yanına ekleyin
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  // Ürün verilerini çeken useEffect'in altına veya içine ekleyin
-  useEffect(() => {
-    async function checkFavoriteStatus() {
-      // API çağrısını yapın
-      const res = await fetch("/api/favorites");
-      if (res.ok) {
-        const favorites = await res.json();
-        const isProductFavorite = favorites.some(
-          (fav) => fav.productId === product.id
-        );
-        setIsFavorite(isProductFavorite);
-      }
-    }
-
-    if (product) {
-      checkFavoriteStatus();
-    }
-  }, [product]);
-
-  if (isLoading) {
-    return <Loading />;
-  }
-  if (error) {
+  if (error)
     return (
       <div className="flex items-center justify-center h-screen text-xl font-semibold text-red-600">
         {error}
       </div>
     );
-  }
 
-  if (!product) {
+  if (!product)
     return (
       <div className="flex items-center justify-center h-screen text-xl font-semibold">
-        Ürün bulunamadı.
+        Product not found.
       </div>
     );
-  }
 
   const total = product?.subImages.length || 0;
+  const isFavorite = isFavorited(product.id);
 
   const handleThumbUp = () => {
     if (activeIndex > 0) setActiveIndex(activeIndex - 1);
@@ -205,49 +239,78 @@ export default function ProductDetail() {
   const handleNextImage = () => {
     setActiveIndex((prev) => (prev === total - 1 ? 0 : prev + 1));
   };
+
+  const handleMouseMove = (e) => {
+    if (!imageRef.current) return;
+
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    setZoomPosition({ x, y });
+  };
+
+  const handleMouseEnter = () => {
+    setIsZoomed(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsZoomed(false);
+  };
+
+  // 🚀 GÜNCELLENDİ: Sepete Ekleme Fonksiyonu
   const handleAddToCart = async () => {
     if (!product) return;
 
-    const customNameInput = document.getElementById("name");
-    const customName = customNameInput?.value.trim() || null;
-    const hatToyOption = selected || null;
+    const trimmedName = customName.trim();
 
-    if (!customName) {
-      toast.error("Please fill in the name field!");
+    // İsim alanı kontrolü
+    if (!trimmedName) {
+      toast.error("Please enter your name!");
       return;
     }
-    if (!hatToyOption) {
-      toast.error("Please select a Hat & Toy option!");
-      return;
-    }
+
+    setIsAddingToCart(true); // Yükleniyor durumunu başlat
+
+    const productDetails = {
+      productId: product.id,
+      quantity: 1,
+      customName: trimmedName,
+      image: product.mainImage,
+      price: product.price,
+      title: product.name,
+      oldPrice: product.oldPrice,
+      category: product.category,
+      description: product.description,
+    };
 
     try {
-      const sessionRes = await fetch("/api/account/check");
-      const sessionData = await sessionRes.json();
+      if (isLoggedIn) {
+        // --- GİRİŞ YAPMIŞ KULLANICI İÇİN: API KULLAN ---
+        const res = await fetch("/api/cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(productDetails),
+          credentials: "include",
+        });
 
-      if (!sessionData.user) {
-        toast.error("You need to log in first!");
-        router.push("/account/login");
-        return;
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(
+            errorData.message || "Failed to add product to cart via API."
+          );
+        }
+        toast.success(`'${trimmedName}' ürünü sepetinize eklendi!`);
+      } else {
+        // --- MİSAFİR KULLANICI İÇİN: LOCAL STORAGE KULLAN ---
+        addToGuestCart(productDetails, 1);
+        toast.success(`'${trimmedName}' ürünü misafir sepetinize eklendi!`);
       }
 
-      const res = await fetch("/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productId: product.id,
-          quantity: 1,
-          strollerCover,
-          customName,
-          hatToyOption,
-        }),
-      });
+      // Başarılı olursa formu temizle
+      setCustomName("");
+      setPreviewName("");
 
-      if (!res.ok) throw new Error("Failed to add to cart");
-
-      toast.success("Product added to cart!");
-
-      // 3. Sepete ekleme başarılı olduktan sonra kaydırma işlemini yapın
       if (completePurchaseRef.current) {
         completePurchaseRef.current.scrollIntoView({
           behavior: "smooth",
@@ -255,10 +318,15 @@ export default function ProductDetail() {
         });
       }
     } catch (error) {
-      console.error(error);
-      toast.error("An error occurred while adding to cart!");
+      console.error("Add to cart error:", error);
+      toast.error(
+        `Error adding to cart: ${error.message || "Please try again."}`
+      );
+    } finally {
+      setIsAddingToCart(false); // Yükleniyor durumunu bitir
     }
   };
+
   const handleWhatsapp = () => {
     window.open("https://wa.me/905432266322", "_blank");
   };
@@ -268,49 +336,27 @@ export default function ProductDetail() {
       const isBold = line.includes("Set contents:");
       if (isBold) {
         return (
-          <p key={index} className="font-bold mt-4">
+          <p key={index} className="font-semibold mt-6 text-lg">
             {line}
           </p>
         );
       }
-      return <p key={index}>{line}</p>;
+      return (
+        <p key={index} className="leading-relaxed">
+          {line}
+        </p>
+      );
     });
   };
+
   const handleFavoriteToggle = async () => {
     try {
-      // Kullanıcı giriş kontrolü
-      const sessionRes = await fetch("/api/account/check");
-      const sessionData = await sessionRes.json();
-
-      if (!sessionData.user) {
-        toast.error("You need to log in to manage favorites!");
-        router.push("/account/login");
-        return;
-      }
-
       if (isFavorite) {
-        const res = await fetch(`/api/favorites/${product.id}`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-        });
-        if (res.ok) {
-          setIsFavorite(false);
-          toast.success("Product removed from favorites.");
-        } else {
-          toast.error("An error occurred while removing from favorites.");
-        }
+        await removeFavorite(product.id);
+        toast.success("Product removed from favorites.");
       } else {
-        const res = await fetch("/api/favorites", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productId: product.id }),
-        });
-        if (res.ok) {
-          setIsFavorite(true);
-          toast.success("Product added to favorites!");
-        } else {
-          toast.error("An error occurred while adding to favorites!");
-        }
+        await addFavorite(product.id);
+        toast.success("Product added to favorites!");
       }
     } catch (error) {
       console.error(error);
@@ -318,30 +364,39 @@ export default function ProductDetail() {
     }
   };
 
-  const handleOpenReviewModal = () => setIsReviewModalOpen(true);
-  const handleCloseReviewModal = () => setIsReviewModalOpen(false);
+  const handlePreview = () => {
+    const trimmedName = customName.trim();
+    if (trimmedName) {
+      setPreviewName(trimmedName);
+    } else {
+      toast.error("Please enter a name to preview!");
+    }
+  };
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
+    <div className="container mx-auto px-4 md:px-8 py-0 md:py-8">
       <Breadcrumb />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      {/* Premium Product Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 mb-16">
+        {/* Image Gallery - Premium Style */}
         {isMobile ? (
-          <div className="lg:col-span-2 flex justify-center items-center">
-            <div className="flex overflow-x-auto snap-x snap-mandatory w-full pb-4">
+          <div className="flex justify-center items-center">
+            <div className="flex overflow-x-auto snap-x snap-mandatory pb-6 md:pb-4 w-full gap-4">
               {[
                 product.mainImage,
                 ...product.subImages.map((img) => img.url),
               ].map((imgUrl, index) => (
                 <div
                   key={index}
-                  className="w-full flex-shrink-0 snap-center flex justify-center"
+                  className="w-full flex-shrink-0 snap-center flex justify-center bg-white rounded-xs overflow-hidden"
                 >
                   <Image
                     src={imgUrl}
                     alt={`Image ${index + 1}`}
-                    width={500}
-                    height={500}
-                    className="h-[270px] w-full object-contain cursor-pointer"
+                    width={300}
+                    height={300}
+                    className="h-[300px] w-full object-contain cursor-pointer transition-transform hover:scale-105"
                     onClick={() => {
                       setActiveIndex(index);
                       setIsImageModalOpen(true);
@@ -353,25 +408,47 @@ export default function ProductDetail() {
             </div>
           </div>
         ) : (
-          <div className="flex gap-4 lg:col-span-2">
-            <div className="flex flex-col items-center gap-2 w-28">
+          <div className="flex gap-6">
+            {/* Thumbnails */}
+            <div className="flex flex-col items-center gap-3 w-24">
               <button
                 onClick={handleThumbUp}
-                className="p-1 rounded-full hover:bg-gray-200"
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <ChevronUp size={20} />
               </button>
 
-              <div className="flex flex-col gap-2 max-h-[500px] overflow-y-auto">
+              {/* Thumbnail List */}
+              <div className="flex flex-col gap-3 max-h-[500px] overflow-y-hidden overflow-x-hidden">
+                {/* Main Image Thumbnail */}
+                <div
+                  className={`flex justify-center items-center cursor-pointer border-2 p-2 duration-300 rounded-xs overflow-hidden ${
+                    activeIndex === 0
+                      ? "border-black shadow-lg scale-105"
+                      : "border-transparent"
+                  }`}
+                  onClick={() => setActiveIndex(0)}
+                >
+                  <Image
+                    src={product.mainImage}
+                    alt="Main thumbnail"
+                    width={80}
+                    height={80}
+                    className="h-28 w-auto object-contain"
+                    unoptimized
+                  />
+                </div>
+
+                {/* Sub Images Thumbnails */}
                 {product.subImages.map((img, index) => {
-                  const realIndex = index + 1; // 0: mainImage, subImages 1+
+                  const realIndex = index + 1;
                   return (
                     <div
                       key={realIndex}
-                      className={`flex justify-center items-center cursor-pointer border-2 transition ${
+                      className={`flex justify-center items-center cursor-pointer border-2 p-2 duration-300 rounded-xs overflow-hidden ${
                         activeIndex === realIndex
-                          ? "border-stone-600"
-                          : "border-transparent hover:border-gray-400"
+                          ? "border-black shadow-lg scale-105"
+                          : "border-transparent"
                       }`}
                       onClick={() => setActiveIndex(realIndex)}
                     >
@@ -379,8 +456,8 @@ export default function ProductDetail() {
                         src={img.url}
                         alt={`Thumbnail ${realIndex}`}
                         width={80}
-                        height={120}
-                        className="h-24 w-auto object-contain"
+                        height={80}
+                        className="h-28 w-auto object-contain"
                         unoptimized
                       />
                     </div>
@@ -390,38 +467,54 @@ export default function ProductDetail() {
 
               <button
                 onClick={handleThumbDown}
-                className="p-1 hover:bg-gray-200"
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <ChevronDown size={20} />
               </button>
             </div>
 
-            <div className="relative flex-1 flex justify-center items-center">
+            {/* Main Image with Zoom */}
+            <div className="relative flex-1 flex justify-center items-center bg-white rounded-xs overflow-hidden">
               <button
                 onClick={handlePrevImage}
-                className="absolute left-2 bg-white p-2 shadow hover:bg-gray-100 border border-gray-400 z-10"
+                className="absolute left-4 bg-white/90 backdrop-blur-sm p-3 shadow-lg hover:bg-white border border-gray-200 z-10 rounded-full transition-all"
               >
                 <ChevronLeft size={24} />
               </button>
 
-              <Image
-                src={
-                  activeIndex === 0
-                    ? product.mainImage
-                    : product.subImages[activeIndex - 1]?.url
-                }
-                alt={`Image ${activeIndex + 1}`}
-                width={0}
-                height={0}
-                sizes="100vw"
-                unoptimized
-                className="h-[600px] w-auto object-contain cursor-pointer"
+              <div
+                ref={imageRef}
+                className="relative h-[600px] w-[600px] cursor-crosshair"
+                onMouseMove={handleMouseMove}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
                 onClick={() => setIsImageModalOpen(true)}
-              />
+              >
+                <Image
+                  src={
+                    activeIndex === 0
+                      ? product.mainImage
+                      : product.subImages[activeIndex - 1]?.url
+                  }
+                  alt={`Image ${activeIndex + 1}`}
+                  fill
+                  unoptimized
+                  className={`object-contain rounded-xs transition-transform duration-200 ${
+                    isZoomed ? "scale-150" : "scale-100"
+                  }`}
+                  style={
+                    isZoomed
+                      ? {
+                          transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                        }
+                      : {}
+                  }
+                />
+              </div>
 
               <button
                 onClick={handleNextImage}
-                className="absolute right-2 bg-white p-2 shadow hover:bg-gray-100 border border-gray-400 z-10"
+                className="absolute right-4 bg-white/90 backdrop-blur-sm p-3 shadow-lg hover:bg-white border border-gray-200 z-10 rounded-full transition-all"
               >
                 <ChevronRight size={24} />
               </button>
@@ -429,252 +522,145 @@ export default function ProductDetail() {
           </div>
         )}
 
-        <div className="flex flex-col gap-5 lg:col-span-1">
-          <div className="flex justify-between items-start">
-            <h1 className="text-sm">{product.name}</h1>
-
+        {/* Product Info - Premium Style */}
+        <div className="flex flex-col gap-6">
+          <div className="flex justify-between items-start pb-6 border-b border-gray-200">
+            <h1 className="text-2xl font-light tracking-wide text-gray-800">
+              {product.name}
+            </h1>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleFavoriteToggle}
-              className="hover:text-red-500"
+              className="hover:bg-gray-100 rounded-full transition-all"
             >
               <Heart
-                size={30}
-                strokeWidth={2}
-                fill={isFavorite ? "red" : "none"}
-                color={isFavorite ? "red" : "currentColor"}
+                size={28}
+                strokeWidth={1.5}
+                fill={isFavorite ? "black" : "none"}
+                color={isFavorite ? "black" : "currentColor"}
+                className="transition-all"
               />
             </Button>
           </div>
-          <div className="flex items-start gap-1 sm:gap-4 text-base sm:text-lg">
-            <span className="bg-stone-700 text-white px-2 py-3 sm:px-1 sm:py-2 rounded-none font-bold text-xs sm:text-sm">
-              % {product.discount}
+
+          {/* Price Section - Premium */}
+          <div className="flex items-center gap-6 py-4">
+            <span className="bg-black text-white px-4 py-2 text-sm font-medium tracking-wider">
+              -{product.discount}%
             </span>
-            <div className="flex flex-col leading-none ms-1">
-              <span className="text-ms sm:text-md md:text-lg line-through text-gray-400">
-                € {product.oldPrice.toFixed(2)}
+            <div className="flex flex-col">
+              <span className="text-lg line-through text-gray-400">
+                €{product.oldPrice.toFixed(2)}
               </span>
-              <span className="font-bold text-stone-700 text-base sm:text-sm">
-                € {product.price.toFixed(2)}
+              <span className="font-semibold text-3xl text-black">
+                €{product.price.toFixed(2)}
               </span>
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2 relative">
-              <div className="flex items-center gap-1 relative">
-                <Label htmlFor="name">Enter Your Name *</Label>
-                <div className="relative"></div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Input
-                  id="name"
-                  placeholder="Enter your name"
-                  maxLength={16}
-                  className="flex-1 rounded-none"
-                />
-                <button
-                  type="button"
-                  className="px-3 py-2 bg-stone-600 text-white rounded-none text-sm hover:bg-stone-700 transition"
-                  onClick={() => {
-                    const nameInput = document.getElementById("name");
-                    setPreviewName(nameInput.value.trim());
-                  }}
-                >
-                  Preview
-                </button>
-              </div>
+          {/* Custom Name Input */}
+          <div className="flex flex-col gap-2 pt-4 border-t border-gray-200">
+            <Label
+              htmlFor="customName"
+              className="text-sm font-medium text-gray-700"
+            >
+              Enter Your Name <span className="text-red-500">*</span>
+            </Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="customName"
+                placeholder="Enter your name"
+                maxLength={16}
+                value={customName}
+                onChange={(e) => setCustomName(e.target.value)}
+                className="flex-1 rounded-md border-gray-300 focus:border-black focus:ring-black"
+              />
             </div>
           </div>
 
+          {/* Premium Buttons */}
           <div className="flex flex-col gap-4 mt-4">
             <Button
-              className="w-full py-6 text-base font-bold bg-gray-200 hover:bg-gray-300 transition-colors rounded-full text-black"
+              className="w-full py-7 text-base font-medium bg-black hover:bg-gray-800 transition-all duration-300 rounded-none tracking-wider"
               onClick={handleAddToCart}
+              disabled={isAddingToCart} // Butonu devre dışı bırak
             >
-              <ShoppingCart size={20} className="mr-2" />
-              ADD TO CART
+              <ShoppingCart size={20} className="mr-3" />
+              {isAddingToCart ? "Adding to Cart..." : "ADD TO CART"}
             </Button>
             <Button
               variant="outline"
-              className="w-full py-6 text-base font-bold border-green-700 text-green-700 hover:bg-green-50 rounded-full"
+              className="w-full py-7 text-base font-medium border-2 border-black text-black hover:bg-black hover:text-white transition-all duration-300 rounded-none tracking-wider"
               onClick={handleWhatsapp}
             >
-              WHATSAPP
+              CONTACT VIA WHATSAPP
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600 mt-1">
-            <div className="flex items-center gap-2">
-              <Truck size={24} />
+          {/* Premium Info Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-200">
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <Truck size={28} className="text-gray-700" />
               <div>
-                <span className="font-bold">Ships in 3 Business Days</span>
+                <p className="font-medium text-sm">Fast Shipping</p>
+                <p className="text-xs text-gray-600">
+                  Ships in 3 Business Days
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Gift size={24} />
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <Gift size={28} className="text-gray-700" />
               <div>
-                <span className="font-bold">Free Shipping Over 999 TL</span>
+                <p className="font-medium text-sm">Free Shipping</p>
+                <p className="text-xs text-gray-600">Over €99</p>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Complete Purchase Section */}
       <div ref={completePurchaseRef}>
         <CompletePurchase />
       </div>
-      <div className="mt-8 flex flex-col items-start md:items-center text-left md:text-center">
-        <h2 className="text-xl font-medium text-green-800">
-          Product Description
-        </h2>
-        <div className="w-16 h-0.5 bg-green-800 mt-2"></div>
-        <div className="w-full max-w-2xl mt-8 text-left md:text-center text-gray-700">
+
+      {/* Premium Description Section */}
+      <div className="mt-16 mb-16 max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-light tracking-wide text-gray-800 mb-4">
+            Product Description
+          </h2>
+          <div className="w-24 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent mx-auto"></div>
+        </div>
+        <div className="text-gray-700 leading-relaxed space-y-4 text-center">
           {formatDescription(product.description)}
         </div>
       </div>
-      <div className="mt-12 mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-medium text-gray-800">Reviews</h3>
-          <Button
-            variant="ghost"
-            className="text-green-800 font-medium hover:bg-gray-100"
-            onClick={handleOpenReviewModal}
-          >
-            <MessageSquareText size={18} className="mr-2" />
-            Write a Review
-          </Button>
-        </div>
-        <div className="border border-gray-200 p-4 rounded-md">
-          {reviews.length === 0 ? (
-            <p className="text-gray-500 text-sm">
-              No reviews yet for this product.
-            </p>
-          ) : (
-            reviews.map((rev) => (
-              <div key={rev.id} className="border-b last:border-b-0 py-2">
-                <p className="font-semibold">{rev.title}</p>
-                <div className="flex items-center gap-1 mt-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className={
-                        i < rev.rating ? "text-yellow-500" : "text-gray-300"
-                      }
-                    />
-                  ))}
-                </div>
-                <p className="text-gray-600 mt-1">{rev.comment}</p>
-                <p className="text-gray-400 text-xs mt-1">
-                  {rev.user?.name} {rev.user?.surname} -{" "}
-                  {new Date(rev.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-      {isReviewModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 bg-opacity-50">
-          <div className="relative bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-4">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-medium text-gray-800">Reviews</h3>
-              <Button
-                variant="ghost"
-                onClick={handleCloseReviewModal}
-                className="text-gray-500 hover:bg-gray-100"
-              >
-                Close
-                <X size={18} className="ml-2" />
-              </Button>
-            </div>
 
-            <div className="flex flex-col gap-6">
-              <div>
-                <Label
-                  htmlFor="stars"
-                  className="text-sm font-semibold text-gray-700"
-                >
-                  Stars <span className="text-red-500">*</span>
-                </Label>
-                <div className="flex mt-2">
-                  {[...Array(5)].map((_, index) => {
-                    const ratingValue = index + 1;
-                    return (
-                      <Star
-                        key={ratingValue}
-                        size={24}
-                        onClick={() => setSelectedStars(ratingValue)}
-                        className={`cursor-pointer transition-colors duration-200 ${
-                          ratingValue <= selectedStars
-                            ? "text-yellow-500"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
+      {/* Review Section */}
+      <ReviewSection productId={product.id} productName={product.name} />
 
-              <div>
-                <Label
-                  htmlFor="title"
-                  className="text-sm font-semibold text-gray-700"
-                >
-                  Title <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="title"
-                  placeholder="Write your title"
-                  className="mt-2"
-                  value={reviewTitle}
-                  onChange={(e) => setReviewTitle(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label
-                  htmlFor="comment"
-                  className="text-sm font-semibold text-gray-700"
-                >
-                  Your Review <span className="text-red-500">*</span>
-                </Label>
-                <textarea
-                  id="comment"
-                  rows={4}
-                  placeholder="Write your review here..."
-                  className="w-full mt-2 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 resize-none"
-                  value={reviewComment}
-                  onChange={(e) => setReviewComment(e.target.value)}
-                />
-              </div>
-
-              <Button
-                className="w-full py-4 bg-green-700 text-white font-bold hover:bg-green-800 transition rounded-md"
-                onClick={handleSubmitReview}
-              >
-                Submit Review
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
       <Bestseller />
+
+      {/* Premium Image Modal */}
       {isImageModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="relative w-full h-full flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
+          <div className="relative w-full h-full flex items-center justify-center">
             <button
               onClick={() => setIsImageModalOpen(false)}
-              className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 hover:bg-black/70 z-50"
+              className="absolute top-4 right-4 md:top-8 md:right-8 text-white bg-black/50 rounded-full p-3 hover:bg-black/70 transition-all z-50"
             >
-              <X size={28} />
+              <X className="h-5 w-5" />
             </button>
 
             <Image
-              src={product.mainImage} // Resim URL'si için 'url' alanını kullandık
-              alt="Main Image"
+              src={
+                activeIndex === 0
+                  ? product.mainImage
+                  : product.subImages[activeIndex - 1]?.url
+              }
+              alt="Product Image"
               width={0}
               height={0}
               sizes="100vw"

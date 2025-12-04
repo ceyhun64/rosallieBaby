@@ -25,7 +25,7 @@ export default function Products() {
   const [newProduct, setNewProduct] = useState({
     name: "",
     mainImage: "",
-    subImages: [""],
+    subImages: Array(6).fill(""),
     description: "",
     oldPrice: "",
     price: "",
@@ -65,73 +65,21 @@ export default function Products() {
     currentPage * 15
   );
 
-  const handleChange = (e, index = 0) => {
-    if (e.target.name === "subImages") {
-      const updatedSubImages = [...newProduct.subImages];
-      updatedSubImages[index] = e.target.value;
-      setNewProduct({ ...newProduct, subImages: updatedSubImages });
-    } else {
-      setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
-    }
-  };
+  const handleAddProduct = (newProductData) => {
+    // Yeni ürünü state'e ekle
+    setProducts((prev) => [newProductData, ...prev]);
 
-  const handleAddProduct = async () => {
-    try {
-      // subImages boş olanları çıkar
-      const filteredSubImages = newProduct.subImages.filter(
-        (url) => url !== ""
-      );
-
-      const productToSend = {
-        name: newProduct.name,
-        mainImage: newProduct.mainImage,
-        description: newProduct.description,
-        oldPrice: Number(newProduct.oldPrice),
-        price: Number(newProduct.price),
-        discount: Number(newProduct.discount),
-        category: newProduct.category,
-        subImages: filteredSubImages,
-      };
-
-      // POST isteği
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/products`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(productToSend),
-        }
-      );
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Ürün eklenirken hata oluştu");
-      }
-
-      const data = await res.json();
-
-      // Backend’den dönen ürünü state’e ekle
-      setProducts((prev) => [...prev, data.product]);
-
-      // Formu temizle
-      setNewProduct({
-        name: "",
-        mainImage: "",
-        description: "",
-        oldPrice: "",
-        price: "",
-        discount: "",
-        category: "",
-        subImages: [""],
-      });
-
-      alert("Ürün başarıyla eklendi!");
-    } catch (err) {
-      console.error(err);
-      alert(err.message);
-    }
+    // Formu sıfırla
+    setNewProduct({
+      name: "",
+      mainImage: "",
+      subImages: Array(6).fill(""),
+      description: "",
+      oldPrice: "",
+      price: "",
+      discount: "",
+      category: "",
+    });
   };
 
   const handleDelete = async (id) => {
@@ -147,7 +95,7 @@ export default function Products() {
 
       if (!res.ok) throw new Error("Ürün silinirken hata oluştu");
 
-      // Başarılıysa state’i güncelle
+      // Başarılıysa state'i güncelle
       setProducts(products.filter((p) => p.id !== id));
       setSelectedIds(selectedIds.filter((sid) => sid !== id));
     } catch (err) {
@@ -236,7 +184,6 @@ export default function Products() {
             <AddProductDialog
               newProduct={newProduct}
               setNewProduct={setNewProduct}
-              handleChange={handleChange}
               handleAddProduct={handleAddProduct}
               className="w-full sm:w-auto"
             />

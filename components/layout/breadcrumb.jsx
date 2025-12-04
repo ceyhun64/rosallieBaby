@@ -18,7 +18,7 @@ export default function Breadcrumb() {
     <nav className="text-xs sm:text-sm breadcrumbs mb-4">
       <ol className="flex items-center space-x-2">
         <li>
-          <Link href="/" className="text-gray-500 hover:text-gray-700">
+          <Link href="/" className="text-white hover:text-white/90">
             Home
           </Link>
         </li>
@@ -28,13 +28,13 @@ export default function Breadcrumb() {
 
           return (
             <li key={href} className="flex items-center">
-              <span className="mx-2 text-gray-400">/</span>
+              <span className="mx-2 text-white">/</span>
               {isLast ? (
-                <span className="text-gray-700 font-semibold">
+                <span className="text-white/80 font-semibold">
                   {capitalizeWords(segment)}
                 </span>
               ) : (
-                <Link href={href} className="text-gray-500 hover:text-gray-700">
+                <Link href={href} className="text-white/70 hover:text-white/50">
                   {capitalizeWords(segment)}
                 </Link>
               )}

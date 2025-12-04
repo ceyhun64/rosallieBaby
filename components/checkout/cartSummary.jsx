@@ -23,12 +23,7 @@ export default function BasketSummaryCard({
     if (item.customName) {
       details.push(`Personalization: "${item.customName}"`);
     }
-    if (item.strollerCover) {
-      details.push("Includes Stroller Cover");
-    }
-    if (item.hatToyOption && item.hatToyOption !== "none") {
-      details.push(`Hat/Toy: ${item.hatToyOption}`);
-    }
+   
     return details;
   };
 

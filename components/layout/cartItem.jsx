@@ -1,158 +1,155 @@
 "use client";
 
 import React, { useState } from "react";
-import { Trash2, Plus, Minus, Edit } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import { Trash2, Plus, Minus, Edit2, Tag } from "lucide-react";
+import { Skeleton } from "../ui/skeleton";
 
-export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
+// Cart Item Skeleton Component
+function CartItemSkeleton() {
+  return (
+    <div className="flex gap-4 p-4">
+      <Skeleton className="w-24 h-28 flex-shrink-0" />
+      <div className="flex-1 space-y-3">
+        <div className="flex justify-between items-start gap-3">
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
+          </div>
+          <Skeleton className="h-4 w-4" />
+        </div>
+        <div className="flex justify-between items-end mt-4">
+          <Skeleton className="h-10 w-28" />
+          <div className="text-right space-y-1">
+            <Skeleton className="h-6 w-20 ml-auto" />
+            <Skeleton className="h-3 w-12 ml-auto" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function CartItem({
+  item,
+  product,
+  onIncrease,
+  onDecrease,
+  onRemove,
+}) {
   const [loading, setLoading] = useState(false);
 
-  const product = item?.product || {};
-  const basePrice = product?.price || 0;
-  const oldPrice = product?.oldPrice || 0;
-  const category = product?.category || "all_products";
+  const productData = product || item?.product || {};
+  const basePrice = productData?.price || 0;
+  const oldPrice = productData?.oldPrice || 0;
   const quantity = item?.quantity || 1;
 
-  const strollerCoverPrice = item?.strollerCover ? 149 : 0;
-  const hatToyPrice =
-    item?.hatToyOption && item.hatToyOption !== "none" ? 149 : 0;
+  const finalPrice = (basePrice * quantity).toFixed(2);
+  const finalOldPrice = (oldPrice * quantity).toFixed(2);
+  const imageSrc = productData?.mainImage || "/placeholder.png";
 
-  const finalPrice = (basePrice + strollerCoverPrice + hatToyPrice) * quantity;
-  const finalOldPrice =
-    (oldPrice + strollerCoverPrice + hatToyPrice) * quantity;
-
-  const imageSrc = product?.mainImage || "/placeholder.png";
-
-  const hasOptions =
-    (item?.customName && item.customName !== "none") ||
-    item?.strollerCover ||
-    (item?.hatToyOption && item.hatToyOption !== "none");
+  const hasOptions = item?.customName && item.customName !== "none";
 
   const handleIncrease = async () => {
     setLoading(true);
-    await onIncrease(item.id);
+    // Cart.js'ten gelen onIncrease(id, newQuantity) çağrısını yap
+    await onIncrease();
     setLoading(false);
   };
 
   const handleDecrease = async () => {
     if (quantity <= 1) return;
     setLoading(true);
-    await onDecrease(item.id);
+    // Cart.js'ten gelen onDecrease(id, newQuantity) çağrısını yap
+    await onDecrease();
     setLoading(false);
   };
 
   const handleRemove = async () => {
     setLoading(true);
-    await onRemove(item.id);
+    // Cart.js'ten gelen onRemove(id) çağrısını yap
+    await onRemove();
     setLoading(false);
   };
 
   return (
-    <div className="flex flex-row w-full justify-start items-start gap-3 p-2 border-b border-gray-200">
-      {/* Product Image */}
-      <div className="relative w-1/3 sm:w-28 h-36 flex-shrink-0 rounded-md overflow-hidden">
-        <Image
+    <div className="flex gap-4 p-4 group hover:bg-gray-50/50 transition-colors duration-300">
+      <div className="relative w-24 h-28 flex-shrink-0 overflow-hidden bg-gray-100">
+        <img
           src={imageSrc}
-          alt={product?.name || "Product Image"}
-          fill
-          style={{ objectFit: "cover" }}
-          className="rounded-md"
+          alt={productData?.name || "Product"}
+          className="w-full h-full object-cover"
         />
       </div>
 
-      {/* Product Info */}
-      <div className="flex flex-col flex-1 w-2/3">
-        {/* Name & Remove */}
-        <div className="flex justify-between items-start mb-1">
-          <h3 className="font-medium text-xs sm:text-sm">
-            {product?.name || "Unnamed Product"}
-          </h3>
-          <button
-            onClick={handleRemove}
-            disabled={loading}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-          </button>
-        </div>
-
-        {/* Price & Code */}
-        <div className="text-gray-700 mb-1 text-[11px] sm:text-xs">
-          <p className="font-semibold">
-            Price:{" "}
-            <span className="font-bold text-xs sm:text-sm">
-              €{finalPrice.toFixed(2)}
-            </span>
-          </p>
-          <p className="text-gray-500 mt-0.5">
-            Product Code:{" "}
-            <span className="font-normal">{product?.id || "N/A"}</span>
-          </p>
-        </div>
-
-        {/* Product Options */}
-        {hasOptions && (
-          <div className="mt-1 text-gray-700 text-[11px] sm:text-xs">
-            <h4 className="font-semibold mb-0.5">Product Options</h4>
-            {item?.customName && item.customName !== "none" && (
-              <div className="flex items-center text-gray-500 mt-0.5">
-                <span>Custom Name: {item.customName}</span>
+      <div className="flex-1 flex flex-col justify-between min-w-0">
+        <div>
+          <div className="flex justify-between items-start gap-3 mb-2">
+            <div className="flex-1">
+              <h3 className="text-sm font-light text-gray-900 tracking-wide line-clamp-2">
+                {productData?.name}
+              </h3>
+              <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-gray-400 uppercase tracking-wider">
+                <span>#{productData?.id}</span>
               </div>
-            )}
-            {item?.strollerCover && (
-              <div className="flex items-center text-gray-500 mt-0.5">
-                <span>Stroller Cover (+€149)</span>
-              </div>
-            )}
-            {item?.hatToyOption && item.hatToyOption !== "none" && (
-              <div className="flex items-center text-gray-500 mt-0.5">
-                <span>Hat & Toy Option: {item.hatToyOption} (+€149)</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Quantity & Price */}
-        <div className="flex justify-between items-center mt-2 w-full gap-2 text-[11px] sm:text-xs">
-          <div className="flex items-center space-x-1">
-            <span className="text-gray-700">Qty</span>
-            <div className="flex items-center border border-gray-300 rounded-md">
-              <button
-                onClick={handleDecrease}
-                disabled={quantity <= 1 || loading}
-                className="p-1 text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                <Minus className="h-3 w-3" />
-              </button>
-              <span className="w-6 text-center font-medium text-[11px]">
-                {quantity}
-              </span>
-              <button
-                onClick={handleIncrease}
-                disabled={loading}
-                className="p-1 text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                <Plus className="h-3 w-3" />
-              </button>
             </div>
+
+            <button
+              onClick={handleRemove}
+              className="text-gray-300 hover:text-red-500 transition-colors p-1 -mt-1"
+              disabled={loading}
+              aria-label="Remove item"
+            >
+              <Trash2 className="h-4 w-4" /> {/* İkon kullanmak daha modern */}
+            </button>
           </div>
 
-          <div className="flex flex-col items-end">
-            {oldPrice > 0 && (
-              <span className="text-gray-400 line-through text-[9px] sm:text-xs">
-                €{finalOldPrice.toFixed(2)}
-              </span>
-            )}
-            <span className="font-bold text-xs sm:text-sm text-gray-800">
-              €{finalPrice.toFixed(2)}
+          {hasOptions && (
+            <div className="mt-3 space-y-1 text-[11px] text-gray-500 font-light">
+              {item.customName && item.customName !== "none" && (
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-400">Name:</span>
+                  <span className="text-gray-600">{item.customName}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-between items-end mt-4">
+          <div className="flex items-center border border-gray-200 rounded-sm bg-white">
+            <button
+              onClick={handleDecrease}
+              disabled={quantity <= 1 || loading}
+              className="px-3 py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50 transition-colors"
+              aria-label="Decrease quantity"
+            >
+              <Minus className="h-3 w-3" />
+            </button>
+
+            <span className="px-4 text-sm font-light text-gray-900 border-x border-gray-200 min-w-[40px] text-center">
+              {quantity}
             </span>
-            <Link href={`/all_products/${category}/${product.id}`}>
-              <button className="flex items-center text-[10px] sm:text-xs text-gray-500 hover:text-gray-800 transition-colors mt-1">
-                <span className="mr-1">Edit</span>
-                <Edit className="h-3 w-3" />
-              </button>
-            </Link>
+
+            <button
+              onClick={handleIncrease}
+              disabled={loading}
+              className="px-3 py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50 transition-colors"
+              aria-label="Increase quantity"
+            >
+              <Plus className="h-3 w-3" />
+            </button>
+          </div>
+
+          <div className="text-right">
+            {oldPrice > 0 && finalOldPrice > finalPrice && (
+              <div className="text-[10px] line-through text-gray-400 mb-0.5">
+                €{finalOldPrice}
+              </div>
+            )}
+
+            <div className="text-lg font-light text-gray-900 tracking-tight">
+              €{finalPrice}
+            </div>
           </div>
         </div>
       </div>

@@ -18,20 +18,41 @@ async function getProducts() {
 }
 
 export default async function AllProducts() {
-  const products = await getProducts(); // server-side fetch
+  const products = await getProducts();
 
   return (
-    <main className="p-4 md:p-8">
-      <header className="flex items-center gap-2 mb-4">
-        <h1 className="text-3xl font-semibold">All Products</h1>
-        <span className="text-gray-600 text-lg">
-          ({products.length} products)
-        </span>
-      </header>
+    <main className="min-h-screen bg-gradient-to-br bg-gray-50 p-2 md:p-12">
+      <div className="max-w-8xl mx-auto">
+        {/* Elegant Header */}
+        <header className="mb-12 p-4 md:p-0">
+          <div className="flex items-baseline gap-4 mb-3">
+            <h1 className="text-4xl md:text-5xl font-light tracking-tight text-slate-900">
+              Our Collection
+            </h1>
+            <div className="h-px flex-1 bg-gradient-to-r from-slate-300 to-transparent" />
+          </div>
 
-      <section>
-        <ProductToolbar products={products} />
-      </section>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-slate-500 tracking-wider uppercase">
+              Curated Selection
+            </span>
+            <span className="w-1 h-1 rounded-full bg-slate-400" />
+            <span className="text-sm text-slate-600 font-light">
+              {products.length} Exclusive Items
+            </span>
+          </div>
+        </header>
+
+        {/* Premium Content Area */}
+        <section className="bg-white/70 md:p-4 ">
+          <ProductToolbar products={products} />
+        </section>
+
+        {/* Decorative Element */}
+        <div className="mt-8 flex justify-center">
+          <div className="h-px w-24 bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
+        </div>
+      </div>
     </main>
   );
 }

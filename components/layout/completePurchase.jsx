@@ -1,16 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { addToGuestCart } from "@/utils/cart";
 
-export default function CompletePurchase({ onClose,onCartUpdate }) {
+export default function CompletePurchase({ onClose }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProducts, setSelectedProducts] = useState({});
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [adding, setAdding] = useState(false);
 
+  // Kullanıcı oturum durumunu kontrol et
+  useEffect(() => {
+    async function checkSession() {
+      try {
+        const sessionRes = await fetch("/api/account/check");
+        const sessionData = await sessionRes.json();
+        setIsLoggedIn(!!sessionData?.user?.id);
+      } catch {
+        setIsLoggedIn(false);
+      }
+    }
+    checkSession();
+  }, []);
+
+  // Önerilen ürünleri getir
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -30,6 +47,7 @@ export default function CompletePurchase({ onClose,onCartUpdate }) {
 
         setProducts(selected);
 
+        // Başlangıçta hiçbir ürün seçili değil
         const initialSelected = {};
         selected.forEach((p) => (initialSelected[p.id] = false));
         setSelectedProducts(initialSelected);
@@ -51,101 +69,163 @@ export default function CompletePurchase({ onClose,onCartUpdate }) {
   };
 
   const handleAddAllToCart = async () => {
+    const selected = products.filter((p) => selectedProducts[p.id]);
+
+    if (!selected.length) {
+      toast.error("No products selected!");
+      return;
+    }
+
+    setAdding(true);
+
     try {
-      const sessionRes = await fetch("/api/account/check");
-      const sessionData = await sessionRes.json();
+      if (isLoggedIn) {
+        // 🔑 GİRİŞ YAPMIŞ KULLANICI: API üzerinden sepete ekle
+        for (const product of selected) {
+          const res = await fetch("/api/cart", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              productId: product.id,
+              quantity: 1,
+              customName: "none",
+            }),
+          });
 
-      if (!sessionData.user) {
-        toast.error("You must log in before adding to cart!");
-        window.location.href = "/account/login";
-        return;
-      }
+          if (!res.ok) {
+            throw new Error(
+              `Failed to add ${product.name || product.description}`
+            );
+          }
+        }
 
-      const selected = products.filter((p) => selectedProducts[p.id]);
-      if (!selected.length) {
-        toast.error("No products selected!");
-        return;
-      }
-
-      for (const product of selected) {
-        await fetch("/api/cart", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        toast.success(`${selected.length} product(s) added to cart!`);
+      } else {
+        // 👤 MİSAFİR KULLANICI: LocalStorage üzerinden sepete ekle
+        for (const product of selected) {
+          // addToGuestCart fonksiyonu için uygun format
+          const guestProduct = {
             productId: product.id,
-            quantity: 1,
-            strollerCover: false,
+            title: product.name || product.description,
+            description: product.description,
+            price: product.price,
+            oldPrice: product.oldPrice || 0,
+            image: product.mainImage,
+            category: product.category,
             customName: "none",
-            hatToyOption: "none",
-          }),
-        });
+          };
+
+          addToGuestCart(guestProduct, 1);
+        }
+
+        toast.success(`${selected.length} product(s) added to cart!`);
       }
 
-      // 🔹 Sepeti yeniden fetch edip ana component’e gönder
-      const res = await fetch("/api/cart");
-      const updatedCart = await res.json();
-      if (onCartUpdate) onCartUpdate(updatedCart);
+      // 🔥 Sepet güncellendiğini bildir (Header'daki sayaç güncellenecek)
+      window.dispatchEvent(new CustomEvent("cartUpdated"));
 
-      toast.success("Selected products added to cart!");
-      onClose();
+      // Paneli kapat
+      if (onClose) onClose();
     } catch (err) {
-      console.error(err);
+      console.error("Error adding products:", err);
       toast.error("Error adding products to cart!");
+    } finally {
+      setAdding(false);
     }
   };
-  if (loading) return <p className="text-center py-4">Loading products...</p>;
-  if (!products.length)
-    return <p className="text-center py-4">No suggested products available.</p>;
+
+  if (loading) {
+    return (
+      <div className="border-t p-6 bg-white">
+        <p className="text-center py-6 text-sm text-gray-500">
+          Loading suggestions...
+        </p>
+      </div>
+    );
+  }
+
+  if (!products.length) {
+    return (
+      <div className="border-t p-6 bg-white">
+        <p className="text-center py-6 text-sm text-gray-500">
+          No suggestions available.
+        </p>
+      </div>
+    );
+  }
+
+  const selectedCount = Object.values(selectedProducts).filter(Boolean).length;
 
   return (
-    <div className="border-t border-gray-200 p-4 bg-gray-50">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="text-lg font-semibold text-gray-800">
-          Complete Your Purchase!
-        </h3>
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-none"
+    <div className="border-t p-6 bg-white">
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <h3 className="text-base font-medium text-gray-900">
+            Complete Your Purchase
+          </h3>
+          {selectedCount > 0 && (
+            <p className="text-xs text-gray-500 mt-1">
+              {selectedCount} product{selectedCount > 1 ? "s" : ""} selected
+            </p>
+          )}
+        </div>
+        <button
+          className="text-gray-400 hover:text-gray-600 transition-colors text-sm"
           onClick={onClose}
+          disabled={adding}
         >
-          Close
-        </Button>
+          ✕
+        </button>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="space-y-3">
         {products.map((product) => (
-          <Card
+          <div
             key={product.id}
-            className="flex flex-row items-center rounded-md p-2"
+            className={`flex items-center gap-3 p-3 border transition-all ${
+              selectedProducts[product.id]
+                ? "border-gray-900 bg-gray-50"
+                : "border-gray-100 hover:border-gray-200"
+            }`}
           >
             <img
               src={product.mainImage}
               alt={product.description}
-              className="w-16 h-16 object-cover rounded-sm"
+              className="w-14 h-14 object-cover flex-shrink-0"
             />
-            <CardContent className="p-2 flex-1 flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-medium">{product.description}</h3>
-                <span className="text-xs font-bold text-teal-600">
-                  €{product.price.toFixed(2)}
-                </span>
-              </div>
-              <Switch
-                checked={selectedProducts[product.id]}
-                onCheckedChange={() => handleSwitchChange(product)}
-              />
-            </CardContent>
-          </Card>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm text-gray-900 truncate">
+                {product.name || product.description}
+              </h3>
+              <span className="text-sm font-medium text-gray-900">
+                €{product.price.toFixed(2)}
+              </span>
+            </div>
+            <Switch
+              checked={selectedProducts[product.id]}
+              onCheckedChange={() => handleSwitchChange(product)}
+              disabled={adding}
+            />
+          </div>
         ))}
       </div>
 
-      <div className="mt-3 flex justify-end">
+      <div className="mt-4 flex justify-end gap-3">
         <Button
-          className="bg-black text-white hover:bg-gray-800 rounded-none"
-          onClick={handleAddAllToCart}
+          variant="outline"
+          onClick={onClose}
+          disabled={adding}
+          className="px-6 py-2 text-sm"
         >
-          Add Selected to Cart
+          Cancel
+        </Button>
+        <Button
+          className="bg-gray-900 text-white hover:bg-gray-800 px-6 py-2 text-sm"
+          onClick={handleAddAllToCart}
+          disabled={selectedCount === 0 || adding}
+        >
+          {adding ? "Adding..." : `Add to Cart (${selectedCount})`}
         </Button>
       </div>
     </div>

@@ -1,3 +1,4 @@
+//api/cart/route.js
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { getServerSession } from "next-auth";
@@ -5,8 +6,7 @@ import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function GET(req) {
   const session = await getServerSession(authOptions);
-  if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) return NextResponse.json([], { status: 200 }); // Giriş yok, boş liste dön
 
   try {
     const cartItems = await prisma.cartItem.findMany({
@@ -25,20 +25,21 @@ export async function GET(req) {
 
 export async function POST(req) {
   const session = await getServerSession(authOptions);
-  if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) return NextResponse.json([], { status: 200 }); // Giriş yok, boş liste dön
 
   const body = await req.json();
   const { productId, quantity, customName } = body;
 
   try {
     // aynı ürün + aynı customName varsa quantity artır
+    const fixedName = customName?.trim() || "";
+
     const existing = await prisma.cartItem.findUnique({
       where: {
         userId_productId_customName: {
           userId: session.user.id,
           productId,
-          customName: customName ?? null,
+          customName: fixedName,
         },
       },
     });

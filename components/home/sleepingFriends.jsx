@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import ProductCard from "./productCard";
+import ProductCard from "@/components/products/productCard";
 import {
   Carousel,
   CarouselContent,
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/carousel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Loading from "@/components/layout/loading";
+import { Skeleton } from "../ui/skeleton";
 
 export default function SleepingFriends() {
   const [products, setProducts] = useState([]);
@@ -20,9 +21,7 @@ export default function SleepingFriends() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(
-          "/api/products/category/toy"
-        );
+        const response = await fetch("/api/products/category/toy");
         if (!response.ok) throw new Error("Ürünler alınamadı");
         const data = await response.json();
         setProducts(data.products || []);
@@ -46,8 +45,17 @@ export default function SleepingFriends() {
     <section
       className={`container mx-auto  ${isMobile ? "px-1 py-8" : "px-5 py-12"}`}
     >
-      <h2 className="text-center text-2xl mb-8">Sleeping Friends</h2>
+      <h2
+        className="text-center font-light mb-10 
+    text-[18px] md:text-[32px] tracking-[0.18em] 
+    text-gray-900 uppercase"
+      >
+        <span className="bg-gradient-to-r from-gray-800 via-gray-600 to-gray-800 bg-clip-text text-transparent">
+          Sleeping Friends
+        </span>
 
+        <div className="mx-auto mt-4 w-16 h-[2px] bg-gradient-to-r from-gray-300 via-gray-400 to-gray-300 rounded-full opacity-80" />
+      </h2>
       <Carousel
         opts={{ align: "start" }}
         className={`w-full ${isMobile ? "px-0 gap-2" : "px-4"}`}

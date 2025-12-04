@@ -27,34 +27,111 @@ export default function AddProductDialog({
   handleAddProduct,
 }) {
   const [open, setOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [files, setFiles] = useState({
+    mainImage: null,
+    subImages: Array(6).fill(null),
+  });
   const isMobile = useIsMobile();
 
-  const handleChange = (e, index = null) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === "subImages" && index !== null) {
-      const updatedSubImages = [...newProduct.subImages];
-      updatedSubImages[index] = value;
-      setNewProduct({ ...newProduct, subImages: updatedSubImages });
-    } else {
-      setNewProduct({ ...newProduct, [name]: value });
-    }
+    setNewProduct({ ...newProduct, [name]: value });
   };
 
   const handleFileChange = (e, index = null, isMain = false) => {
-    const file = e.target.files ? e.target.files[0] : null;
-    const url = file ? URL.createObjectURL(file) : "";
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Önizleme için blob URL oluştur
+    const previewUrl = URL.createObjectURL(file);
+
     if (isMain) {
-      setNewProduct({ ...newProduct, mainImage: url, mainFile: file });
+      setFiles({ ...files, mainImage: file });
+      setNewProduct({ ...newProduct, mainImage: previewUrl });
     } else if (index !== null) {
-      const updatedSubImages = [...newProduct.subImages];
-      updatedSubImages[index] = url;
-      setNewProduct({ ...newProduct, subImages: updatedSubImages });
+      const updatedFiles = [...files.subImages];
+      updatedFiles[index] = file;
+      setFiles({ ...files, subImages: updatedFiles });
+
+      const updatedPreviews = [...newProduct.subImages];
+      updatedPreviews[index] = previewUrl;
+      setNewProduct({ ...newProduct, subImages: updatedPreviews });
     }
   };
 
-  const handleSubmit = () => {
-    handleAddProduct();
-    setOpen(false);
+  const handleSubmit = async () => {
+    if (!files.mainImage) {
+      alert("Ana görsel zorunludur!");
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      
+      // Form alanlarını ekle
+      formData.append("name", newProduct.name);
+      formData.append("description", newProduct.description);
+      formData.append("oldPrice", newProduct.oldPrice);
+      formData.append("price", newProduct.price);
+      formData.append("discount", newProduct.discount);
+      formData.append("category", newProduct.category);
+
+      // Ana görseli ekle
+      formData.append("mainImage", files.mainImage);
+
+      // Alt görselleri ekle
+      files.subImages.forEach((file, index) => {
+        if (file) {
+          formData.append(`subImage${index}`, file);
+        }
+      });
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/products`,
+        {
+          method: "POST",
+          body: formData,
+          // Content-Type header'ı EKLEMEYİN! Browser otomatik ekler
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Ürün eklenirken hata oluştu");
+      }
+
+      const data = await res.json();
+
+      // Parent'a bildir
+      handleAddProduct(data.product);
+
+      // Formu temizle
+      setNewProduct({
+        name: "",
+        mainImage: "",
+        description: "",
+        oldPrice: "",
+        price: "",
+        discount: "",
+        category: "",
+        subImages: Array(6).fill(""),
+      });
+      setFiles({
+        mainImage: null,
+        subImages: Array(6).fill(null),
+      });
+
+      setOpen(false);
+      alert("Ürün başarıyla eklendi!");
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -92,19 +169,17 @@ export default function AddProductDialog({
               <div className="flex flex-col gap-1">
                 <Label className="text-sm font-medium">Kategori</Label>
                 <Select
-                  name="category"
                   value={newProduct.category}
                   onValueChange={(val) =>
                     setNewProduct({ ...newProduct, category: val })
                   }
-                  defaultValue="hospital_outfit_special_set"
                 >
                   <SelectTrigger className="bg-black border border-stone-700 text-white w-full">
                     <SelectValue placeholder="Kategori Seç" />
                   </SelectTrigger>
                   <SelectContent className="bg-black text-white border border-stone-700">
                     <SelectItem value="hospital_outfit_special_set">
-                      Hospital Outfit Specail Set
+                      Hospital Outfit Special Set
                     </SelectItem>
                     <SelectItem value="hospital_outfit_set">
                       Hospital Outfit Set
@@ -128,12 +203,13 @@ export default function AddProductDialog({
 
               {/* Ana Görsel */}
               <div className="flex flex-col gap-1">
-                <Label className="text-sm font-medium">Ana Görsel</Label>
+                <Label className="text-sm font-medium">Ana Görsel *</Label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, null, true)}
-                  className="bg-black border border-stone-700 text-white p-2 rounded w-full"
+                  disabled={uploading}
+                  className="bg-black border border-stone-700 text-white p-2 rounded w-full disabled:opacity-50"
                 />
               </div>
 
@@ -147,7 +223,8 @@ export default function AddProductDialog({
                     type="file"
                     accept="image/*"
                     onChange={(e) => handleFileChange(e, idx)}
-                    className="bg-black border border-stone-700 text-white p-2 rounded w-full"
+                    disabled={uploading}
+                    className="bg-black border border-stone-700 text-white p-2 rounded w-full disabled:opacity-50"
                   />
                 </div>
               ))}
@@ -196,6 +273,12 @@ export default function AddProductDialog({
             <div className="hidden md:flex flex-1 border border-stone-700 p-4 rounded-xl bg-stone-900 flex-col">
               <h3 className="text-xl font-semibold mb-4">Önizleme</h3>
 
+              {uploading && (
+                <div className="mb-4 p-2 bg-amber-600 text-black rounded text-sm">
+                  Ürün ekleniyor, lütfen bekleyin...
+                </div>
+              )}
+
               <div className="flex gap-4 mb-4">
                 {/* Ana görsel */}
                 <div className="flex-shrink-0">
@@ -206,7 +289,7 @@ export default function AddProductDialog({
                       className="w-40 h-64 object-cover rounded"
                     />
                   ) : (
-                    <div className="w-40 h-68 flex items-center justify-center bg-stone-800 rounded">
+                    <div className="w-40 h-64 flex items-center justify-center bg-stone-800 rounded">
                       Ana Görsel
                     </div>
                   )}
@@ -274,8 +357,9 @@ export default function AddProductDialog({
                 "bg-orange-400 border border-stone-700 text-white hover:bg-orange-400"
               }
               onClick={handleSubmit}
+              disabled={uploading}
             >
-              Ekle
+              {uploading ? "Ekleniyor..." : "Ekle"}
             </Button>
           </DialogFooter>
         </DialogContent>

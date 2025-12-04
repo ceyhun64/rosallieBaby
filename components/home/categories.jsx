@@ -35,7 +35,6 @@ export default function Categories() {
       const width = container.offsetWidth;
       let index = Math.round(scrollLeft / width);
 
-      // Sonsuz döngü: en sona gelince başa dön
       if (index >= categories.length) {
         container.scrollTo({ left: 0, behavior: "smooth" });
         index = 0;
@@ -50,11 +49,25 @@ export default function Categories() {
 
   return (
     <section
-      className={`${isMobile ? "px-0 py-5" : "px-12 py-12"} container mx-auto `}
+      className={`${isMobile ? "px-0 py-8" : "px-12 py-16"} container mx-auto`}
     >
+      {/* Section Header */}
+      <h2
+        className="text-center font-light mb-5 md:mb-10 
+    text-[18px] md:text-[32px] tracking-[0.18em] 
+    text-gray-900 uppercase"
+      >
+        <span className="bg-gradient-to-r from-gray-800 via-gray-600 to-gray-800 bg-clip-text text-transparent">
+          Shop By Category
+        </span>
+
+        <div className="mx-auto mt-4 w-16 h-[2px] bg-gradient-to-r from-gray-300 via-gray-400 to-gray-300 rounded-full opacity-80" />
+      </h2>
+
+      {/* Categories Grid/Carousel */}
       <div
         ref={containerRef}
-        className="md:grid md:grid-cols-3 md:gap-8 flex md:flex-none overflow-x-auto snap-x snap-mandatory relative scroll-smooth"
+        className="md:grid md:grid-cols-3 md:gap-6 flex md:flex-none overflow-x-auto snap-x snap-mandatory relative scroll-smooth scrollbar-hide"
       >
         {categories.map((category, index) => (
           <div
@@ -67,13 +80,16 @@ export default function Categories() {
               href={category.href}
             />
 
+            {/* Mobile Dots Indicator */}
             {isMobile && index === activeIndex && (
-              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
                 {categories.map((_, dotIndex) => (
                   <span
                     key={dotIndex}
-                    className={`h-2 w-2 rounded-full transition-colors ${
-                      dotIndex === activeIndex ? "bg-black" : "bg-gray-400"
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      dotIndex === activeIndex
+                        ? "w-8 bg-white"
+                        : "w-1.5 bg-white/50"
                     }`}
                   />
                 ))}
