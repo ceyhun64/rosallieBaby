@@ -30,7 +30,7 @@ export default function BasketSummaryCard({
   //kedlkekdşlkşede
 
   return (
-    <Card className="sticky top-6 lg:h-fit">
+    <Card className="sticky top-6 lg:h-fit p-4">
       <CardHeader>
         <CardTitle className="text-xl">Basket Summary</CardTitle>
       </CardHeader>

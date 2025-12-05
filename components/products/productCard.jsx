@@ -1,29 +1,24 @@
 "use client";
 import Image from "next/image";
-import { useState, useCallback } from "react"; // useCallback eklendi
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ShoppingBag, Heart, Eye } from "lucide-react";
-// Sepet bağlamlarını kaldırdık, çünkü doğrudan mantığı uygulayacağız.
-// import { useCart } from "@/contexts/cartContext";
-// import { useFavorite } from "@/contexts/favoriteContext"; // Bu kullanılmaya devam edilebilir.
 import { useFavorite } from "@/contexts/favoriteContext";
 
-// utils/cart.js'den misafir sepeti fonksiyonlarını içeri aktar
+// Guest cart utils
 import { addToGuestCart } from "@/utils/cart";
-import { toast } from "sonner"; // Bildirimler için sonner'ı varsayıyoruz
+import { toast } from "sonner";
 
 export default function ProductCard({ product }) {
   const [isHovered, setIsHovered] = useState(false);
   const isMobile = useIsMobile();
-  const [loading, setLoading] = useState(false); // Sepete ekleme sırasında yükleniyor durumu
+  const [loading, setLoading] = useState(false);
 
-  // const { addToCart } = useCart(); // Artık useCart yerine kendi mantığımızı kullanacağız
   const { addFavorite, removeFavorite, isFavorited } = useFavorite();
-
   const favorited = isFavorited(product.id);
 
-  // Kullanıcının oturum durumunu kontrol eden fonksiyon
+  // Check if the user is logged in
   const checkLoginStatus = useCallback(async () => {
     try {
       const res = await fetch("/api/account/check", {
@@ -45,30 +40,31 @@ export default function ProductCard({ product }) {
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
+
     if (product.category === "hospital_outfit_special_set") {
-      // Bu kategori için sepete ekleme değil, önizleme/detay sayfasına yönlendirme yapılır
       window.location.href = `/all_products/${product.category}/${product.id}`;
       return;
     }
 
     setLoading(true);
+
     const itemData = {
       productId: product.id,
       quantity: 1,
-      customName: "none", // Varsayılan olarak none
+      customName: "none",
       image: product.mainImage,
       price: product.price,
-      title: product.name, // addToGuestCart'ın beklediği title
+      title: product.name,
       oldPrice: product.oldPrice,
       category: product.category,
-      description: product.description, // Misafir sepeti için ekle
+      description: product.description,
     };
 
     try {
       const isLoggedIn = await checkLoginStatus();
 
       if (isLoggedIn) {
-        // 1. OTURUM AÇMIŞ KULLANICI İÇİN: API ÜZERİNDEN
+        // Logged-in user → API cart update
         const res = await fetch("/api/cart", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -82,27 +78,23 @@ export default function ProductCard({ product }) {
 
         if (!res.ok) {
           const errorData = await res.json();
-          throw new Error(
-            errorData.error || "API üzerinden sepete eklenemedi."
-          );
+          throw new Error(errorData.error || "Failed to add to cart.");
         }
 
-        // Başarılı API cevabında, sepetin diğer bileşenleri güncellensin diye event fırlatılabilir.
         window.dispatchEvent(new CustomEvent("cartUpdated"));
-        toast.success(`${product.name} sepete eklendi!`, {
-          description: "Sepetiniz güncellendi.",
+        toast.success(`${product.name} added to cart!`, {
+          description: "Your cart has been updated.",
         });
       } else {
-        // 2. MİSAFİR KULLANICI İÇİN: LOCAL STORAGE ÜZERİNDEN
+        // Guest user → Local storage cart
         addToGuestCart(itemData, 1);
-        toast.success(`${product.name} sepete eklendi!`, {
-          description: "Sepetiniz yerel olarak güncellendi.",
+        toast.success(`${product.name} added to cart!`, {
+          description: "Your cart was updated locally.",
         });
-        // addToGuestCart zaten "cartUpdated" event'ini fırlatır.
       }
     } catch (error) {
-      console.error("Sepete ekleme hatası:", error);
-      toast.error(error.message || "Ürün sepete eklenirken bir hata oluştu.");
+      console.error("Add to cart error:", error);
+      toast.error(error.message || "An error occurred while adding the item.");
     } finally {
       setLoading(false);
     }
@@ -117,7 +109,7 @@ export default function ProductCard({ product }) {
       >
         <Link href={`/all_products/${product.category}/${product.id}`}>
           <div className="relative w-full aspect-[1] overflow-hidden">
-            {/* Ürün Resmi */}
+            {/* Product Image */}
             <Image
               src={
                 !isMobile && isHovered && product.subImages?.[0]?.url
@@ -129,12 +121,12 @@ export default function ProductCard({ product }) {
               className="object-cover transition-all duration-700 group-hover:scale-105"
             />
 
-            {/* Premium Gradient Overlay on Hover */}
+            {/* Hover overlay */}
             {isHovered && (
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent transition-opacity duration-500" />
             )}
 
-            {/* Discount Badge */}
+            {/* Discount badge */}
             {product.discount > 0 && (
               <div className="absolute top-1.5 left-1.5 md:top-4 md:left-4 z-10">
                 <div className="bg-black text-white px-1.5 py-0.5 md:px-3 md:py-1.5 text-xs font-medium tracking-wider">
@@ -156,7 +148,7 @@ export default function ProductCard({ product }) {
               />
             </button>
 
-            {/* Premium Action Buttons */}
+            {/* Action Buttons */}
             {(isMobile || isHovered) && (
               <div className="absolute inset-x-0 bottom-0 p-0 md:p-4">
                 {product.category === "hospital_outfit_special_set" ? (
@@ -172,7 +164,7 @@ export default function ProductCard({ product }) {
                 ) : (
                   <button
                     onClick={handleAddToCart}
-                    disabled={loading} // Sepete eklenirken butonu devre dışı bırak
+                    disabled={loading}
                     className="w-full bg-white/80 text-black font-medium py-3 px-3 flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ShoppingBag size={isMobile ? 14 : 20} />
@@ -187,11 +179,12 @@ export default function ProductCard({ product }) {
         </Link>
       </div>
 
-      {/* Ürün Bilgileri */}
+      {/* Product Info */}
       <div className="p-5 text-center bg-white transition-all duration-300 group-hover:bg-gray-50">
         <p className="text-xs md:text-sm text-gray-600 mb-0 line-clamp-2 leading-relaxed tracking-wide min-h-[40px]">
           {product.name}
         </p>
+
         {!isMobile && (
           <p className="text-xs text-gray-600 mb-3 line-clamp-2 leading-relaxed tracking-wide min-h-[40px]">
             {product.description}
@@ -205,6 +198,7 @@ export default function ProductCard({ product }) {
                 €{product.oldPrice.toFixed(2)}
               </span>
             )}
+
             <span className="text-lg md:text-xl font-semibold text-black tracking-tight">
               €{product.price.toFixed(2)}
             </span>

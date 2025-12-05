@@ -9,9 +9,6 @@ import React, {
 } from "react";
 import { toast } from "sonner";
 
-
-
-
 const CartContext = createContext(undefined);
 
 export const CartProvider = ({ children }) => {
@@ -35,7 +32,7 @@ export const CartProvider = ({ children }) => {
     try {
       await fetchCartFromAPI();
     } catch (err) {
-      console.error("Sepet yüklenemedi", err);
+      console.error("Failed to load cart", err);
     } finally {
       setLoading(false);
     }
@@ -45,11 +42,7 @@ export const CartProvider = ({ children }) => {
   // Add to Cart
   // -----------------------------
   const addToCart = async (item) => {
-    const {
-      productId,
-      quantity = 1,
-      customName = null,
-    } = item;
+    const { productId, quantity = 1, customName = null } = item;
 
     try {
       const res = await fetch("/api/cart", {
@@ -60,18 +53,18 @@ export const CartProvider = ({ children }) => {
       });
 
       if (res.ok) {
-        toast.success("Ürün sepete eklendi!");
+        toast.success("Item added to cart!");
         await fetchCartFromAPI();
       } else {
-        toast.error("Sepete eklenemedi");
+        toast.error("Failed to add item to cart");
       }
     } catch {
-      toast.error("Bağlantı hatası");
+      toast.error("Connection error");
     }
   };
 
   // -----------------------------
-  // Remove item
+  // Remove Item
   // -----------------------------
   const removeFromCart = async (id) => {
     try {
@@ -82,12 +75,12 @@ export const CartProvider = ({ children }) => {
 
       if (res.ok) {
         setCartItems((prev) => prev.filter((i) => i.id !== id));
-        toast.success("Ürün silindi");
+        toast.success("Item removed");
       } else {
-        toast.error("Ürün silinemedi");
+        toast.error("Failed to remove item");
       }
     } catch {
-      toast.error("Ürün silinemedi");
+      toast.error("Failed to remove item");
     }
   };
 
@@ -109,7 +102,7 @@ export const CartProvider = ({ children }) => {
         await fetchCartFromAPI();
       }
     } catch {
-      toast.error("Miktar güncellenemedi");
+      toast.error("Failed to update quantity");
     }
   };
 
@@ -125,10 +118,10 @@ export const CartProvider = ({ children }) => {
 
       if (res.ok) {
         setCartItems([]);
-        toast.success("Sepet temizlendi");
+        toast.success("Cart cleared");
       }
     } catch {
-      toast.error("Sepet temizlenemedi");
+      toast.error("Failed to clear cart");
     }
   };
 

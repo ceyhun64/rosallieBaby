@@ -1,9 +1,11 @@
+//api/products/category/[category]/route.js
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 
 export async function GET(request, context) {
   try {
-    const { params } = await context; // 🔥 ÖNEMLİ: params burada await ediliyor
+    // ✅ DOĞRU: params'ı da await edin
+    const params = await context.params;
     const { category } = params;
 
     const products = await prisma.product.findMany({
