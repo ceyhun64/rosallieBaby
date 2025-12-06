@@ -138,6 +138,7 @@ export default function Header() {
         <Link
           href="/"
           className="text-[16px] md:text-[26px] tracking-[0.04em] text-gray-900 font-serif font-extralight hover:opacity-80 transition-all"
+          aria-label="Ana Sayfaya Git" // 👈 ARIA-LABEL Eklendi
         >
           <Image src="/logo/logo2.png" alt="Logo" width={84} height={80} />
         </Link>
@@ -151,6 +152,7 @@ export default function Header() {
                   key={item.href}
                   href={item.href}
                   className="relative text-[14px] font-light text-gray-600 hover:text-gray-900 tracking-wider transition-all group"
+                  aria-label={`${item.label} koleksiyonuna git`} // 👈 ARIA-LABEL Eklendi
                 >
                   {item.label}
                   <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-gray-900 transition-all duration-300 group-hover:w-full" />
@@ -168,6 +170,7 @@ export default function Header() {
             size="icon-sm"
             className="text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full"
             onClick={handleSearchClick}
+            aria-label="Arama Sayfasına Git" // 👈 ARIA-LABEL Eklendi
           >
             <Search className="h-[20px] w-[20px]" strokeWidth={1.4} />
           </Button>
@@ -182,10 +185,18 @@ export default function Header() {
                   userMenuOpen ? "bg-white/50" : ""
                 }`}
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
+                aria-label={
+                  user
+                    ? "Hesap Menüsünü Aç (Giriş Yapıldı)"
+                    : "Hesap Menüsünü Aç/Giriş Yap"
+                } // 👈 ARIA-LABEL Eklendi
               >
                 <User className="h-[20px] w-[20px]" strokeWidth={1.4} />
                 {user && ( // Green dot for logged-in user
-                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-green-500 border border-white"></span>
+                  <span
+                    className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-green-500 border border-white"
+                    aria-hidden="true" // 👈 Görsel süsleme
+                  ></span>
                 )}
               </Button>
             </div>
@@ -201,7 +212,9 @@ export default function Header() {
           />
 
           {/* Favorites Button */}
-          <Link href={"/favorites"}>
+          <Link href={"/favorites"} aria-label="Favoriler Sayfasına Git">
+            {" "}
+            {/* 👈 ARIA-LABEL Link'e Eklendi */}
             <Button
               variant="ghost"
               size="icon-sm"
@@ -209,7 +222,10 @@ export default function Header() {
             >
               <Heart className="h-[20px] w-[20px]" strokeWidth={1.4} />
               {favorites.length > 0 && ( // Favorites count badge
-                <span className="absolute -top-3 -right-3 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white shadow">
+                <span
+                  className="absolute -top-3 -right-3 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white shadow"
+                  aria-label={`${favorites.length} favori ürün`} // 👈 ARIA-LABEL Eklendi
+                >
                   {favorites.length}
                 </span>
               )}
@@ -225,10 +241,14 @@ export default function Header() {
               setCartOpen(true);
               fetchCartData(user); // Force a cart data refresh on open
             }}
+            aria-label="Sepeti Aç" // 👈 ARIA-LABEL Eklendi
           >
             <ShoppingBag className="h-[20px] w-[20px]" strokeWidth={1.4} />
             {cartCount > 0 && ( // Cart count badge
-              <span className="absolute -top-3 -right-3 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-gray-900 text-[10px] font-medium text-white shadow">
+              <span
+                className="absolute -top-3 -right-3 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-gray-900 text-[10px] font-medium text-white shadow"
+                aria-label={`${cartCount} sepetinizde ürün var`} // 👈 ARIA-LABEL Eklendi
+              >
                 {cartCount}
               </span>
             )}
@@ -241,6 +261,7 @@ export default function Header() {
               size="icon-sm"
               onClick={() => setMenuOpen(true)}
               className="hover:bg-white/50 transition rounded-full"
+              aria-label="Mobil Menüyü Aç" // 👈 ARIA-LABEL Eklendi
             >
               <Menu
                 className="h-[20px] w-[20px] text-gray-700"
@@ -256,6 +277,7 @@ export default function Header() {
         <SheetContent
           side="left"
           className="w-full h-full border-r border-gray-100 bg-white"
+          aria-label="Mobil Navigasyon Menüsü" // 👈 ARIA-LABEL Eklendi
         >
           <SheetHeader className="py-6 px-6 border-b border-gray-100">
             {/* Login/Logout/Register Links */}
@@ -269,6 +291,7 @@ export default function Header() {
                     setMenuOpen(false);
                   }}
                   className="text-sm font-light text-gray-600 hover:text-gray-900 px-4 py-2 me-6 rounded-full hover:bg-gray-50"
+                  aria-label="Hesaptan Çıkış Yap" // 👈 ARIA-LABEL Eklendi
                 >
                   Logout
                 </button>
@@ -278,14 +301,18 @@ export default function Header() {
                     href="/account/login"
                     onClick={() => setMenuOpen(false)}
                     className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-full hover:bg-gray-50"
+                    aria-label="Giriş Yap Sayfasına Git" // 👈 ARIA-LABEL Eklendi
                   >
                     Login
                   </Link>
-                  <span className="text-gray-300">|</span>
+                  <span className="text-gray-300" aria-hidden="true">
+                    |
+                  </span>
                   <Link
                     href="/account/register"
                     onClick={() => setMenuOpen(false)}
                     className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-full hover:bg-gray-50"
+                    aria-label="Kayıt Ol Sayfasına Git" // 👈 ARIA-LABEL Eklendi
                   >
                     Register
                   </Link>
@@ -296,6 +323,7 @@ export default function Header() {
             <SheetDescription className="text-xs font-light text-gray-500 mt-2 tracking-wide">
               Navigate through our premium collections
             </SheetDescription>
+            {/* Menüyü kapatma butonu için 'SheetClose' eklentisinin otomatik aria-label sağlaması beklenir. */}
           </SheetHeader>
 
           {/* Mobile Menu Links */}
@@ -306,6 +334,7 @@ export default function Header() {
                 href={item.href}
                 className="text-base font-light text-gray-700 py-4 px-4 hover:bg-gray-50 rounded-xl transition-all hover:translate-x-1"
                 onClick={() => setMenuOpen(false)}
+                aria-label={`${item.label} sayfasına git`} // 👈 ARIA-LABEL Eklendi
               >
                 {item.label}
               </Link>
@@ -319,9 +348,11 @@ export default function Header() {
         <SheetContent
           side="right"
           className="w-full sm:w-[480px] lg:w-[600px] p-0 flex flex-col border-l border-gray-100 bg-white"
+          aria-label="Sepetim" // 👈 ARIA-LABEL Eklendi
         >
           {/* Cart Component is rendered inside the Sheet */}
           <Cart />
+          {/* Kapatma butonu muhtemelen Cart bileşeninin veya Sheet'in kendisinin içinde. */}
         </SheetContent>
       </Sheet>
     </header>

@@ -5,7 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const categories = [
   {
-    title: "Hospital Outfit Specaial Sets",
+    title: "Hospital Outfit Special Sets",
     imageUrl: "/categories/category1.webp",
     href: "/all_products/hospital_outfit_special_set",
   },

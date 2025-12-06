@@ -139,6 +139,7 @@ export default function ProductCard({ product }) {
             <button
               onClick={handleFavoriteClick}
               className="absolute top-1 right-1 md:top-4 md:right-4 z-20 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white/90 transition"
+              aria-label="Add to favorites"
             >
               <Heart
                 size={isMobile ? 14 : 20}
@@ -156,7 +157,9 @@ export default function ProductCard({ product }) {
                     onClick={() =>
                       (window.location.href = `/all_products/${product.category}/${product.id}`)
                     }
+
                     className="w-full bg-white/80 text-black font-medium py-3 px-3 flex items-center justify-center gap-2 text-sm"
+                    aria-label="Preview"
                   >
                     <Eye size={isMobile ? 14 : 20} />
                     <span className="text-xs md:text-sm">PREVIEW</span>
@@ -166,6 +169,7 @@ export default function ProductCard({ product }) {
                     onClick={handleAddToCart}
                     disabled={loading}
                     className="w-full bg-white/80 text-black font-medium py-3 px-3 flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Add to cart"
                   >
                     <ShoppingBag size={isMobile ? 14 : 20} />
                     <span className="text-xs md:text-sm">

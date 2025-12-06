@@ -47,12 +47,18 @@ export default function ProductCard({ product }) {
             {/* Premium Hover Action Button */}
             {isHovered && (
               <div className="absolute inset-x-0 bottom-0 p-4 transform transition-all duration-500 ease-out">
-                <button className="w-full bg-white/80 text-black/80 font-medium text-sm py-3 px-4 
+                <button
+                  aria-label="Add to cart"
+                  className="w-full bg-white/80 text-black/80 font-medium text-sm py-3 px-4 
                   flex items-center justify-center gap-2
                   hover:bg-white/90 hover:text-black/90 
                   transition-all duration-300 
-                  shadow-lg group/btn">
-                  <ShoppingBag size={18} className="transition-transform group-hover/btn:scale-110" />
+                  shadow-lg group/btn"
+                >
+                  <ShoppingBag
+                    size={18}
+                    className="transition-transform group-hover/btn:scale-110"
+                  />
                   <span className="tracking-wide">ADD TO CART</span>
                 </button>
               </div>
