@@ -3,8 +3,8 @@ import {
   XCircle,
   AlertCircle,
   CreditCard,
-  Phone,
-  Mail,
+
+  Home,
   RefreshCw,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
