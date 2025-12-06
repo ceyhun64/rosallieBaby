@@ -70,9 +70,9 @@ export default function Footer() {
           <div className="hidden md:grid grid-cols-3 gap-16 mb-20 max-w-4xl mx-auto">
             {footerSections.map((section, index) => (
               <div key={index} className="text-center">
-                <h4 className="text-sm font-semibold text-slate-900 mb-6 tracking-wider uppercase">
+                <h2 className="text-sm font-semibold text-slate-900 mb-6 tracking-wider uppercase">
                   {section.title}
-                </h4>
+                </h2>
                 <ul className="space-y-3.5 text-slate-600">
                   {section.links.map((link, i) => (
                     <li key={i}>

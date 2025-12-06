@@ -11,7 +11,7 @@ export default function Heroes() {
   return (
     <section
       className="relative w-full overflow-hidden group cursor-pointer"
-      onClick={() => router.push("/all_products")}
+      onClick={() => router.push("/all_products/hospital_outfit_special_set")}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
