@@ -12,68 +12,77 @@ import {
   SheetClose,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { useIsMobile } from "@/hooks/use-mobile";
-import Cart from "./cart";
-import { useFavorite } from "@/contexts/favoriteContext";
-import UserMegaMenu from "./userMegaMenu";
+import { useIsMobile } from "@/hooks/use-mobile"; // Custom hook for mobile detection
+import Cart from "./cart"; // Imported Cart component
+import { useFavorite } from "@/contexts/favoriteContext"; // Context for favorites
+import UserMegaMenu from "./userMegaMenu"; // Dropdown for user actions
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { getCart as getGuestCartItems } from "@/utils/cart";
+import { getCart as getGuestCartItems } from "@/utils/cart"; // Utility to get guest cart from local storage
 
 export default function Header() {
   const router = useRouter();
   const isMobile = useIsMobile();
   const pathname = usePathname() || "/";
 
+  // State management for UI elements
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
+  // State management for cart count and loading
   const [cartItems, setCartItems] = useState([]);
   const cartCount = cartItems.length;
   const [cartLoading, setCartLoading] = useState(true);
 
+  // Favorites data from context
   const { favorites, loading: favLoading } = useFavorite();
 
+  // Function to fetch cart data (for logged-in or guest users)
   const fetchCartData = useCallback(async (loggedInUser) => {
     setCartLoading(true);
 
     try {
       if (loggedInUser) {
+        // Fetch cart from API for logged-in users
         const res = await fetch("/api/cart");
         if (res.ok) {
           const data = await res.json();
           setCartItems(data || []);
         } else {
           setCartItems([]);
-          console.error("Error loading cart from API.");
+          console.error("Error loading cart from API."); // API'den sepet yüklenirken hata oluştu.
         }
       } else {
+        // Load cart from local storage for guest users
         const guestCart = getGuestCartItems();
         setCartItems(guestCart);
       }
     } catch (error) {
-      console.error("General error occurred while loading cart data:", error);
+      console.error("General error occurred while loading cart data:", error); // Sepet verisi yüklenirken genel bir hata oluştu.
       setCartItems([]);
     } finally {
       setCartLoading(false);
     }
   }, []);
 
+  // Scroll tracking effect
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 20); // Set scrolled state if vertical scroll is more than 20px
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Initial load of user and cart information, and event listener setup
   useEffect(() => {
     const loadUserAndCart = async () => {
       let loggedInUser = null;
       try {
+        // Check user login status
         const userRes = await fetch("/api/account/check");
         const data = await userRes.json();
         loggedInUser = data.user || null;
@@ -86,7 +95,9 @@ export default function Header() {
 
     loadUserAndCart();
 
+    // 🔥 IMPORTANT: Listen for the 'cartUpdated' event and reload the cart
     const handleCartUpdate = () => {
+      // Use the current user state to determine which fetch method to use
       fetchCartData(user);
     };
 
@@ -95,10 +106,12 @@ export default function Header() {
     return () => {
       window.removeEventListener("cartUpdated", handleCartUpdate);
     };
-  }, [fetchCartData, user]);
+  }, [fetchCartData, user]); // Dependency on user is crucial here for logic inside handleCartUpdate
 
+  // Navigation handler for search button
   const handleSearchClick = () => router.push("/search");
 
+  // Main navigation items
   const menuItems = [
     {
       label: "Hopital Special Sets",
@@ -109,6 +122,7 @@ export default function Header() {
       href: "/all_products/hospital_outfit_set",
     },
     { label: "Toys", href: "/all_products/toy" },
+    // { label: "All Products", href: "/all_products" },
   ];
 
   return (
@@ -117,36 +131,26 @@ export default function Header() {
         scrolled
           ? "bg-white/60 backdrop-blur-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] border-b border-white/40"
           : "bg-white/40 backdrop-blur-xl border-b border-white/20"
-      }`}
+      }`} // Dynamic styling based on scroll state
     >
       <div className="container mx-auto flex h-24 items-center justify-between px-6 sm:px-8 lg:px-12 max-w-6xl">
-        {/* Logo - Improved touch target */}
+        {/* Logo */}
         <Link
           href="/"
-          className="text-[16px] md:text-[26px] tracking-[0.04em] text-gray-900 font-serif font-extralight hover:opacity-80 transition-all min-h-[48px] flex items-center"
-          aria-label="Rosallie Baby Home"
+          className="text-[16px] md:text-[26px] tracking-[0.04em] text-gray-900 font-serif font-extralight hover:opacity-80 transition-all"
         >
-          <Image
-            src="/logo/logo2.png"
-            alt="Rosallie Baby Logo"
-            width={84}
-            height={80}
-            priority
-          />
+          <Image src="/logo/logo2.png" alt="Logo" width={84} height={80} />
         </Link>
 
         {/* Desktop Navigation Menu */}
         {!isMobile && (
-          <nav
-            className="flex items-center justify-center flex-1"
-            aria-label="Main navigation"
-          >
+          <nav className="flex items-center justify-center flex-1">
             <div className="flex items-center space-x-10">
               {menuItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="relative text-[14px] font-light text-gray-600 hover:text-gray-900 tracking-wider transition-all group min-h-[48px] flex items-center py-2"
+                  className="relative text-[14px] font-light text-gray-600 hover:text-gray-900 tracking-wider transition-all group"
                 >
                   {item.label}
                   <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-gray-900 transition-all duration-300 group-hover:w-full" />
@@ -156,42 +160,38 @@ export default function Header() {
           </nav>
         )}
 
-        {/* Icons/Action Buttons - Enhanced touch targets */}
-        <div className="flex items-center gap-2 md:gap-3 lg:gap-4">
-          {/* Search Button - Minimum 48x48px */}
+        {/* Icons/Action Buttons */}
+        <div className="flex items-center gap-4 md:gap-5 lg:gap-6">
+          {/* Search Button */}
           <Button
             variant="ghost"
-            className="text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full min-w-[48px] min-h-[48px] w-12 h-12 p-0 flex items-center justify-center"
+            size="icon-sm"
+            className="text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full"
             onClick={handleSearchClick}
-            aria-label="Search products"
           >
-            <Search className="h-[22px] w-[22px]" strokeWidth={1.4} />
+            <Search className="h-[20px] w-[20px]" strokeWidth={1.4} />
           </Button>
 
-          {/* User/Account Button - Minimum 48x48px */}
-          {!menuOpen && (
+          {/* User/Account Button and Mega Menu Trigger */}
+          {!menuOpen && ( // Prevents opening the user menu while mobile menu is open
             <div className="relative">
               <Button
                 variant="ghost"
-                className={`text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full min-w-[48px] min-h-[48px] w-12 h-12 p-0 flex items-center justify-center ${
+                size="icon-sm"
+                className={`text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full ${
                   userMenuOpen ? "bg-white/50" : ""
                 }`}
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                aria-label={user ? "User account menu" : "Login or register"}
-                aria-expanded={userMenuOpen}
               >
-                <User className="h-[22px] w-[22px]" strokeWidth={1.4} />
-                {user && (
-                  <span
-                    className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-green-500 border border-white"
-                    aria-label="Logged in"
-                  ></span>
+                <User className="h-[20px] w-[20px]" strokeWidth={1.4} />
+                {user && ( // Green dot for logged-in user
+                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-green-500 border border-white"></span>
                 )}
               </Button>
             </div>
           )}
 
-          {/* User Mega Menu */}
+          {/* User Mega Menu (Dropdown) */}
           <UserMegaMenu
             user={user}
             userMenuOpen={userMenuOpen}
@@ -200,67 +200,50 @@ export default function Header() {
             pathname={pathname}
           />
 
-          {/* Favorites Button - Minimum 48x48px with proper spacing */}
-          <Link
-            href="/favorites"
-            className="min-w-[48px] min-h-[48px] flex items-center justify-center"
-            aria-label={`Go to favorites page${
-              favorites.length > 0 ? ` (${favorites.length} items)` : ""
-            }`}
-          >
+          {/* Favorites Button */}
+          <Link href={"/favorites"}>
             <Button
               variant="ghost"
-              className="relative text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full w-12 h-12 p-0 flex items-center justify-center"
-              asChild
+              size="icon-sm"
+              className="relative text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full"
             >
-              <span>
-                <Heart className="h-[22px] w-[22px]" strokeWidth={1.4} />
-                {favorites.length > 0 && (
-                  <span
-                    className="absolute -top-2 -right-2 flex h-[20px] min-w-[20px] px-1 items-center justify-center rounded-full bg-red-500 text-[11px] font-medium text-white shadow"
-                    aria-hidden="true"
-                  >
-                    {favorites.length}
-                  </span>
-                )}
-              </span>
+              <Heart className="h-[20px] w-[20px]" strokeWidth={1.4} />
+              {favorites.length > 0 && ( // Favorites count badge
+                <span className="absolute -top-3 -right-3 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white shadow">
+                  {favorites.length}
+                </span>
+              )}
             </Button>
           </Link>
 
-          {/* Cart Button - Minimum 48x48px with proper spacing */}
+          {/* Cart Button */}
           <Button
             variant="ghost"
-            className="relative text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full min-w-[48px] min-h-[48px] w-12 h-12 p-0 flex items-center justify-center"
+            size="icon-sm"
+            className="relative text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full"
             onClick={() => {
               setCartOpen(true);
-              fetchCartData(user);
+              fetchCartData(user); // Force a cart data refresh on open
             }}
-            aria-label={`Open shopping cart${
-              cartCount > 0 ? ` (${cartCount} items)` : ""
-            }`}
           >
-            <ShoppingBag className="h-[22px] w-[22px]" strokeWidth={1.4} />
-            {cartCount > 0 && (
-              <span
-                className="absolute -top-2 -right-2 flex h-[20px] min-w-[20px] px-1 items-center justify-center rounded-full bg-gray-900 text-[11px] font-medium text-white shadow"
-                aria-hidden="true"
-              >
+            <ShoppingBag className="h-[20px] w-[20px]" strokeWidth={1.4} />
+            {cartCount > 0 && ( // Cart count badge
+              <span className="absolute -top-3 -right-3 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-gray-900 text-[10px] font-medium text-white shadow">
                 {cartCount}
               </span>
             )}
           </Button>
 
-          {/* Mobile Menu Button - Minimum 48x48px */}
+          {/* Mobile Menu Button (Hamburger) */}
           {isMobile && (
             <Button
               variant="ghost"
+              size="icon-sm"
               onClick={() => setMenuOpen(true)}
-              className="hover:bg-white/50 transition rounded-full min-w-[48px] min-h-[48px] w-12 h-12 p-0 flex items-center justify-center"
-              aria-label="Open mobile menu"
-              aria-expanded={menuOpen}
+              className="hover:bg-white/50 transition rounded-full"
             >
               <Menu
-                className="h-[22px] w-[22px] text-gray-700"
+                className="h-[20px] w-[20px] text-gray-700"
                 strokeWidth={1.4}
               />
             </Button>
@@ -268,24 +251,24 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Navigation Sheet */}
+      {/* Mobile Navigation Sheet (Left Side) */}
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
         <SheetContent
           side="left"
           className="w-full h-full border-r border-gray-100 bg-white"
         >
           <SheetHeader className="py-6 px-6 border-b border-gray-100">
+            {/* Login/Logout/Register Links */}
             <div className="flex items-center justify-between">
               {user ? (
                 <button
                   onClick={async () => {
                     await fetch("/api/account/logout", { method: "POST" });
                     setUser(null);
-                    await fetchCartData(null);
+                    await fetchCartData(null); // Load guest cart after logout
                     setMenuOpen(false);
                   }}
-                  className="text-sm font-light text-gray-600 hover:text-gray-900 px-4 py-3 me-6 rounded-full hover:bg-gray-50 min-h-[48px]"
-                  aria-label="Logout from account"
+                  className="text-sm font-light text-gray-600 hover:text-gray-900 px-4 py-2 me-6 rounded-full hover:bg-gray-50"
                 >
                   Logout
                 </button>
@@ -294,7 +277,7 @@ export default function Header() {
                   <Link
                     href="/account/login"
                     onClick={() => setMenuOpen(false)}
-                    className="text-gray-600 hover:text-gray-900 px-4 py-3 rounded-full hover:bg-gray-50 min-h-[48px] flex items-center"
+                    className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-full hover:bg-gray-50"
                   >
                     Login
                   </Link>
@@ -302,7 +285,7 @@ export default function Header() {
                   <Link
                     href="/account/register"
                     onClick={() => setMenuOpen(false)}
-                    className="text-gray-600 hover:text-gray-900 px-4 py-3 rounded-full hover:bg-gray-50 min-h-[48px] flex items-center"
+                    className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-full hover:bg-gray-50"
                   >
                     Register
                   </Link>
@@ -315,31 +298,29 @@ export default function Header() {
             </SheetDescription>
           </SheetHeader>
 
-          {/* Mobile Menu Links - Enhanced touch targets */}
-          <nav
-            className="mt-8 flex flex-col gap-1 px-2"
-            aria-label="Mobile navigation"
-          >
+          {/* Mobile Menu Links */}
+          <div className="mt-8 flex flex-col gap-1 px-2">
             {menuItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-base font-light text-gray-700 py-4 px-4 hover:bg-gray-50 rounded-xl transition-all hover:translate-x-1 min-h-[56px] flex items-center"
+                className="text-base font-light text-gray-700 py-4 px-4 hover:bg-gray-50 rounded-xl transition-all hover:translate-x-1"
                 onClick={() => setMenuOpen(false)}
               >
                 {item.label}
               </Link>
             ))}
-          </nav>
+          </div>
         </SheetContent>
       </Sheet>
 
-      {/* Cart Sidebar Sheet */}
+      {/* Cart Sidebar Sheet (Right Side) */}
       <Sheet open={cartOpen} onOpenChange={setCartOpen}>
         <SheetContent
           side="right"
           className="w-full sm:w-[480px] lg:w-[600px] p-0 flex flex-col border-l border-gray-100 bg-white"
         >
+          {/* Cart Component is rendered inside the Sheet */}
           <Cart />
         </SheetContent>
       </Sheet>
