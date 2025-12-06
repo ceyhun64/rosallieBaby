@@ -18,6 +18,8 @@ async function uploadToCloudinary(file, folderName = "products") {
     throw new Error(error.error || "Resim yüklenemedi");
   }
 
+  //aynne kardeşim
+
   const data = await response.json();
   return data.path;
 }
