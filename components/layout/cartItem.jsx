@@ -2,32 +2,6 @@
 
 import React, { useState } from "react";
 import { Trash2, Plus, Minus, Edit2, Tag } from "lucide-react";
-import { Skeleton } from "../ui/skeleton";
-
-// Cart Item Skeleton Component
-function CartItemSkeleton() {
-  return (
-    <div className="flex gap-4 p-4">
-      <Skeleton className="w-24 h-28 flex-shrink-0" />
-      <div className="flex-1 space-y-3">
-        <div className="flex justify-between items-start gap-3">
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-3 w-1/2" />
-          </div>
-          <Skeleton className="h-4 w-4" />
-        </div>
-        <div className="flex justify-between items-end mt-4">
-          <Skeleton className="h-10 w-28" />
-          <div className="text-right space-y-1">
-            <Skeleton className="h-6 w-20 ml-auto" />
-            <Skeleton className="h-3 w-12 ml-auto" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function CartItem({
   item,

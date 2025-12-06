@@ -21,7 +21,7 @@ import {
 } from "@/utils/cart";
 import { toast } from "sonner";
 
-// Cart Skeleton Component
+// Cart Skeleton Component (Placeholder for loading state)
 function CartSkeleton() {
   return (
     <div className="flex flex-col h-full bg-white">
@@ -43,6 +43,7 @@ function CartSkeleton() {
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
         <div className="space-y-3">
+          {/* Mock items for skeleton loader */}
           {[...Array(3)].map((_, i) => (
             <div key={i} className="border-b pb-3">
               <div className="flex gap-4 p-4">
@@ -62,10 +63,12 @@ function CartSkeleton() {
       </div>
 
       <div className="border-t p-4 space-y-3">
+        {/* Skeleton for subtotal/summary */}
         <div className="flex justify-between items-center pb-4 border-b">
           <Skeleton className="h-4 w-16" />
           <Skeleton className="h-8 w-24" />
         </div>
+        {/* Skeleton for checkout buttons */}
         <Skeleton className="h-14 w-full rounded-sm" />
         <Skeleton className="h-12 w-full rounded-sm" />
       </div>
@@ -121,7 +124,7 @@ export default function Cart() {
     } catch (err) {
       debug("fetchCart error", err);
       setCartItems([]);
-      toast.error("Sepet bilgileri sunucudan yüklenemedi.");
+      toast.error("Cart information could not be loaded from the server."); // Sepet bilgileri sunucudan yüklenemedi.
     } finally {
       setLoading(false);
     }
@@ -133,8 +136,9 @@ export default function Cart() {
     setLoading(true);
     try {
       const cart = getCart();
+      // Map guest cart structure to match the logged-in user cart structure for consistency
       const guestCart = cart.map((item) => ({
-        id: undefined,
+        id: undefined, // No backend ID for guest items
         productId: item.productId,
         quantity: item.quantity,
         product: {
@@ -147,12 +151,16 @@ export default function Cart() {
           category: item.category,
         },
         customName: item.customName,
+        // m2 is missing in the local storage mapping but included in subtotal calculation later.
+        // Assuming it's not strictly required for initial guest cart load since it's present in the subtotal logic.
       }));
       debug("Guest cart loaded", guestCart);
       setCartItems(guestCart);
     } catch (err) {
       debug("loadGuestCart() error", err);
-      toast.error("Sepet bilgileri yerel depolamadan yüklenirken hata oluştu.");
+      toast.error(
+        "An error occurred while loading cart information from local storage."
+      ); // Sepet bilgileri yerel depolamadan yüklenirken hata oluştu.
       setCartItems([]);
     } finally {
       setLoading(false);
@@ -181,27 +189,28 @@ export default function Cart() {
   }, [isLoggedIn, fetchCart, loadGuestCart]);
 
   /**
-   * 🛒 Miktarı Güncelleme İşlemi
+   * 🛒 Update Quantity Operation
    */
   const updateQuantity = async (id, newQuantity) => {
     if (newQuantity < 1) return;
 
-    // **Misafir Sepeti (Local Storage):**
+    // **Guest Cart (Local Storage):**
     if (!isLoggedIn) {
       try {
+        // 'id' for guest cart is assumed to be 'productId'
         updateGuestCartQuantityUtil(id, newQuantity);
-        loadGuestCart();
-        toast.success("Miktar başarıyla güncellendi.");
-        // 🔥 Header'ı güncelle
+        loadGuestCart(); // Re-load the cart to update the state
+        toast.success("Quantity updated successfully."); // Miktar başarıyla güncellendi.
+        // 🔥 Update the header/other components
         window.dispatchEvent(new CustomEvent("cartUpdated"));
       } catch (err) {
         console.error("Guest quantity update error:", err);
-        toast.error("Miktar yerel sepet üzerinde güncellenemedi.");
+        toast.error("Could not update quantity in the local cart."); // Miktar yerel sepet üzerinde güncellenemedi.
       }
       return;
     }
 
-    // **Oturum Açmış Sepet (API):**
+    // **Logged-in Cart (API):**
     try {
       const res = await fetch(`/api/cart/${id}`, {
         method: "PATCH",
@@ -212,7 +221,7 @@ export default function Cart() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        toast.error(errorData.error || "Miktar güncellenemedi");
+        toast.error(errorData.error || "Quantity could not be updated"); // Miktar güncellenemedi
         return;
       }
 
@@ -222,30 +231,31 @@ export default function Cart() {
           c.id === id ? { ...c, quantity: updatedItem.quantity } : c
         )
       );
-      toast.success("Miktar başarıyla güncellendi.");
-      // 🔥 Header'ı güncelle
+      toast.success("Quantity updated successfully."); // Miktar başarıyla güncellendi.
+      // 🔥 Update the header/other components
       window.dispatchEvent(new CustomEvent("cartUpdated"));
     } catch (err) {
       console.error("Quantity update error (API):", err);
-      toast.error("Miktar güncellenemedi");
+      toast.error("Quantity could not be updated"); // Miktar güncellenemedi
     }
   };
 
   /**
-   * 🗑️ Sepetten Kaldırma İşlemi
+   * 🗑️ Remove from Cart Operation
    */
   const removeFromCart = async (id) => {
-    // **Misafir Sepeti (Local Storage):**
+    // **Guest Cart (Local Storage):**
     if (!isLoggedIn) {
+      // 'id' for guest cart is assumed to be 'productId'
       removeFromGuestCart(id);
-      loadGuestCart();
-      toast.success("Ürün sepetten kaldırıldı");
-      // 🔥 Header'ı güncelle
+      loadGuestCart(); // Re-load the cart to update the state
+      toast.success("Product removed from cart"); // Ürün sepetten kaldırıldı
+      // 🔥 Update the header/other components
       window.dispatchEvent(new CustomEvent("cartUpdated"));
       return;
     }
 
-    // **Oturum Açmış Sepet (API):**
+    // **Logged-in Cart (API):**
     try {
       const res = await fetch(`/api/cart/${id}`, {
         method: "DELETE",
@@ -254,19 +264,19 @@ export default function Cart() {
 
       if (res.ok) {
         setCartItems((prev) => prev.filter((c) => c.id !== id));
-        toast.success("Ürün sepetten kaldırıldı");
-        // 🔥 Header'ı güncelle
+        toast.success("Product removed from cart"); // Ürün sepetten kaldırıldı
+        // 🔥 Update the header/other components
         window.dispatchEvent(new CustomEvent("cartUpdated"));
       } else {
         const errorData = await res.json();
-        toast.error(errorData.error || "Ürün kaldırılamadı");
+        toast.error(errorData.error || "Product could not be removed"); // Ürün kaldırılamadı
       }
     } catch {
-      toast.error("Ürün kaldırılamadı");
+      toast.error("Product could not be removed"); // Ürün kaldırılamadı
     }
   };
 
-  // Enrich cart items with product data
+  // Enrich cart items with product data (e.g., fetch missing price/name details)
   useEffect(() => {
     const enrichCartItems = async () => {
       if (cartItems.length === 0) {
@@ -279,18 +289,20 @@ export default function Cart() {
       try {
         const enriched = await Promise.all(
           cartItems.map(async (item) => {
+            // Check if product details are missing
             if (!item.product || !item.product.price || !item.product.name) {
               try {
                 const productId = item.productId || item.product?.id;
                 if (!productId) return item;
 
+                // Fetch product details from the API
                 const res = await fetch(`/api/products/${productId}`);
                 if (res.ok) {
                   const data = await res.json();
                   if (data.success && data.product) {
                     return {
                       ...item,
-                      product: data.product,
+                      product: data.product, // Update with full product data
                     };
                   }
                 }
@@ -301,7 +313,7 @@ export default function Cart() {
                 );
               }
             }
-            return item;
+            return item; // Return item as is if already complete or fetch failed
           })
         );
 
@@ -320,8 +332,10 @@ export default function Cart() {
   // Subtotal calculation
   const subtotal = enrichedItems.reduce((acc, item) => {
     const product = item.product || {};
+    // Determine the base price, considering standard price, price per M2, or the item's own price field
     const basePrice = product.price || product.pricePerM2 || item.price || 0;
     const quantity = item.quantity || 1;
+    // Assume 'm2' defaults to 1 if not specified, likely for products priced per square meter
     const m2 = item.m2 || 1;
 
     return acc + basePrice * quantity * m2;
@@ -354,6 +368,7 @@ export default function Cart() {
       {/* CONTENT */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
         {enrichedItems.length === 0 ? (
+          // Empty Cart State
           <div className="flex flex-col items-center justify-center text-center pt-20 px-4">
             <ShoppingBag
               className="h-12 w-12 text-gray-300 mb-4"
@@ -365,15 +380,18 @@ export default function Cart() {
             </Button>
           </div>
         ) : (
+          // Cart Items List
           <div className="space-y-3">
             {enrichedItems.map((item, index) => (
               <div
+                // Use backend ID or a combination of productId and index for guest cart keys
                 key={item.id || `${item.productId}-${index}`}
                 className="border-b last:border-0 pb-3 last:pb-0"
               >
                 <CartItem
                   item={item}
                   product={item.product}
+                  // Pass appropriate ID (backend ID or productId) and handlers
                   onIncrease={() =>
                     updateQuantity(item.id || item.productId, item.quantity + 1)
                   }
@@ -387,7 +405,8 @@ export default function Cart() {
           </div>
         )}
       </div>
-      {/* SUGGESTED PRODUCTS */}
+
+      {/* SUGGESTED PRODUCTS (CompletePurchase Component) */}
       {enrichedItems.length > 0 && !showCompletePurchase && (
         <div className="px-4 py-3 border-t">
           <button
@@ -403,10 +422,12 @@ export default function Cart() {
           onClose={() => setShowCompletePurchase(false)}
           onCartUpdate={(updatedCart) => {
             setCartItems(updatedCart);
+            // Trigger update event after adding recommended items
             window.dispatchEvent(new CustomEvent("cartUpdated"));
           }}
         />
       )}
+
       {/* SUMMARY / FOOTER */}
       {enrichedItems.length > 0 && (
         <div className="px-4 py-3 border-t">

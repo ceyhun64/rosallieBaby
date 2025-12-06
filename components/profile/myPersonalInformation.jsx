@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Save, Mail, Phone, User, Check, Shield, CheckCircle } from "lucide-react";
 import countries from "@/public/countries.json";
+import { Skeleton } from "../ui/skeleton";
 
 export default function MyPersonalInformation() {
   const isMobile = useIsMobile();
@@ -176,7 +177,7 @@ export default function MyPersonalInformation() {
                   </div>
                 </div>
 
-                {/* Phone */}
+                {/* Phone - DÜZELTİLMİŞ VERSİYON */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="phone"
@@ -184,18 +185,16 @@ export default function MyPersonalInformation() {
                   >
                     Phone Number
                   </Label>
-                  <div className="relative flex rounded-lg border border-slate-200 overflow-hidden focus-within:border-slate-400 focus-within:ring-1 focus-within:ring-slate-400 transition-all">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
-                    
+                  <div className="flex gap-2">
                     {/* Country Code Selector */}
-                    <div className="relative">
+                    <div className="relative w-28 flex-shrink-0">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
                       <select
-                        className="h-11 pl-10 pr-3 bg-slate-50 border-r border-slate-200 text-xs text-slate-700 cursor-pointer appearance-none hover:bg-slate-100 transition-colors focus:outline-none"
+                        className="w-full h-11 pl-10 pr-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 cursor-pointer appearance-none hover:bg-slate-50 transition-colors focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400"
                         value={formData.countryCode || "90"}
                         onChange={(e) =>
                           handleInputChange("countryCode", e.target.value)
                         }
-                        style={{ minWidth: "100px" }}
                       >
                         {countries.map((c) => (
                           <option key={c.iso} value={c.code}>
@@ -203,6 +202,12 @@ export default function MyPersonalInformation() {
                           </option>
                         ))}
                       </select>
+                      {/* Selected value display */}
+                      <div className="absolute inset-0 pointer-events-none flex items-center pl-10 pr-2">
+                        <span className="text-xs text-slate-700">
+                          +{formData.countryCode || "90"}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Phone Input */}
@@ -210,7 +215,7 @@ export default function MyPersonalInformation() {
                       id="phone"
                       type="tel"
                       placeholder="5XX XXX XX XX"
-                      className="flex-1 border-none rounded-none focus-visible:ring-0 h-11 px-4 text-sm"
+                      className="flex-1 h-11 rounded-lg border-slate-200 focus:border-slate-400 focus:ring-1 focus:ring-slate-400 transition-all text-sm"
                       value={formData.phone}
                       onChange={(e) =>
                         handleInputChange("phone", e.target.value)

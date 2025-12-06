@@ -26,16 +26,16 @@ import CompletePurchase from "@/components/products/completePurchase";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useRouter } from "next/navigation";
 import ReviewSection from "@/components/products/review";
-// import { useCart } from "@/contexts/cartContext"; // Yalnızca API çağrısı için kullanılan harici kancayı kaldırdık/yerine koyduk
+// import { useCart } from "@/contexts/cartContext"; // Removed/Replaced external hook used only for API call
 import { useFavorite } from "@/contexts/favoriteContext";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Misafir sepeti fonksiyonunu import ediyoruz
-import { addToGuestCart } from "@/utils/cart"; // varsayılan olarak utils/cart dosyasında olduğunu varsaydık
+// Importing the guest cart function
+import { addToGuestCart } from "@/utils/cart"; // assuming it's in utils/cart by default
 
-// Skeleton Component (DEĞİŞMEDİ)
+// Skeleton Component (UNCHANGED)
 function ProductDetailSkeleton({ isMobile }) {
-  // ... (Skeleton kodu aynı)
+  // ... (Skeleton code is the same)
   return (
     <div className="container mx-auto px-4 md:px-8 py-0 md:py-8">
       {/* Breadcrumb Skeleton */}
@@ -149,9 +149,9 @@ export default function ProductDetail() {
   const { id } = useParams();
   const completePurchaseRef = useRef(null);
 
-  // const { addToCart } = useCart(); // useCart yerine manuel state ve API/Local Storage kontrolü
-  const [isAddingToCart, setIsAddingToCart] = useState(false); // Sepete ekleme yüklenme durumu
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Kullanıcı giriş durumu
+  // const { addToCart } = useCart(); // Manual state and API/Local Storage control instead of useCart
+  const [isAddingToCart, setIsAddingToCart] = useState(false); // Loading status for adding to cart
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // User login status
 
   const {
     isFavorited,
@@ -180,7 +180,7 @@ export default function ProductDetail() {
       setIsLoading(true);
       setError(null);
       try {
-        // 1. Ürün verisini çek
+        // 1. Fetch product data
         const res = await fetch(`/api/products/${id}`);
         if (!res.ok) {
           throw new Error("Failed to fetch product data.");
@@ -188,13 +188,13 @@ export default function ProductDetail() {
         const data = await res.json();
         setProduct(data.product);
 
-        // 2. Kullanıcı giriş durumunu kontrol et (Örnek API uç noktası)
+        // 2. Check user login status (Example API endpoint)
         const userRes = await fetch("/api/account/check", {
           method: "GET",
-          credentials: "include", // Cookie'leri göndermek için
+          credentials: "include", // To send cookies
         });
         const userData = await userRes.json();
-        setIsLoggedIn(!!userData.user); // user nesnesi varsa true
+        setIsLoggedIn(!!userData.user); // true if user object exists
       } catch (err) {
         setError(err.message);
       } finally {
@@ -258,19 +258,19 @@ export default function ProductDetail() {
     setIsZoomed(false);
   };
 
-  // 🚀 GÜNCELLENDİ: Sepete Ekleme Fonksiyonu
+  // 🚀 UPDATED: Add to Cart Function
   const handleAddToCart = async () => {
     if (!product) return;
 
     const trimmedName = customName.trim();
 
-    // İsim alanı kontrolü
+    // Name field validation
     if (!trimmedName) {
       toast.error("Please enter your name!");
       return;
     }
 
-    setIsAddingToCart(true); // Yükleniyor durumunu başlat
+    setIsAddingToCart(true); // Start loading status
 
     const productDetails = {
       productId: product.id,
@@ -286,7 +286,7 @@ export default function ProductDetail() {
 
     try {
       if (isLoggedIn) {
-        // --- GİRİŞ YAPMIŞ KULLANICI İÇİN: API KULLAN ---
+        // --- FOR LOGGED-IN USER: USE API ---
         const res = await fetch("/api/cart", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -300,14 +300,14 @@ export default function ProductDetail() {
             errorData.message || "Failed to add product to cart via API."
           );
         }
-        toast.success(`'${trimmedName}' ürünü sepetinize eklendi!`);
+        toast.success(`Product '${trimmedName}' added to your cart!`);
       } else {
-        // --- MİSAFİR KULLANICI İÇİN: LOCAL STORAGE KULLAN ---
+        // --- FOR GUEST USER: USE LOCAL STORAGE ---
         addToGuestCart(productDetails, 1);
-        toast.success(`'${trimmedName}' ürünü misafir sepetinize eklendi!`);
+        toast.success(`Product '${trimmedName}' added to your guest cart!`);
       }
 
-      // Başarılı olursa formu temizle
+      // Clear form on success
       setCustomName("");
       setPreviewName("");
 
@@ -323,7 +323,7 @@ export default function ProductDetail() {
         `Error adding to cart: ${error.message || "Please try again."}`
       );
     } finally {
-      setIsAddingToCart(false); // Yükleniyor durumunu bitir
+      setIsAddingToCart(false); // Stop loading status
     }
   };
 
@@ -584,7 +584,7 @@ export default function ProductDetail() {
             <Button
               className="w-full py-7 text-base font-medium bg-black hover:bg-gray-800 transition-all duration-300 rounded-none tracking-wider"
               onClick={handleAddToCart}
-              disabled={isAddingToCart} // Butonu devre dışı bırak
+              disabled={isAddingToCart} // Disable button
             >
               <ShoppingCart size={20} className="mr-3" />
               {isAddingToCart ? "Adding to Cart..." : "ADD TO CART"}

@@ -13,7 +13,6 @@ export default function UserMegaMenu({
 }) {
   const menuRef = useRef(null);
 
-  /** Close menu on ESC key or outside click */
   useEffect(() => {
     if (!userMenuOpen) return;
 
@@ -39,103 +38,127 @@ export default function UserMegaMenu({
 
   const mainItems = user
     ? [
-        { label: "My Profile", href: "/profile", icon: User },
-        { label: "My Orders", href: "/profile/orders", icon: Package },
-        { label: "My Addresses", href: "/profile/addresses", icon: MapPin },
+        { label: "Profile", href: "/profile", icon: User },
+        { label: "Orders", href: "/profile/orders", icon: Package },
+        { label: "Addresses", href: "/profile/addresses", icon: MapPin },
       ]
     : [];
 
   return (
     <AnimatePresence>
       {userMenuOpen && (
-        <motion.div
-          ref={menuRef}
-          initial={{ opacity: 0, y: 10, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 10, scale: 0.98 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className={`fixed right-0 md:right-20 z-40 w-full md:w-100 
-          backdrop-blur-xl bg-white/90 border border-gray-200 shadow-xl rounded-xs p-6 top-24`}
-        >
-          {/* Header */}
-          <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">
-              {user ? "My Account" : "Welcome"}
-            </h3>
+        <>
+          {/* Overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0   z-30"
+            onClick={() => setUserMenuOpen(false)}
+          />
 
+          {/* Menu */}
+          <motion.div
+            ref={menuRef}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="fixed right-4 md:right-20 top-24 z-40 w-[calc(100%-2rem)] md:w-96
+            bg-white/95 backdrop-blur-2xl shadow-2xl rounded-xs overflow-hidden"
+          >
+            {/* Close Button - Floating */}
             <button
               onClick={() => setUserMenuOpen(false)}
-              className="p-2 rounded-full hover:bg-gray-100 transition"
+              className="absolute top-5 right-5 p-1.5 rounded-full hover:bg-gray-100 
+              transition-colors duration-200 z-10"
+              aria-label="Close menu"
             >
-              <X className="w-5 h-5 text-gray-600" />
+              <X className="w-4 h-4 text-gray-400" />
             </button>
-          </div>
 
-          {/* --- Authenticated User --- */}
-          {user ? (
-            <div className="mt-4 flex flex-col gap-4">
-              {/* User Card */}
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <div className="p-3 bg-[#7B0323]/10 rounded-full">
-                  <User className="w-6 h-6 text-[#7B0323]" />
+            {/* Content */}
+            <div className="p-8">
+              {user ? (
+                /* Authenticated User */
+                <div className="space-y-8">
+                  {/* User Info */}
+                  <div className="pr-8">
+                    <h3 className="text-2xl font-light text-gray-900 mb-1">
+                      {user.name || "Guest"}
+                    </h3>
+                    {user.email && (
+                      <p className="text-sm text-gray-500 font-light">
+                        {user.email}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Divider */}
+                  <div className="h-px bg-gradient-to-r from-gray-200 via-gray-300 to-transparent" />
+
+                  {/* Menu Items */}
+                  <nav className="space-y-1">
+                    {mainItems.map((item, i) => (
+                      <Link
+                        key={i}
+                        href={item.href}
+                        onClick={() => setUserMenuOpen(false)}
+                        className="group flex items-center gap-4 px-4 py-3.5 rounded-xl
+                        hover:bg-gray-50 transition-all duration-200"
+                      >
+                        <item.icon className="w-4 h-4 text-gray-400 group-hover:text-[#7B0323] 
+                        transition-colors duration-200" />
+                        <span className="text-gray-700 font-light tracking-wide
+                        group-hover:text-gray-900 transition-colors duration-200">
+                          {item.label}
+                        </span>
+                      </Link>
+                    ))}
+                  </nav>
                 </div>
+              ) : (
+                /* Guest */
+                <div className="space-y-6">
+                  <div className="pr-8">
+                    <h3 className="text-2xl font-light text-gray-900 mb-2">
+                      Welcome
+                    </h3>
+                    <p className="text-sm text-gray-500 font-light leading-relaxed">
+                      Sign in to access your account and enjoy personalized experience
+                    </p>
+                  </div>
 
-                <div>
-                  <p className="font-semibold text-gray-900">
-                    {user.name || "Guest User"}
-                  </p>
-                  {user.email && (
-                    <p className="text-sm text-gray-600">{user.email}</p>
-                  )}
+                  <div className="space-y-3 pt-2">
+                    <Link
+                      href="/account/login"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="w-full flex items-center justify-center gap-2.5 py-3.5
+                      bg-[#7B0323] text-white rounded-full font-light tracking-wide
+                      hover:bg-[#8B0329] transition-all duration-300 shadow-sm
+                      hover:shadow-md"
+                    >
+                      <LogIn className="w-4 h-4" />
+                      Sign In
+                    </Link>
+
+                    <Link
+                      href="/account/register"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="w-full flex items-center justify-center gap-2.5 py-3.5
+                      border border-gray-200 rounded-full text-gray-700 font-light tracking-wide
+                      hover:border-gray-300 hover:bg-gray-50 transition-all duration-300"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      Create Account
+                    </Link>
+                  </div>
                 </div>
-              </div>
-
-              {/* Menu Items */}
-              <div className="flex flex-col gap-1">
-                {mainItems.map((item, i) => (
-                  <Link
-                    key={i}
-                    href={item.href}
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition"
-                  >
-                    <item.icon className="w-5 h-5 text-gray-700" />
-                    <span className="text-gray-800 font-medium">
-                      {item.label}
-                    </span>
-                  </Link>
-                ))}
-              </div>
+              )}
             </div>
-          ) : (
-            /* --- Guest --- */
-            <div className="flex flex-col gap-4 mt-4">
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Create an account to enjoy benefits or log in to manage your actions.
-              </p>
-
-              <Link
-                href="/account/login"
-                onClick={() => setUserMenuOpen(false)}
-                className="w-full flex items-center justify-center gap-2 py-3
-                bg-[#7B0323] text-white rounded-full shadow hover:bg-[#C70039] transition"
-              >
-                <LogIn className="w-5 h-5" />
-                Log In
-              </Link>
-
-              <Link
-                href="/account/register"
-                onClick={() => setUserMenuOpen(false)}
-                className="w-full flex items-center justify-center gap-2 py-3
-                border border-gray-300 rounded-full text-gray-800 hover:bg-gray-50 transition font-medium"
-              >
-                <UserPlus className="w-5 h-5" />
-                Register Now
-              </Link>
-            </div>
-          )}
-        </motion.div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import ProductCard from "@/components/products/productCard";
 import { Heart, ShoppingBag } from "lucide-react";
 import { useFavorite } from "@/contexts/favoriteContext";
+import { Skeleton } from "../ui/skeleton";
 
 export default function Favorites() {
   const { favorites, removeFavorite, loading: favLoading } = useFavorite();

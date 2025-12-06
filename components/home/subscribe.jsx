@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Mail, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export default function SubscribeSection() {
   const isMobile = useIsMobile();

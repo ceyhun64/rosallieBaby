@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Edit, Trash2, MapPin, Plus, User, Phone, Home, X, Check } from "lucide-react";
 import { toast } from "sonner";
 import countries from "@/public/countries.json";
+import { Skeleton } from "../ui/skeleton";
 
 export default function Addresses() {
   const [addresses, setAddresses] = useState([]);

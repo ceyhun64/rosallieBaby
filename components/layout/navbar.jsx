@@ -12,71 +12,77 @@ import {
   SheetClose,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { useIsMobile } from "@/hooks/use-mobile";
-import Cart from "./cart";
-import { useFavorite } from "@/contexts/favoriteContext";
-import UserMegaMenu from "./userMegaMenu";
+import { useIsMobile } from "@/hooks/use-mobile"; // Custom hook for mobile detection
+import Cart from "./cart"; // Imported Cart component
+import { useFavorite } from "@/contexts/favoriteContext"; // Context for favorites
+import UserMegaMenu from "./userMegaMenu"; // Dropdown for user actions
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { getCart as getGuestCartItems } from "@/utils/cart";
+import { getCart as getGuestCartItems } from "@/utils/cart"; // Utility to get guest cart from local storage
 
 export default function Header() {
   const router = useRouter();
   const isMobile = useIsMobile();
   const pathname = usePathname() || "/";
 
+  // State management for UI elements
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
+  // State management for cart count and loading
   const [cartItems, setCartItems] = useState([]);
   const cartCount = cartItems.length;
   const [cartLoading, setCartLoading] = useState(true);
 
+  // Favorites data from context
   const { favorites, loading: favLoading } = useFavorite();
 
-  // Sepet verisini çekme fonksiyonu
+  // Function to fetch cart data (for logged-in or guest users)
   const fetchCartData = useCallback(async (loggedInUser) => {
     setCartLoading(true);
 
     try {
       if (loggedInUser) {
+        // Fetch cart from API for logged-in users
         const res = await fetch("/api/cart");
         if (res.ok) {
           const data = await res.json();
           setCartItems(data || []);
         } else {
           setCartItems([]);
-          console.error("API'den sepet yüklenirken hata oluştu.");
+          console.error("Error loading cart from API."); // API'den sepet yüklenirken hata oluştu.
         }
       } else {
+        // Load cart from local storage for guest users
         const guestCart = getGuestCartItems();
         setCartItems(guestCart);
       }
     } catch (error) {
-      console.error("Sepet verisi yüklenirken genel bir hata oluştu:", error);
+      console.error("General error occurred while loading cart data:", error); // Sepet verisi yüklenirken genel bir hata oluştu.
       setCartItems([]);
     } finally {
       setCartLoading(false);
     }
   }, []);
 
-  // Scroll takibi
+  // Scroll tracking effect
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 20); // Set scrolled state if vertical scroll is more than 20px
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Kullanıcı ve sepet bilgilerini yükleme
+  // Initial load of user and cart information, and event listener setup
   useEffect(() => {
     const loadUserAndCart = async () => {
       let loggedInUser = null;
       try {
+        // Check user login status
         const userRes = await fetch("/api/account/check");
         const data = await userRes.json();
         loggedInUser = data.user || null;
@@ -89,9 +95,9 @@ export default function Header() {
 
     loadUserAndCart();
 
-    // 🔥 ÖNEMLİ: cartUpdated event'ini dinle ve sepeti yeniden yükle
+    // 🔥 IMPORTANT: Listen for the 'cartUpdated' event and reload the cart
     const handleCartUpdate = () => {
-      // Mevcut user state'ini kullan (yeni fetch'e gerek yok)
+      // Use the current user state to determine which fetch method to use
       fetchCartData(user);
     };
 
@@ -100,18 +106,23 @@ export default function Header() {
     return () => {
       window.removeEventListener("cartUpdated", handleCartUpdate);
     };
-  }, [fetchCartData, user]);
+  }, [fetchCartData, user]); // Dependency on user is crucial here for logic inside handleCartUpdate
 
+  // Navigation handler for search button
   const handleSearchClick = () => router.push("/search");
 
+  // Main navigation items
   const menuItems = [
-    { label: "All Products", href: "/all_products" },
     {
-      label: "Special Sets",
+      label: "Hopital Special Sets",
       href: "/all_products/hospital_outfit_special_set",
     },
-    { label: "Outfit Sets", href: "/all_products/hospital_outfit_set" },
+    {
+      label: "Hospital Outfit Sets",
+      href: "/all_products/hospital_outfit_set",
+    },
     { label: "Toys", href: "/all_products/toy" },
+    // { label: "All Products", href: "/all_products" },
   ];
 
   return (
@@ -120,9 +131,10 @@ export default function Header() {
         scrolled
           ? "bg-white/60 backdrop-blur-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] border-b border-white/40"
           : "bg-white/40 backdrop-blur-xl border-b border-white/20"
-      }`}
+      }`} // Dynamic styling based on scroll state
     >
       <div className="container mx-auto flex h-24 items-center justify-between px-6 sm:px-8 lg:px-12 max-w-6xl">
+        {/* Logo */}
         <Link
           href="/"
           className="text-[16px] md:text-[26px] tracking-[0.04em] text-gray-900 font-serif font-extralight hover:opacity-80 transition-all"
@@ -130,6 +142,7 @@ export default function Header() {
           <Image src="/logo/logo2.png" alt="Logo" width={84} height={80} />
         </Link>
 
+        {/* Desktop Navigation Menu */}
         {!isMobile && (
           <nav className="flex items-center justify-center flex-1">
             <div className="flex items-center space-x-10">
@@ -147,7 +160,9 @@ export default function Header() {
           </nav>
         )}
 
+        {/* Icons/Action Buttons */}
         <div className="flex items-center gap-4 md:gap-5 lg:gap-6">
+          {/* Search Button */}
           <Button
             variant="ghost"
             size="icon-sm"
@@ -157,7 +172,8 @@ export default function Header() {
             <Search className="h-[20px] w-[20px]" strokeWidth={1.4} />
           </Button>
 
-          {!menuOpen && (
+          {/* User/Account Button and Mega Menu Trigger */}
+          {!menuOpen && ( // Prevents opening the user menu while mobile menu is open
             <div className="relative">
               <Button
                 variant="ghost"
@@ -168,13 +184,14 @@ export default function Header() {
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
               >
                 <User className="h-[20px] w-[20px]" strokeWidth={1.4} />
-                {user && (
+                {user && ( // Green dot for logged-in user
                   <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-green-500 border border-white"></span>
                 )}
               </Button>
             </div>
           )}
 
+          {/* User Mega Menu (Dropdown) */}
           <UserMegaMenu
             user={user}
             userMenuOpen={userMenuOpen}
@@ -183,6 +200,7 @@ export default function Header() {
             pathname={pathname}
           />
 
+          {/* Favorites Button */}
           <Link href={"/favorites"}>
             <Button
               variant="ghost"
@@ -190,7 +208,7 @@ export default function Header() {
               className="relative text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full"
             >
               <Heart className="h-[20px] w-[20px]" strokeWidth={1.4} />
-              {favorites.length > 0 && (
+              {favorites.length > 0 && ( // Favorites count badge
                 <span className="absolute -top-3 -right-3 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white shadow">
                   {favorites.length}
                 </span>
@@ -198,23 +216,25 @@ export default function Header() {
             </Button>
           </Link>
 
+          {/* Cart Button */}
           <Button
             variant="ghost"
             size="icon-sm"
             className="relative text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full"
             onClick={() => {
               setCartOpen(true);
-              fetchCartData(user);
+              fetchCartData(user); // Force a cart data refresh on open
             }}
           >
             <ShoppingBag className="h-[20px] w-[20px]" strokeWidth={1.4} />
-            {cartCount > 0 && (
+            {cartCount > 0 && ( // Cart count badge
               <span className="absolute -top-3 -right-3 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-gray-900 text-[10px] font-medium text-white shadow">
                 {cartCount}
               </span>
             )}
           </Button>
 
+          {/* Mobile Menu Button (Hamburger) */}
           {isMobile && (
             <Button
               variant="ghost"
@@ -231,19 +251,21 @@ export default function Header() {
         </div>
       </div>
 
+      {/* Mobile Navigation Sheet (Left Side) */}
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
         <SheetContent
           side="left"
           className="w-full h-full border-r border-gray-100 bg-white"
         >
           <SheetHeader className="py-6 px-6 border-b border-gray-100">
+            {/* Login/Logout/Register Links */}
             <div className="flex items-center justify-between">
               {user ? (
                 <button
                   onClick={async () => {
                     await fetch("/api/account/logout", { method: "POST" });
                     setUser(null);
-                    await fetchCartData(null);
+                    await fetchCartData(null); // Load guest cart after logout
                     setMenuOpen(false);
                   }}
                   className="text-sm font-light text-gray-600 hover:text-gray-900 px-4 py-2 me-6 rounded-full hover:bg-gray-50"
@@ -276,6 +298,7 @@ export default function Header() {
             </SheetDescription>
           </SheetHeader>
 
+          {/* Mobile Menu Links */}
           <div className="mt-8 flex flex-col gap-1 px-2">
             {menuItems.map((item) => (
               <Link
@@ -291,11 +314,13 @@ export default function Header() {
         </SheetContent>
       </Sheet>
 
+      {/* Cart Sidebar Sheet (Right Side) */}
       <Sheet open={cartOpen} onOpenChange={setCartOpen}>
         <SheetContent
           side="right"
           className="w-full sm:w-[480px] lg:w-[600px] p-0 flex flex-col border-l border-gray-100 bg-white"
         >
+          {/* Cart Component is rendered inside the Sheet */}
           <Cart />
         </SheetContent>
       </Sheet>

@@ -24,15 +24,15 @@ import CompletePurchase from "@/components/products/completePurchase";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useRouter } from "next/navigation";
 import ReviewSection from "@/components/products/review";
-// import { useCart } from "@/contexts/cartContext"; // Varsayımsal useCart artık kullanılmıyor
+// import { useCart } from "@/contexts/cartContext"; // Hypothetical useCart is no longer used
 import { useFavorite } from "@/contexts/favoriteContext";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// utils/cart.js'den sepet fonksiyonlarını içeri aktarın
-// Projenizdeki gerçek yola göre düzenleyin: "@/utils/cart" veya "./utils/cart" vb.
+// Import cart functions from utils/cart.js
+// Adjust the actual path based on your project: "@/utils/cart" or "./utils/cart" etc.
 import { addToGuestCart } from "@/utils/cart";
 
-// ... ProductDetailSkeleton bileşeni (değişmedi) ...
+// ... ProductDetailSkeleton component (unchanged) ...
 const ProductDetailSkeleton = ({ isMobile }) => {
   return (
     <div className="container mx-auto px-4 md:px-8 py-0 md:py-8">
@@ -92,7 +92,7 @@ export default function ProductDetail() {
   const { id } = useParams();
   const completePurchaseRef = useRef(null);
 
-  // ❌ useCart kaldırıldı veya yok sayıldı. Sepet mantığı yerel olarak uygulanacak.
+  // ❌ useCart removed or ignored. Cart logic will be implemented locally.
   // const { addToCart } = useCart();
 
   const {
@@ -109,7 +109,7 @@ export default function ProductDetail() {
   const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // ⚡️ Yeni: Kullanıcı giriş durumu için state
+  // ⚡️ New: State for user login status
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Zoom states
@@ -123,7 +123,7 @@ export default function ProductDetail() {
       setIsLoading(true);
       setError(null);
       try {
-        // 1. Ürün verisini çek
+        // 1. Fetch product data
         const productRes = await fetch(`/api/products/${id}`);
         if (!productRes.ok) {
           throw new Error("Failed to fetch product data.");
@@ -131,13 +131,13 @@ export default function ProductDetail() {
         const productData = await productRes.json();
         setProduct(productData.product);
 
-        // 2. Kullanıcı giriş durumunu kontrol et
+        // 2. Check user login status
         const userRes = await fetch("/api/account/check", {
           method: "GET",
-          credentials: "include", // Cookie'leri göndermek için
+          credentials: "include", // To send cookies
         });
         const userData = await userRes.json();
-        setIsLoggedIn(!!userData.user); // user nesnesi varsa true
+        setIsLoggedIn(!!userData.user); // true if user object exists
       } catch (err) {
         setError(err.message);
       } finally {
@@ -167,7 +167,7 @@ export default function ProductDetail() {
   const total = product?.subImages.length || 0;
   const isFavorite = isFavorited(product.id);
 
-  // ... Diğer handler fonksiyonları (handleThumbUp, handleThumbDown, vb.) ...
+  // ... Other handler functions (handleThumbUp, handleThumbDown, etc.) ...
 
   const handleThumbUp = () => {
     if (activeIndex > 0) setActiveIndex(activeIndex - 1);
@@ -203,20 +203,20 @@ export default function ProductDetail() {
     setIsZoomed(false);
   };
 
-  // 🚀 Güncellendi: Sepete Ekleme Mantığı (API vs Local Storage)
+  // 🚀 Updated: Add to Cart Logic (API vs Local Storage)
   const handleAddToCart = async () => {
     if (!product) return;
 
-    // API'nin POST /api/cart'ta beklediği temel veri yapısı:
+    // The basic data structure the API expects for POST /api/cart:
     // { productId, quantity, customName }
-    // Diğer alanlar (image, price, title) API tarafından kullanılmadığı için gereksiz yere gönderilmeyecektir.
+    // Other fields (image, price, title) will not be sent unnecessarily since the API doesn't use them.
     const apiProductData = {
       productId: product.id,
-      quantity: 1, // Sabit 1 adet varsayılmıştır
-      customName: null, // Özelleştirme seçeneği yoksa null olarak bırakılabilir
+      quantity: 1, // Assumed fixed quantity of 1
+      customName: null, // Can be left as null if no customization is available
     };
 
-    // Misafir sepeti için hazırlanan veri (Local Storage için gerekli ek alanlar):
+    // Data prepared for the guest cart (additional fields required for Local Storage):
     const guestProductData = {
       ...apiProductData,
       image: product.mainImage,
@@ -230,9 +230,9 @@ export default function ProductDetail() {
 
     try {
       if (isLoggedIn) {
-        // --- GİRİŞ YAPMIŞ KULLANICI İÇİN: API KULLAN ---
+        // --- FOR LOGGED-IN USER: USE API ---
         const res = await fetch("/api/cart", {
-          // API yolu: /api/cart
+          // API path: /api/cart
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -241,27 +241,27 @@ export default function ProductDetail() {
           credentials: "include",
         });
 
-        // API'den gelen yanıtın JSON olup olmadığını veya hata içerip içermediğini kontrol et
+        // Check if the response from the API is JSON or contains an error
         const responseBody = await res.json();
 
         if (!res.ok) {
-          // Sunucu 4xx veya 5xx döndürdü.
-          // Yeni API'niz geçerli bir JSON döndürdüğü için (responseBody'de) bu kısım daha güvenli.
+          // Server returned 4xx or 5xx.
+          // This part is safer since your new API returns valid JSON (in responseBody).
           const errorMessage =
             responseBody.error || "Failed to add to cart via API.";
           throw new Error(errorMessage);
         }
 
-        // Başarılı yanıt
-        // responseBody, oluşturulan veya güncellenen sepet öğesini içerir.
+        // Successful response
+        // responseBody contains the created or updated cart item.
         toast.success(`${product.name} successfully added to your cart.`);
       } else {
-        // --- MİSAFİR KULLANICI İÇİN: LOCAL STORAGE KULLAN ---
+        // --- FOR GUEST USER: USE LOCAL STORAGE ---
         addToGuestCart(guestProductData, 1);
         toast.success(`${product.name} successfully added to guest cart.`);
       }
 
-      // Sepete ekleme sonrası ekranı kaydır
+      // Scroll the screen after adding to cart
       if (completePurchaseRef.current) {
         completePurchaseRef.current.scrollIntoView({
           behavior: "smooth",
@@ -269,15 +269,15 @@ export default function ProductDetail() {
         });
       }
     } catch (error) {
-      console.error("Sepete ekleme hatası:", error);
-      // Hata mesajı artık doğrudan error.message'den gelir (API hata JSON'u yakalanmıştır)
+      console.error("Add to cart error:", error);
+      // The error message now comes directly from error.message (API error JSON is caught)
       toast.error(
-        `Error adding to cart: ${error.message || "Lütfen tekrar deneyin."}`
+        `Error adding to cart: ${error.message || "Please try again."}`
       );
     }
   };
 
-  // ... Diğer handler fonksiyonları (handleWhatsapp, formatDescription, handleFavoriteToggle) ...
+  // ... Other handler functions (handleWhatsapp, formatDescription, handleFavoriteToggle) ...
 
   const handleWhatsapp = () => {
     window.open("https://wa.me/905432266322", "_blank");
@@ -318,7 +318,7 @@ export default function ProductDetail() {
 
   return (
     <div className="container mx-auto px-4 md:px-8 py-0 md:py-8">
-      {/* ... Kalan bileşen içeriği (değişmedi) ... */}
+      {/* ... Remaining component content (unchanged) ... */}
       <Breadcrumb />
 
       {/* Premium Product Section */}
@@ -504,7 +504,7 @@ export default function ProductDetail() {
           <div className="flex flex-col gap-4 mt-4">
             <Button
               className="w-full py-7 text-base font-medium bg-black hover:bg-gray-800 transition-all duration-300 rounded-none tracking-wider"
-              onClick={handleAddToCart} // ✨ Güncellenmiş fonksiyon
+              onClick={handleAddToCart} // ✨ Updated function
             >
               <ShoppingCart size={20} className="mr-3" />
               ADD TO CART

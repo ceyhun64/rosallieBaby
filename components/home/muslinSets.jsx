@@ -76,7 +76,7 @@ export default function MuslinSets() {
   if (loading) return <Loading isMobile={isMobile} />;
   if (error) return <p className="text-center py-12 text-red-500">{error}</p>;
   if (products.length === 0)
-    return <p className="text-center py-12">Bu kategoride ürün yok.</p>;
+    return <p className="text-center py-12">There are no products in this category.</p>;
 
   return (
     <section

@@ -22,8 +22,8 @@ export default function Heroes() {
       {/* Image */}
       <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] overflow-hidden">
         <Image
-          src="/heroes/heroes.webp"
-          alt="Luxury baby essentials"
+          src="/heroes/heroesbest.png"
+          alt="Luxury baby 2"
           width={1920}
           height={800}
           className="w-full h-full object-cover transform transition-transform duration-1000 ease-out group-hover:scale-110"

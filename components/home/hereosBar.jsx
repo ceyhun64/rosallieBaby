@@ -7,39 +7,39 @@ export default function HeroesBar() {
   const benefits = [
     {
       icon: <Gift className="h-4 w-4" strokeWidth={1.6} />,
-      text: "Exclusive Member Privileges — Join Our Premium Club"
+      text: "Exclusive Member Privileges — Join Our Premium Club",
     },
     {
       icon: <Truck className="h-4 w-4" strokeWidth={1.6} />,
-      text: "Complimentary Shipping on All Orders Over €50"
+      text: "Complimentary Shipping on All Orders Over €50",
     },
     {
       icon: <Star className="h-4 w-4" strokeWidth={1.6} />,
-      text: "Discover Our New Luxury Capsule Collection"
+      text: "Discover Our New Luxury Capsule Collection",
     },
     {
       icon: <Sparkles className="h-4 w-4" strokeWidth={1.6} />,
-      text: "Crafted From Ultra-Soft 100% Organic Cotton"
-    }
+      text: "Crafted From Ultra-Soft 100% Organic Cotton",
+    },
   ];
 
   return (
-    <div className="
-      w-full 
-      py-4 
-      bg-gradient-to-r from-[#fff9f9] via-[#fefeff] to-[#fff9f9]
-     
-     
-    ">
-      <Marquee 
-        pauseOnHover 
-        speed={36} 
+    <div
+      className="
+        w-full py-4
+        bg-gradient-to-r
+        from-[#f7f3ef] via-[#f3ede8] to-[#f7f3ef]
+      "
+    >
+      <Marquee
+        pauseOnHover
+        speed={36}
         gradient={true}
         gradientWidth={120}
-        gradientColor="white"
+        gradientColor="#f3ede8"
       >
         {benefits.map((benefit, index) => (
-          <div 
+          <div
             key={index}
             className="
               flex items-center mx-20
@@ -47,26 +47,26 @@ export default function HeroesBar() {
               transition-all
             "
           >
-            <div 
+            <div
               className="
                 flex items-center justify-center
-                h-7 w-7 rounded-full 
+                h-7 w-7 rounded-full  
                 mr-3 text-gray-700
-                group-hover:text-rose-600 
-                group-hover:shadow-[0_0_8px_rgba(255,182,193,0.35)]
+                group-hover:text-rose-700
+                group-hover:shadow-[0_0_10px_rgba(0,0,0,0.12)]
                 transition-all duration-300
               "
             >
               {benefit.icon}
             </div>
 
-            <span 
+            <span
               className="
-                text-[11px] 
+                text-[11px]
                 tracking-[0.18em]
-                uppercase 
-                font-light 
-                text-gray-700 
+                uppercase
+                font-light
+                text-gray-800
                 group-hover:text-gray-900
                 transition-colors duration-300
               "

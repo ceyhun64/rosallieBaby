@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { X, Search, Sparkles, Package } from "lucide-react";
 import ProductCard from "./productCard";
+import Image from "next/image";
 
 export default function DefaultSearch() {
   const [query, setQuery] = useState("");
@@ -50,9 +51,14 @@ export default function DefaultSearch() {
             {!isMobile && (
               <Link
                 href="/"
-                className="flex items-center gap-2 text-slate-900 font-serif text-xl tracking-tight hover:text-slate-600 transition-colors flex-shrink-0"
+                className="text-[16px] md:text-[26px] tracking-[0.04em] text-gray-900 font-serif font-extralight hover:opacity-80 transition-all"
               >
-                RosallieBaby
+                <Image
+                  src="/logo/logo2.png"
+                  alt="Logo"
+                  width={84}
+                  height={80}
+                />
               </Link>
             )}
 
