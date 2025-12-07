@@ -166,6 +166,7 @@ export default function Header() {
           <Button
             variant="ghost"
             size="icon-sm"
+            aria-label="Search"
             className="text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full"
             onClick={handleSearchClick}
           >
@@ -178,6 +179,7 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="icon-sm"
+                aria-label="Profile"
                 className={`text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full ${
                   userMenuOpen ? "bg-white/50" : ""
                 }`}
@@ -201,9 +203,10 @@ export default function Header() {
           />
 
           {/* Favorites Button */}
-          <Link href={"/favorites"}>
+          <Link aria-label="go favorites" href={"/favorites"}>
             <Button
               variant="ghost"
+              aria-label="favorites"
               size="icon-sm"
               className="relative text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full"
             >
@@ -220,6 +223,7 @@ export default function Header() {
           <Button
             variant="ghost"
             size="icon-sm"
+            aria-label="cart"
             className="relative text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full"
             onClick={() => {
               setCartOpen(true);
@@ -239,6 +243,7 @@ export default function Header() {
             <Button
               variant="ghost"
               size="icon-sm"
+              aria-label="menu"
               onClick={() => setMenuOpen(true)}
               className="hover:bg-white/50 transition rounded-full"
             >
@@ -262,6 +267,7 @@ export default function Header() {
             <div className="flex items-center justify-between">
               {user ? (
                 <button
+                  aria-label="logout"
                   onClick={async () => {
                     await fetch("/api/account/logout", { method: "POST" });
                     setUser(null);
@@ -277,6 +283,7 @@ export default function Header() {
                   <Link
                     href="/account/login"
                     onClick={() => setMenuOpen(false)}
+                    aria-label="login "
                     className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-full hover:bg-gray-50"
                   >
                     Login
@@ -284,6 +291,7 @@ export default function Header() {
                   <span className="text-gray-300">|</span>
                   <Link
                     href="/account/register"
+                    aria-label="register"
                     onClick={() => setMenuOpen(false)}
                     className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-full hover:bg-gray-50"
                   >
