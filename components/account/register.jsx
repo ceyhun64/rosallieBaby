@@ -62,7 +62,7 @@ export default function Register() {
       <div className="absolute inset-0 z-0">
         {/* Lütfen bu görseli projenizdeki /public/login/register.jpg yoluyla güncelleyin. */}
         <img
-          src="/login/register.jpg"
+          src="/login/register.webp"
           alt="Elegant lifestyle background for register"
           className="w-full h-full object-cover"
         />

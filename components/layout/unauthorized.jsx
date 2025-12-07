@@ -16,7 +16,7 @@ export default function Unauthorized() {
       <div className=" rounded-2xl p-12 max-w-md w-full text-center flex flex-col items-center">
         {/* Tatlı bir resim */}
         <img
-          src="/unauthorized/unauthorized.jpg" // public/illustrations klasörüne ekle
+          src="/unauthorized/unauthorized.webp" // public/illustrations klasörüne ekle
           alt="Access Denied Illustration"
           className="w-64 h-64 mb-6"
         />

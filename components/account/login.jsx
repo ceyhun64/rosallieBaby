@@ -230,7 +230,7 @@ export default function Login() {
       <div className="absolute inset-0 z-0">
         {/* Please update this image with your project's /public/login/login.jpg path. */}
         <img
-          src="/login/login.jpg"
+          src="/login/login.webp"
           alt="Elegant lifestyle background"
           className="w-full h-full object-cover"
           // Using a placeholder image for safe rendering

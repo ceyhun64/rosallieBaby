@@ -20,9 +20,9 @@ export default function Heroes() {
       <div className="absolute inset-0 bg-radial-gradient from-transparent via-transparent to-black/30 z-10" />
 
       {/* Image */}
-      <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] overflow-hidden">
+      <div className="relative w-full h-[500px] sm:h-[500px] md:h-[600px] overflow-hidden">
         <Image
-          src="/heroes/heroesbest.png"
+          src="/heroes/hero.webp"
           alt="Luxury baby 2"
           width={1920}
           height={800}
@@ -32,10 +32,20 @@ export default function Heroes() {
       </div>
 
       {/* CTA Overlay */}
-      <div className="absolute inset-0 z-20 flex items-center justify-center">
+      {/* CTA Overlay */}
+      <div
+        className="
+    absolute inset-0 z-20 flex justify-center
+    items-end pb-10
+    sm:items-center sm:pb-0
+  "
+      >
         <div className="text-center space-y-4 sm:space-y-6 md:space-y-8 px-4 sm:px-6 max-w-xs sm:max-w-xl md:max-w-2xl lg:max-w-3xl bg-black/20 backdrop-blur-sm py-6 sm:py-8 md:py-10 rounded-xs shadow-2xl border border-white/10">
           <div className="flex justify-center mb-2 sm:mb-4">
-            <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white/80 animate-pulse" strokeWidth={1.5} />
+            <Sparkles
+              className="h-5 w-5 sm:h-6 sm:w-6 text-white/80 animate-pulse"
+              strokeWidth={1.5}
+            />
           </div>
 
           <div>
@@ -47,16 +57,18 @@ export default function Heroes() {
             </p>
           </div>
 
-          {/* Luxury Button - Mobile always visible */}
+          {/* Luxury Button */}
           <div className="mt-2">
             <button className="inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 md:px-10 py-3 sm:py-4 bg-white text-gray-900 text-xs sm:text-sm font-light tracking-[0.15em] uppercase hover:bg-gray-50 transition-all duration-500 shadow-2xl hover:shadow-3xl border border-white/20 backdrop-blur-sm">
               <span className="hidden sm:inline">Explore Collection</span>
               <span className="sm:hidden">Explore</span>
-              <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 transform transition-transform duration-500" strokeWidth={1.8} />
+              <ArrowRight
+                className="h-3 w-3 sm:h-4 sm:w-4 transform transition-transform duration-500"
+                strokeWidth={1.8}
+              />
             </button>
           </div>
 
-          {/* Decorative Bottom Line */}
           <div className="flex justify-center mt-4 sm:mt-6 md:mt-8">
             <div className="w-12 sm:w-16 h-px bg-white/60" />
           </div>
