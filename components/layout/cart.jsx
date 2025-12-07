@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import CartItem from "./cartItem";
 import CartSummary from "./cartSummary";
 import { ShoppingBag, X } from "lucide-react";
@@ -81,8 +81,6 @@ export default function Cart() {
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showCompletePurchase, setShowCompletePurchase] = useState(false);
-  const [enrichedItems, setEnrichedItems] = useState([]);
-  const [isEnriching, setIsEnriching] = useState(false);
 
   const debug = (label, data) =>
     console.log(`[🛒 Cart DEBUG] ${label}`, data ?? "");
@@ -124,7 +122,7 @@ export default function Cart() {
     } catch (err) {
       debug("fetchCart error", err);
       setCartItems([]);
-      toast.error("Cart information could not be loaded from the server."); // Sepet bilgileri sunucudan yüklenemedi.
+      toast.error("Cart information could not be loaded from the server.");
     } finally {
       setLoading(false);
     }
@@ -151,8 +149,6 @@ export default function Cart() {
           category: item.category,
         },
         customName: item.customName,
-        // m2 is missing in the local storage mapping but included in subtotal calculation later.
-        // Assuming it's not strictly required for initial guest cart load since it's present in the subtotal logic.
       }));
       debug("Guest cart loaded", guestCart);
       setCartItems(guestCart);
@@ -160,7 +156,7 @@ export default function Cart() {
       debug("loadGuestCart() error", err);
       toast.error(
         "An error occurred while loading cart information from local storage."
-      ); // Sepet bilgileri yerel depolamadan yüklenirken hata oluştu.
+      );
       setCartItems([]);
     } finally {
       setLoading(false);
@@ -200,12 +196,12 @@ export default function Cart() {
         // 'id' for guest cart is assumed to be 'productId'
         updateGuestCartQuantityUtil(id, newQuantity);
         loadGuestCart(); // Re-load the cart to update the state
-        toast.success("Quantity updated successfully."); // Miktar başarıyla güncellendi.
+        toast.success("Quantity updated successfully.");
         // 🔥 Update the header/other components
         window.dispatchEvent(new CustomEvent("cartUpdated"));
       } catch (err) {
         console.error("Guest quantity update error:", err);
-        toast.error("Could not update quantity in the local cart."); // Miktar yerel sepet üzerinde güncellenemedi.
+        toast.error("Could not update quantity in the local cart.");
       }
       return;
     }
@@ -221,7 +217,7 @@ export default function Cart() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        toast.error(errorData.error || "Quantity could not be updated"); // Miktar güncellenemedi
+        toast.error(errorData.error || "Quantity could not be updated");
         return;
       }
 
@@ -231,12 +227,12 @@ export default function Cart() {
           c.id === id ? { ...c, quantity: updatedItem.quantity } : c
         )
       );
-      toast.success("Quantity updated successfully."); // Miktar başarıyla güncellendi.
+      toast.success("Quantity updated successfully.");
       // 🔥 Update the header/other components
       window.dispatchEvent(new CustomEvent("cartUpdated"));
     } catch (err) {
       console.error("Quantity update error (API):", err);
-      toast.error("Quantity could not be updated"); // Miktar güncellenemedi
+      toast.error("Quantity could not be updated");
     }
   };
 
@@ -249,7 +245,7 @@ export default function Cart() {
       // 'id' for guest cart is assumed to be 'productId'
       removeFromGuestCart(id);
       loadGuestCart(); // Re-load the cart to update the state
-      toast.success("Product removed from cart"); // Ürün sepetten kaldırıldı
+      toast.success("Product removed from cart");
       // 🔥 Update the header/other components
       window.dispatchEvent(new CustomEvent("cartUpdated"));
       return;
@@ -264,84 +260,38 @@ export default function Cart() {
 
       if (res.ok) {
         setCartItems((prev) => prev.filter((c) => c.id !== id));
-        toast.success("Product removed from cart"); // Ürün sepetten kaldırıldı
+        toast.success("Product removed from cart");
         // 🔥 Update the header/other components
         window.dispatchEvent(new CustomEvent("cartUpdated"));
       } else {
         const errorData = await res.json();
-        toast.error(errorData.error || "Product could not be removed"); // Ürün kaldırılamadı
+        toast.error(errorData.error || "Product could not be removed");
       }
     } catch {
-      toast.error("Product could not be removed"); // Ürün kaldırılamadı
+      toast.error("Product could not be removed");
     }
   };
 
-  // Enrich cart items with product data (e.g., fetch missing price/name details)
-  useEffect(() => {
-    const enrichCartItems = async () => {
-      if (cartItems.length === 0) {
-        setEnrichedItems([]);
-        return;
-      }
-
-      setIsEnriching(true);
-
-      try {
-        const enriched = await Promise.all(
-          cartItems.map(async (item) => {
-            // Check if product details are missing
-            if (!item.product || !item.product.price || !item.product.name) {
-              try {
-                const productId = item.productId || item.product?.id;
-                if (!productId) return item;
-
-                // Fetch product details from the API
-                const res = await fetch(`/api/products/${productId}`);
-                if (res.ok) {
-                  const data = await res.json();
-                  if (data.success && data.product) {
-                    return {
-                      ...item,
-                      product: data.product, // Update with full product data
-                    };
-                  }
-                }
-              } catch (err) {
-                console.error(
-                  `Product fetch error for ${item.productId}:`,
-                  err
-                );
-              }
-            }
-            return item; // Return item as is if already complete or fetch failed
-          })
-        );
-
-        setEnrichedItems(enriched);
-      } catch (error) {
-        console.error("Error enriching cart items:", error);
-        setEnrichedItems(cartItems);
-      } finally {
-        setIsEnriching(false);
-      }
-    };
-
-    enrichCartItems();
-  }, [cartItems]);
+  // Use cartItems directly - no enrichment needed
+  // Logged-in users: cartItems already contains full product data from backend
+  // Guest users: loadGuestCart already maps the data with product info
+  const enrichedItems = useMemo(() => cartItems, [cartItems]);
 
   // Subtotal calculation
-  const subtotal = enrichedItems.reduce((acc, item) => {
-    const product = item.product || {};
-    // Determine the base price, considering standard price, price per M2, or the item's own price field
-    const basePrice = product.price || product.pricePerM2 || item.price || 0;
-    const quantity = item.quantity || 1;
-    // Assume 'm2' defaults to 1 if not specified, likely for products priced per square meter
-    const m2 = item.m2 || 1;
+  const subtotal = useMemo(() => {
+    return enrichedItems.reduce((acc, item) => {
+      const product = item.product || {};
+      // Determine the base price, considering standard price, price per M2, or the item's own price field
+      const basePrice = product.price || product.pricePerM2 || item.price || 0;
+      const quantity = item.quantity || 1;
+      // Assume 'm2' defaults to 1 if not specified, likely for products priced per square meter
+      const m2 = item.m2 || 1;
 
-    return acc + basePrice * quantity * m2;
-  }, 0);
+      return acc + basePrice * quantity * m2;
+    }, 0);
+  }, [enrichedItems]);
 
-  if (loading || isEnriching) return <CartSkeleton />;
+  if (loading) return <CartSkeleton />;
 
   return (
     <div className="flex flex-col h-full bg-white">
