@@ -93,7 +93,7 @@ export default function Footer() {
                 className="text-[16px] md:text-[26px] tracking-[0.04em] text-gray-900 font-serif font-extralight hover:opacity-80 transition-all"
               >
                 <Image
-                  src="/logo/logo2.png"
+                  src="/logo/logo2.webp"
                   alt="Logo"
                   width={168}
                   height={160}
