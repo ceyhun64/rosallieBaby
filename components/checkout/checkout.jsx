@@ -8,9 +8,9 @@ import StepAddress from "@/components/checkout/stepAddress";
 import StepCargo from "@/components/checkout/stepCargo";
 import StepPaymentCard from "@/components/checkout/stepPayment";
 import BasketSummaryCard from "@/components/checkout/cartSummary";
-import Loading from "@/components/layout/loading";
 import { getCart, clearGuestCart } from "@/utils/cart";
 import { Skeleton } from "../ui/skeleton";
+import { toast } from "sonner";
 
 const cargoOptions = [
   { id: "standart", name: "Standard Shipping", fee: 12.0 },
@@ -163,12 +163,12 @@ export default function PaymentPage() {
       !country ||
       !title
     ) {
-      alert("Please fill in all required fields.");
+      toast.error("Please fill in all required fields.");
       return;
     }
 
     if (isGuest && !email) {
-      alert("Please enter your email address.");
+      toast.error("Please enter your email address.");
       return;
     }
 
@@ -284,10 +284,10 @@ export default function PaymentPage() {
 
       setNewAddressForm(initialAddressForm);
       setIsAddingNewAddress(false);
-      alert("✅ Address saved successfully!");
+      toast.success("Address saved successfully!");
     } catch (err) {
       console.error("❌ Address Addition Error:", err);
-      alert(`Error: ${err.message}`);
+      toast.error(err.message || "Failed to save address");
     } finally {
       setIsSavingAddress(false);
     }
@@ -300,29 +300,29 @@ export default function PaymentPage() {
   // Card validation
   const validatePaymentInfo = () => {
     if (!holderName.trim()) {
-      alert("Enter cardholder name.");
+      toast.error("Enter cardholder name.");
       return false;
     }
 
     const cleanCardNumber = cardNumber.replace(/\s/g, "");
     if (cleanCardNumber.length !== 16) {
-      alert("Card number must be 16 digits.");
+      toast.error("Card number must be 16 digits.");
       return false;
     }
 
     if (!expireMonth || !expireYear) {
-      alert("Enter expiration date.");
+      toast.error("Enter expiration date.");
       return false;
     }
 
     const month = parseInt(expireMonth);
     if (month < 1 || month > 12) {
-      alert("Invalid month (must be between 1-12).");
+      toast.error("Invalid month (must be between 1-12).");
       return false;
     }
 
     if (cvc.length !== 3) {
-      alert("CVV must be 3 digits.");
+      toast.error("CVV must be 3 digits.");
       return false;
     }
 
@@ -337,7 +337,7 @@ export default function PaymentPage() {
     }
 
     if (!user || !selectedAddress || !selectedCargo) {
-      alert("Please complete all steps.");
+      toast.error("Please complete all steps.");
       return;
     }
 
@@ -348,7 +348,7 @@ export default function PaymentPage() {
       !Array.isArray(user.addresses) ||
       user.addresses.length === 0
     ) {
-      alert("Address information not found. Please add an address.");
+      toast.error("Address information not found. Please add an address.");
       setStep(1);
       return;
     }
@@ -368,7 +368,7 @@ export default function PaymentPage() {
           title: a.title,
         })),
       });
-      alert("Select a valid address. Please return to the address step.");
+      toast.error("Select a valid address. Please return to the address step.");
       setStep(1);
       return;
     }
@@ -380,7 +380,7 @@ export default function PaymentPage() {
       !selectedAddr.city ||
       !selectedAddr.district
     ) {
-      alert(
+      toast.error(
         "Selected address information is incomplete. Please check your address."
       );
       setStep(1);
@@ -484,10 +484,10 @@ export default function PaymentPage() {
 
       if (result.errorMessage || result.error) {
         console.error("❌ Iyzico Error:", result.errorMessage || result.error);
-        alert(
+        toast.error(
           `Payment Error: ${
             result.errorMessage || result.error
-          }\n\nPlease check your card information.`
+          }. Please check your card information.`
         );
         setProcessingPayment(false);
         return;
@@ -527,20 +527,25 @@ export default function PaymentPage() {
             console.error("Cart clearing error:", err);
           }
 
+          toast.success("Payment successful! Redirecting...");
           router.push("/checkout/success");
         } else {
           console.error("❌ Order creation failed:", orderResult);
-          alert("Order could not be saved. Please contact customer service.");
+          toast.error(
+            "Order could not be saved. Please contact customer service."
+          );
           setProcessingPayment(false);
         }
       } else {
         console.error("❌ Payment failed:", result);
-        alert("Payment failed. Please try again.");
+        toast.error("Payment failed. Please try again.");
         setProcessingPayment(false);
       }
     } catch (err) {
       console.error("💥 Payment Error:", err);
-      alert(`Error: ${err.message}\n\nPlease try again.`);
+      toast.error(
+        err.message || "Payment processing failed. Please try again."
+      );
       setProcessingPayment(false);
     }
   };
@@ -556,7 +561,6 @@ export default function PaymentPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           <div className="lg:col-span-2 space-y-6">
-            {/* Stepper Skeleton */}
             <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-md">
               <div className="flex-1 flex items-center">
                 <Skeleton className="h-8 w-8 rounded-full" />
@@ -574,7 +578,6 @@ export default function PaymentPage() {
               </div>
             </div>
 
-            {/* Step Content Skeleton (Address) */}
             <div className="bg-white p-6 rounded-lg shadow-md space-y-4">
               <Skeleton className="h-6 w-48 mb-4" />
               <div className="space-y-3">
@@ -600,12 +603,10 @@ export default function PaymentPage() {
 
           <div className="lg:col-span-1">
             <div className="sticky top-8 space-y-6">
-              {/* iyzico Logo Skeleton */}
               <div className="bg-white rounded-lg shadow-md p-4">
                 <Skeleton className="h-10 w-full" />
               </div>
 
-              {/* Summary Card Skeleton */}
               <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
                 <Skeleton className="h-6 w-40 mb-4" />
                 <div className="space-y-2">
@@ -624,7 +625,6 @@ export default function PaymentPage() {
                 </div>
               </div>
 
-              {/* Help Card Skeleton */}
               <div className="bg-blue-50 rounded-lg p-4">
                 <Skeleton className="h-5 w-48 mb-2" />
                 <Skeleton className="h-4 w-full mb-1" />

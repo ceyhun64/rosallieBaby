@@ -5,13 +5,13 @@ import { signIn } from "next-auth/react";
 import { Eye, EyeOff, ArrowRight, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
-// Local Storage anahtarları
+// Local Storage Keys
 const CART_KEY = "guestCart";
 const FAVORITES_KEY = "favorites";
 
-// --- Local Storage Helper Fonksiyonları: Sepet ---
+// --- Local Storage Helper Functions: Cart ---
 
-// Helper fonksiyon: Local Storage'dan sepeti güvenli bir şekilde çeker.
+// Helper function: Safely retrieves the cart from Local Storage.
 function getGuestCart() {
   if (typeof window === "undefined") return [];
   try {
@@ -23,22 +23,22 @@ function getGuestCart() {
   }
 }
 
-// Helper fonksiyon: Local Storage sepetini günceller/yazar.
+// Helper function: Updates/writes the cart to Local Storage.
 function setGuestCart(cartItems) {
   if (typeof window === "undefined") return;
   localStorage.setItem(CART_KEY, JSON.stringify(cartItems));
-  // Sepet güncellendi olayını yayınla
+  // Dispatch event to notify listeners (e.g., cart components)
   window.dispatchEvent(new CustomEvent("cartUpdated"));
 }
 
-// --- Local Storage Helper Fonksiyonları: Favoriler ---
+// --- Local Storage Helper Functions: Favorites ---
 
-// Helper fonksiyon: Local Storage'dan favorileri güvenli bir şekilde çeker.
+// Helper function: Safely retrieves favorites from Local Storage.
 function getGuestFavorites() {
   if (typeof window === "undefined") return [];
   try {
     const data = localStorage.getItem(FAVORITES_KEY);
-    // Favoriler sadece ID dizisi olarak tutuluyor: [6, 8]
+    // Favorites are stored as an array of IDs: [6, 8]
     return data ? JSON.parse(data) : [];
   } catch (error) {
     console.error("Local Storage favorites parse error:", error);
@@ -46,11 +46,11 @@ function getGuestFavorites() {
   }
 }
 
-// Helper fonksiyon: Local Storage favorilerini günceller/yazar.
+// Helper function: Updates/writes favorites to Local Storage.
 function setGuestFavorites(favoriteIds) {
   if (typeof window === "undefined") return;
   localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteIds));
-  // Favoriler güncellendi olayını yayınla
+  // Dispatch event to notify listeners (e.g., heart icons)
   window.dispatchEvent(new CustomEvent("favoritesUpdated"));
 }
 
@@ -61,42 +61,42 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 🚀 GÜNCELLENEN FONKSİYON: Başarısız öğeleri izler ve geri yazar
+  // 🚀 The main login handler which includes synchronization logic
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    toast.loading("Oturum Açılıyor...", {
+    toast.loading("Signing In...", {
       id: "login",
     });
 
-    // 1. Next-Auth ile Giriş Yap
+    // 1. Sign In with Next-Auth
     const result = await signIn("credentials", {
       redirect: false,
       email,
       password,
     });
 
-    // Giriş başarısız
+    // Login failed
     if (result.error) {
-      toast.error("Geçersiz e-posta veya şifre", { id: "login" });
+      toast.error("Invalid email or password", { id: "login" });
       setIsLoading(false);
       return;
     }
 
-    // Giriş başarılı
+    // Login successful
     if (result.ok) {
       let syncPromises = [];
-      // BAŞARISIZ OLAN ÖĞELERİ İZLEMEK İÇİN YENİ DİZİLER
+      // NEW ARRAYS TO TRACK FAILED ITEMS FOR PARTIAL SYNCHRONIZATION
       let failedCartItems = [];
       let failedFavoriteIds = [];
 
       // ----------------------------------------------------
-      // A. SEPET SENKRONİZASYONU
+      // A. CART SYNCHRONIZATION
       // ----------------------------------------------------
       const guestCart = getGuestCart();
       if (guestCart.length > 0) {
-        toast.info("Sepetiniz senkronize ediliyor...", {
+        toast.info("Synchronizing your cart...", {
           id: "cart-sync",
           duration: 2000,
         });
@@ -117,16 +117,16 @@ export default function Login() {
             .then((res) => {
               if (!res.ok) {
                 console.error(
-                  `Sepet öğesi senkronize edilemedi ${item.productId}. Durum: ${res.status}`
+                  `Failed to sync cart item ${item.productId}. Status: ${res.status}`
                 );
-                failedCartItems.push(item); // BAŞARISIZ OLANI KAYDET
+                failedCartItems.push(item); // RECORD THE FAILED ITEM
                 return { success: false };
               }
               return { success: true };
             })
             .catch((e) => {
-              console.error("Sepet senkronizasyonu hatası:", e);
-              failedCartItems.push(item); // HATA ALANI KAYDET
+              console.error("Cart synchronization error:", e);
+              failedCartItems.push(item); // RECORD THE ERRORED ITEM
               return { success: false };
             });
         });
@@ -134,18 +134,18 @@ export default function Login() {
       }
 
       // ----------------------------------------------------
-      // B. FAVORİ SENKRONİZASYONU
+      // B. FAVORITES SYNCHRONIZATION
       // ----------------------------------------------------
       const guestFavorites = getGuestFavorites();
       if (guestFavorites.length > 0) {
-        toast.info("Favori öğeleriniz senkronize ediliyor...", {
+        toast.info("Synchronizing your favorite items...", {
           id: "favorites-sync",
           duration: 2000,
         });
 
         const favoriteSyncPromises = guestFavorites.map((productId) => {
-          // Local Storage'daki favoriler sadece productId dizisi olduğu için
-          // her ID için API'ye tek tek istek atıyoruz.
+          // Since local storage favorites are just an array of productIds,
+          // we send a request for each ID to the API.
           const payload = { productId };
 
           return fetch("/api/favorites", {
@@ -155,19 +155,19 @@ export default function Login() {
             credentials: "include",
           })
             .then((res) => {
-              // 200 (OK) veya 400 (Zaten ekli) durumlarında başarılı kabul ederiz.
+              // We consider it successful if status is 200 (OK) or 400 (Already added)
               if (!res.ok && res.status !== 400) {
                 console.error(
-                  `Favori ID senkronize edilemedi ${productId}. Durum: ${res.status}`
+                  `Failed to sync favorite ID ${productId}. Status: ${res.status}`
                 );
-                failedFavoriteIds.push(productId); // BAŞARISIZ OLANI KAYDET
+                failedFavoriteIds.push(productId); // RECORD THE FAILED ID
               }
-              // Senkronizasyon başarılıysa veya zaten ekliyse (400), başarılı sayılır.
+              // Success if OK or already added (400)
               return { success: res.ok || res.status === 400 };
             })
             .catch((e) => {
-              console.error("Favori senkronizasyonu hatası:", e);
-              failedFavoriteIds.push(productId); // HATA ALANI KAYDET
+              console.error("Favorite synchronization error:", e);
+              failedFavoriteIds.push(productId); // RECORD THE ERRORED ID
               return { success: false };
             });
         });
@@ -175,74 +175,74 @@ export default function Login() {
       }
 
       // ----------------------------------------------------
-      // C. SONUÇLARI İŞLEME VE LOCAL STORAGE'I GÜNCELLEME
+      // C. PROCESS RESULTS AND UPDATE LOCAL STORAGE
       // ----------------------------------------------------
       if (syncPromises.length > 0) {
-        // Tüm senkronizasyonların bitmesini bekleriz
+        // Wait for all synchronizations to complete
         await Promise.all(syncPromises);
 
-        // Başarısız öğe olup olmadığını kontrol ederiz
+        // Check if all syncs were successful
         const allSyncsSuccessful =
           failedCartItems.length === 0 && failedFavoriteIds.length === 0;
 
         if (allSyncsSuccessful) {
-          // Her şey başarılıysa Local Storage'ı tamamen temizle
+          // If everything succeeded, completely clear Local Storage
           setGuestCart([]);
           setGuestFavorites([]);
 
-          toast.success("Tüm misafir verileri başarıyla senkronize edildi!", {
+          toast.success("All guest data successfully synchronized!", {
             id: "sync-result",
             duration: 2500,
           });
           toast.dismiss("cart-sync");
           toast.dismiss("favorites-sync");
         } else {
-          // Kısmi başarı/başarısızlık durumunda sadece başarısız olanları Local Storage'a geri yaz.
-          // Başarılı olanlar Local Storage'dan temizlenmiş olur (çünkü sadece kalanları yazıyoruz).
+          // On partial success/failure, write back only the failed items to Local Storage.
+          // Successful items are implicitly cleared by this step.
           setGuestCart(failedCartItems);
           setGuestFavorites(failedFavoriteIds);
 
-          // Hata mesajı, artık sadece gerçekten başarısız olanlar Local Storage'da kalır.
+          // Error message, now only truly failed items remain in Local Storage.
           toast.warning(
-            `Giriş başarılı. ${
+            `Login successful. ${
               failedCartItems.length + failedFavoriteIds.length
-            } öğe senkronize edilemedi. Lütfen listelerinizi kontrol edin.`,
+            } item(s) failed to synchronize. Please check your lists.`,
             { id: "sync-result", duration: 7000 }
           );
         }
       } else {
-        // Hiç sepet veya favori yoksa senkronizasyon toast'larını kapat
+        // Dismiss sync toasts if there was no cart or favorites to sync
         toast.dismiss("cart-sync");
         toast.dismiss("favorites-sync");
       }
 
-      // 5. Başarı Toast ve Yönlendirme
-      toast.success("Tekrar hoş geldiniz!", { id: "login" });
+      // 5. Success Toast and Redirection
+      toast.success("Welcome back!", { id: "login" });
       setTimeout(() => router.push("/"), 800);
     }
     setIsLoading(false);
   };
 
   return (
-    // 1. Ana Kapsayıcı: Tam ekran yüksekliği ve arka plan resmi
+    // 1. Main Container: Full screen height and background image
     <div className="min-h-screen relative flex items-center justify-center p-4">
-      {/* 2. Arka Plan Resmi */}
+      {/* 2. Background Image */}
       <div className="absolute inset-0 z-0">
-        {/* Lütfen bu görseli projenizdeki /public/login/login.jpg yoluyla güncelleyin. */}
+        {/* Please update this image with your project's /public/login/login.jpg path. */}
         <img
-          src="https://placehold.co/1920x1080/1c1917/FFFFFF?text=Login+Background"
+          src="/login/login.jpg"
           alt="Elegant lifestyle background"
           className="w-full h-full object-cover"
-          // Orijinal kodunuzda /login/login.jpg vardı, ancak güvenli olması için placeholder kullandım.
+          // Using a placeholder image for safe rendering
         />
-        {/* Karartma (Overlay) katmanı: Formun okunurluğunu artırır */}
+        {/* Overlay layer: Increases form readability */}
         <div className="absolute inset-0 bg-black/50 backdrop-brightness-75" />
       </div>
 
-      {/* 3. Form Kapsayıcısı - Dikeyde Ortalama */}
+      {/* 3. Form Container - Centered Vertically */}
       <div className="relative z-10 flex items-center justify-center w-full min-h-screen py-10">
         <div className="w-full max-w-md mx-auto">
-          {/* 4. Glassmorphism Etkisi Verilen Form Kutusu */}
+          {/* 4. Glassmorphism Styled Form Box */}
           <div
             className="bg-white/10 backdrop-blur-xl p-8 sm:p-10 md:p-12 rounded-2xl shadow-2xl border border-white/20 
             transform transition-all duration-500 hover:shadow-rose-500/30 ring-1 ring-white/10"
@@ -256,11 +256,11 @@ export default function Login() {
               </div>
 
               <h1 className="text-4xl md:text-5xl font-extralight tracking-tight text-white text-center mb-2 drop-shadow-md">
-                Tekrar Hoş Geldiniz
+                Welcome Back
               </h1>
 
               <p className="text-center text-sm font-light text-white/80 tracking-wide drop-shadow-sm">
-                Yolculuğunuza devam etmek için giriş yapın
+                Sign in to continue your journey
               </p>
             </div>
 
@@ -269,7 +269,7 @@ export default function Login() {
               {/* Email Input */}
               <div className="group">
                 <label className="block text-xs font-light tracking-widest uppercase text-white/80 mb-2 drop-shadow-sm">
-                  E-posta Adresi
+                  Email Address
                 </label>
                 <input
                   type="email"
@@ -277,16 +277,16 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white font-light tracking-wide rounded-xl
-                              focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all duration-300 
-                              placeholder:text-white/60 placeholder:font-light"
-                  placeholder="isim@eposta.com"
+                                  focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all duration-300 
+                                  placeholder:text-white/60 placeholder:font-light"
+                  placeholder="name@email.com"
                 />
               </div>
 
               {/* Password Input */}
               <div className="group">
                 <label className="block text-xs font-light tracking-widest uppercase text-white/80 mb-2 drop-shadow-sm">
-                  Şifre
+                  Password
                 </label>
                 <div className="relative">
                   <input
@@ -295,9 +295,9 @@ export default function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white font-light tracking-wide rounded-xl
-                              focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all duration-300 
-                              placeholder:text-white/60 placeholder:font-light pr-12"
-                    placeholder="Şifrenizi girin"
+                                  focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all duration-300 
+                                  placeholder:text-white/60 placeholder:font-light pr-12"
+                    placeholder="Enter your password"
                   />
                   <button
                     type="button"
@@ -319,7 +319,7 @@ export default function Login() {
                   type="button"
                   className="text-xs font-light text-white/70 hover:text-rose-300 tracking-wide transition-colors drop-shadow-sm"
                 >
-                  Şifremi unuttum?
+                  Forgot Password?
                 </button>
               </div>
 
@@ -328,11 +328,11 @@ export default function Login() {
                 type="submit"
                 disabled={isLoading}
                 className="group w-full relative overflow-hidden bg-rose-500 text-white py-4 rounded-full 
-                            hover:bg-rose-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed
-                            shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50"
+                                  hover:bg-rose-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed
+                                  shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2 text-sm font-medium tracking-widest uppercase">
-                  {isLoading ? "Giriş Yapılıyor..." : "Giriş Yap"}
+                  {isLoading ? "Signing In..." : "Sign In"}
                   <ArrowRight
                     className="h-4 w-4 group-hover:translate-x-1 transition-transform"
                     strokeWidth={1.5}
@@ -340,7 +340,7 @@ export default function Login() {
                 </span>
                 <div
                   className="absolute inset-0 bg-white/10 
-                              translate-x-[-100%] group-hover:translate-x-[0%] transition-transform duration-500"
+                                  translate-x-[-100%] group-hover:translate-x-[0%] transition-transform duration-500"
                 />
               </button>
             </form>
@@ -348,12 +348,12 @@ export default function Login() {
             {/* Register Link */}
             <div className="mt-8 text-center">
               <p className="text-sm font-light text-white/70">
-                Hesabınız yok mu?{" "}
+                Don't have an account?{" "}
                 <button
                   onClick={() => router.push("/account/register")}
                   className="text-white hover:text-rose-300 font-normal transition-colors relative group"
                 >
-                  Bir hesap oluşturun
+                  Create an account
                   <span className="absolute bottom-0 left-0 w-0 h-px bg-rose-300 transition-all duration-300 group-hover:w-full" />
                 </button>
               </p>

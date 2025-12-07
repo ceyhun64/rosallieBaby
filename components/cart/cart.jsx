@@ -6,6 +6,7 @@ import CartSummary from "./cartSummary";
 import Loading from "../layout/loading";
 import { ShoppingBag } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { Skeleton } from "../ui/skeleton";
 
 // Guest cart utils
 import {
