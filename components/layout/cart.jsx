@@ -326,7 +326,7 @@ export default function Cart() {
             />
             <p className="text-sm text-gray-500 mb-6">Your cart is empty</p>
             <Button asChild variant="outline" className="text-sm">
-              <Link href="/all_products">Continue Shopping</Link>
+              <Link href="/all_products/hospital_outfit_special_set">Continue Shopping</Link>
             </Button>
           </div>
         ) : (
