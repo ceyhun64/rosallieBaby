@@ -525,7 +525,7 @@ export default function ProductDetail() {
               <div>
                 <p className="font-medium text-sm">Fast Shipping</p>
                 <p className="text-xs text-gray-600">
-                  Ships in 3 Business Days
+                  Ships in 7 Business Days
                 </p>
               </div>
             </div>
@@ -533,7 +533,7 @@ export default function ProductDetail() {
               <Gift size={28} className="text-gray-700" />
               <div>
                 <p className="font-medium text-sm">Free Shipping</p>
-                <p className="text-xs text-gray-600">Over €99</p>
+                <p className="text-xs text-gray-600">Over €250</p>
               </div>
             </div>
           </div>
