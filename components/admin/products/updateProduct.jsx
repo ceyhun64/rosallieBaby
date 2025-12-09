@@ -20,81 +20,175 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CardContent } from "@/components/ui/card";
+import { X } from "lucide-react";
+import { toast } from "sonner";
 
 export default function UpdateProductDialog({ product, onUpdate }) {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState(product);
   const [loading, setLoading] = useState(false);
+  const [newFiles, setNewFiles] = useState({});
+  const [removedImages, setRemovedImages] = useState(new Set());
 
   useEffect(() => {
-    if (product) setFormData(product);
+    if (product) {
+      setFormData(product);
+      setNewFiles({});
+      setRemovedImages(new Set());
+    }
   }, [product]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFileChange = (e, field) => {
-    if (e.target.files && e.target.files[0]) {
-      const url = URL.createObjectURL(e.target.files[0]);
-      setFormData({
-        ...formData,
-        [field]: url,
-        [`${field}File`]: e.target.files[0],
+  const handleRemoveImage = (field) => {
+    if (field === "mainImage") {
+      setFormData({ ...formData, mainImage: "" });
+      setNewFiles((prev) => {
+        const updated = { ...prev };
+        delete updated.mainImage;
+        return updated;
       });
+    } else {
+      // Alt görsel index'ini bul
+      const match = field.match(/subImage(\d+)/);
+      if (match) {
+        const index = parseInt(match[1]) - 1;
+        setRemovedImages((prev) => new Set([...prev, index]));
+        setNewFiles((prev) => {
+          const updated = { ...prev };
+          delete updated[field];
+          return updated;
+        });
+      }
     }
   };
+
+  const handleFileChange = (e, field) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const url = URL.createObjectURL(file);
+
+      if (field === "mainImage") {
+        setFormData({ ...formData, mainImage: url });
+      } else {
+        // Alt görsel için index'i çıkar
+        const match = field.match(/subImage(\d+)/);
+        if (match) {
+          const index = parseInt(match[1]) - 1;
+          setRemovedImages((prev) => {
+            const updated = new Set(prev);
+            updated.delete(index);
+            return updated;
+          });
+        }
+      }
+
+      setNewFiles((prev) => ({
+        ...prev,
+        [field]: file,
+      }));
+    }
+  };
+
   const handleSave = async () => {
     setLoading(true);
     try {
-      const payload = {
-        name: formData.name,
-        description: formData.description,
-        category: formData.category, // Enum değerlerinden biri olmalı
-        price: formData.price ? Number(formData.price) : 0,
-        oldPrice: formData.oldPrice ? Number(formData.oldPrice) : 0,
-        discount: formData.discount ? Number(formData.discount) : 0,
-        mainImage: formData.mainImage || "",
-        // SubImages sadece string array olarak gönder
-        subImages: (formData.subImages || []).map((img) =>
-          typeof img === "string" ? img : img.url
-        ),
-      };
+      const data = new FormData();
+
+      // Text alanları ekle
+      data.append("name", formData.name);
+      data.append("description", formData.description);
+      data.append("category", formData.category);
+      data.append("price", formData.price?.toString() || "0");
+      data.append("oldPrice", formData.oldPrice?.toString() || "0");
+      data.append("discount", formData.discount?.toString() || "0");
+
+      // Ana görsel
+      if (newFiles.mainImage) {
+        data.append("mainImage", newFiles.mainImage);
+      } else if (formData.mainImage) {
+        data.append("mainImageUrl", formData.mainImage);
+      }
+
+      // Yeni alt görseller
+      for (let i = 1; i <= 6; i++) {
+        const fieldName = `subImage${i}`;
+        if (newFiles[fieldName]) {
+          data.append(fieldName, newFiles[fieldName]);
+        }
+      }
+
+      // Silinmeyen eski alt görseller
+      const existingSubImages = (formData.subImages || [])
+        .filter((img, idx) => !removedImages.has(idx))
+        .filter((img) => typeof img === "object" && img.url)
+        .map((img) => img.url);
+
+      if (existingSubImages.length > 0) {
+        data.append("existingSubImages", JSON.stringify(existingSubImages));
+      }
 
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${product.id}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: data,
         }
       );
 
       if (!res.ok) {
         const err = await res.json();
+        toast.error(err.error || "Güncelleme başarısız");
         throw new Error(err.error || "Güncelleme başarısız");
       }
 
       const updated = await res.json();
       onUpdate(updated.product);
+
+      toast.success("Ürün başarıyla güncellendi!");
+
       setOpen(false);
+      setNewFiles({});
+      setRemovedImages(new Set());
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      toast.error(err.message || "Bir hata oluştu");
     } finally {
       setLoading(false);
     }
+  };
+
+  const getSubImagePreview = (index) => {
+    const fieldName = `subImage${index + 1}`;
+
+    // Yeni dosya seçildiyse onu göster
+    if (newFiles[fieldName]) {
+      return URL.createObjectURL(newFiles[fieldName]);
+    }
+
+    // Silinmediyse ve mevcut görsel varsa onu göster
+    if (
+      !removedImages.has(index) &&
+      formData.subImages &&
+      formData.subImages[index]
+    ) {
+      return formData.subImages[index].url;
+    }
+
+    return null;
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" className="hover:bg-yellow-600">
-          {loading ? "Kaydediliyor..." : "Güncelle"}
+          Güncelle
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="bg-black text-white max-w-4xl">
+      <DialogContent className="bg-black text-white max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Ürünü Güncelle</DialogTitle>
         </DialogHeader>
@@ -167,28 +261,74 @@ export default function UpdateProductDialog({ product, onUpdate }) {
               </div>
             ))}
 
+            {/* Ana Görsel */}
             <div className="flex flex-col gap-1 col-span-2">
               <Label className="text-sm font-medium">Ana Görsel</Label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleFileChange(e, "mainImage")}
-                className="bg-black border border-stone-700 text-white p-2 rounded w-full"
-              />
-            </div>
 
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="flex flex-col gap-1">
-                <Label className="text-sm font-medium">{`Alt Görsel ${i}`}</Label>
+              {formData.mainImage || newFiles.mainImage ? (
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 p-2 bg-stone-800 rounded text-sm truncate">
+                    {newFiles.mainImage
+                      ? "Yeni görsel seçildi"
+                      : "Mevcut görsel"}
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleRemoveImage("mainImage")}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileChange(e, `subImage${i}`)}
+                  onChange={(e) => handleFileChange(e, "mainImage")}
                   className="bg-black border border-stone-700 text-white p-2 rounded w-full"
                 />
-              </div>
-            ))}
+              )}
+            </div>
+
+            {/* Alt Görseller */}
+            {[1, 2, 3, 4, 5, 6].map((i) => {
+              const fieldName = `subImage${i}`;
+              const hasImage = getSubImagePreview(i - 1);
+
+              return (
+                <div key={i} className="flex flex-col gap-1">
+                  <Label className="text-sm font-medium">{`Alt Görsel ${i}`}</Label>
+
+                  {hasImage ? (
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 p-2 bg-stone-800 rounded text-sm truncate">
+                        {newFiles[fieldName] ? "Yeni görsel" : "Mevcut görsel"}
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleRemoveImage(fieldName)}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e, fieldName)}
+                      className="bg-black border border-stone-700 text-white p-2 rounded w-full"
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
+
           {/* Sağ taraf: Önizleme */}
           <div className="hidden md:flex flex-1 border border-stone-700 p-4 rounded-xl bg-stone-900 flex-col">
             <h3 className="text-xl font-semibold mb-4">Önizleme</h3>
@@ -196,44 +336,47 @@ export default function UpdateProductDialog({ product, onUpdate }) {
             <div className="flex gap-4 mb-4">
               {/* Ana Görsel */}
               <div className="flex-shrink-0">
-                {formData.mainImage ? (
+                {formData.mainImage || newFiles.mainImage ? (
                   <img
-                    src={formData.mainImage}
+                    src={
+                      newFiles.mainImage
+                        ? URL.createObjectURL(newFiles.mainImage)
+                        : formData.mainImage
+                    }
                     alt={formData.name}
                     className="w-40 h-64 object-cover rounded"
                   />
                 ) : (
-                  <div className="w-40 h-68 flex items-center justify-center bg-stone-800 rounded">
-                    Ana Görsel
+                  <div className="w-40 h-64 flex items-center justify-center bg-stone-800 rounded">
+                    <span className="text-xs text-stone-400">Ana Görsel</span>
                   </div>
                 )}
               </div>
 
               {/* Alt görseller */}
               <div className="grid grid-cols-3 grid-rows-2 gap-2 flex-1">
-                {formData.subImages && formData.subImages.length > 0
-                  ? formData.subImages.map((imgObj, idx) => (
-                      <div
-                        key={idx}
-                        className="w-20 h-32 bg-stone-800 rounded flex items-center justify-center overflow-hidden"
-                      >
+                {Array.from({ length: 6 }).map((_, idx) => {
+                  const preview = getSubImagePreview(idx);
+
+                  return (
+                    <div
+                      key={idx}
+                      className="w-20 h-32 bg-stone-800 rounded flex items-center justify-center overflow-hidden"
+                    >
+                      {preview ? (
                         <img
-                          src={imgObj.url}
+                          src={preview}
                           alt={`Alt Görsel ${idx + 1}`}
                           className="w-full h-full object-cover"
                         />
-                      </div>
-                    ))
-                  : Array.from({ length: 6 }).map((_, idx) => (
-                      <div
-                        key={idx}
-                        className="w-20 h-32 bg-stone-800 rounded flex items-center justify-center overflow-hidden"
-                      >
+                      ) : (
                         <span className="text-xs text-stone-400">
-                          Alt Görsel
+                          Alt {idx + 1}
                         </span>
-                      </div>
-                    ))}
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
