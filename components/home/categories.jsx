@@ -10,7 +10,7 @@ const categories = [
     href: "/all_products/hospital_outfit_special_set",
   },
   {
-    title: "Hospital Outfit Sets",
+    title: "Special Outfit Sets",
     imageUrl: "/categories/hospital.webp",
     href: "/all_products/hospital_outfit_set",
   },
