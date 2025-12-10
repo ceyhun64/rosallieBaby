@@ -252,7 +252,7 @@ export default function AddProductDialog({
                 <Label>Fiyat</Label>
                 <Input
                   name="price"
-                  type="number"
+                  type="text"
                   value={newProduct.price}
                   onChange={handleChange}
                   className="bg-black border border-stone-700 text-white"
@@ -264,7 +264,7 @@ export default function AddProductDialog({
                 <Label>Eski Fiyat</Label>
                 <Input
                   name="oldPrice"
-                  type="number"
+                  type="text"
                   value={newProduct.oldPrice}
                   onChange={handleChange}
                   className="bg-black border border-stone-700 text-white"
@@ -276,7 +276,7 @@ export default function AddProductDialog({
                 <Label>İndirim (%)</Label>
                 <Input
                   name="discount"
-                  type="number"
+                  type="text"
                   value={newProduct.discount}
                   onChange={handleChange}
                   className="bg-black border border-stone-700 text-white"

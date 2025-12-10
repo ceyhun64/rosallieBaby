@@ -257,7 +257,7 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                 </Label>
                 <Input
                   name={field}
-                  type="number"
+                  type="text"
                   value={formData[field]}
                   onChange={handleChange}
                   className="bg-black border border-stone-700 text-white"
