@@ -11,7 +11,7 @@ export default function HeroesBar() {
     },
     {
       icon: <Truck className="h-4 w-4" strokeWidth={1.6} />,
-      text: "FREE SHIPPING ON ALL ORDERS $250+ (USA ONLY)",
+      text: "FREE SHIPPING ON ALL ORDERS $250+",
     },
     {
       icon: <Star className="h-4 w-4" strokeWidth={1.6} />,

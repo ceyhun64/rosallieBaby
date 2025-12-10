@@ -40,7 +40,7 @@ export default function Topbar() {
     text-center
   "
         >
-          FREE SHIPPING ON ALL ORDERS $250+ (USA ONLY)
+          FREE SHIPPING ON ALL ORDERS $250+
         </p>
 
         {/* Icon Right */}
