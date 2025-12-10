@@ -58,7 +58,7 @@ export default function HospitalOutfitSet() {
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           <Image
-            src="/categoryBanners/original.webp"
+            src="/categoryBanners/outfitbanner.webp"
             alt="Premium Background"
             fill
             className="object-cover scale-105 transition-transform duration-1000 ease-out"
@@ -80,7 +80,7 @@ export default function HospitalOutfitSet() {
             </div>
 
             <h1 className="text-5xl md:text-7xl font-light text-white tracking-tight drop-shadow-lg">
-              Hospital Outfit Set
+              Special Outfit Set
             </h1>
 
             <p className="text-xl text-white/90 max-w-2xl font-light drop-shadow-sm">

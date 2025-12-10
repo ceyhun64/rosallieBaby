@@ -110,7 +110,7 @@ export async function POST(req) {
       shippingAddress,
       billingAddress,
       basketItems,
-      currency = "EUR",
+      currency = "USD",
       basketId,
     } = body;
 

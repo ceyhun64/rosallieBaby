@@ -23,14 +23,14 @@ export default function CartSummary({ subtotal }) {
             <div className="flex justify-between items-center pb-3 border-b border-gray-200">
               <span className="text-sm tracking-wide">Subtotal</span>
               <span className="font-medium text-lg">
-                €{subtotal.toFixed(2)}
+                ${subtotal.toFixed(2)}
               </span>
             </div>
 
             <div className="flex justify-between items-center pt-2">
               <span className="font-serif text-lg font-medium">Total</span>
               <span className="font-sans text-2xl font-semibold text-gray-900">
-                €{subtotal.toFixed(2)}
+                ${subtotal.toFixed(2)}
               </span>
             </div>
           </div>
@@ -79,7 +79,7 @@ export default function CartSummary({ subtotal }) {
                   d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
                 />
               </svg>
-              <span className="text-xs">Free shipping over €150</span>
+              <span className="text-xs">Free shipping over $150</span>
             </div>
           </div>
         </div>

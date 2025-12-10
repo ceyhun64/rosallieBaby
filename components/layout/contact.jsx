@@ -127,8 +127,6 @@ ${mesaj}
               </label>
               <div className="flex border-b border-gray-300 focus-within:border-gray-500">
                 <div className="flex items-center text-sm text-gray-600 pr-2">
-                  <span className="mr-1">🇹🇷</span>
-                  <span>+90</span>
                 </div>
                 <input
                   type="tel"

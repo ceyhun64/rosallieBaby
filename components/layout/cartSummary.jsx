@@ -36,7 +36,7 @@ export default function CartSummarySheet({ subtotal, loading }) {
           Subtotal
         </span>
         <span className="text-2xl font-light text-gray-900 tracking-tight">
-          €{subtotal.toFixed(2)}
+          ${subtotal.toFixed(2)}
         </span>
       </div>
 

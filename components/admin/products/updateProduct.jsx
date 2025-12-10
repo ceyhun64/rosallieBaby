@@ -25,14 +25,22 @@ import { toast } from "sonner";
 
 export default function UpdateProductDialog({ product, onUpdate }) {
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState(product);
+
+  const [formData, setFormData] = useState({
+    ...product,
+    customName: product?.customName ?? false, // 🔥 EKLENDİ
+  });
+
   const [loading, setLoading] = useState(false);
   const [newFiles, setNewFiles] = useState({});
   const [removedImages, setRemovedImages] = useState(new Set());
 
   useEffect(() => {
     if (product) {
-      setFormData(product);
+      setFormData({
+        ...product,
+        customName: product.customName ?? false, // 🔥 EKLENDİ
+      });
       setNewFiles({});
       setRemovedImages(new Set());
     }
@@ -51,7 +59,6 @@ export default function UpdateProductDialog({ product, onUpdate }) {
         return updated;
       });
     } else {
-      // Alt görsel index'ini bul
       const match = field.match(/subImage(\d+)/);
       if (match) {
         const index = parseInt(match[1]) - 1;
@@ -73,7 +80,6 @@ export default function UpdateProductDialog({ product, onUpdate }) {
       if (field === "mainImage") {
         setFormData({ ...formData, mainImage: url });
       } else {
-        // Alt görsel için index'i çıkar
         const match = field.match(/subImage(\d+)/);
         if (match) {
           const index = parseInt(match[1]) - 1;
@@ -104,6 +110,9 @@ export default function UpdateProductDialog({ product, onUpdate }) {
       data.append("price", formData.price?.toString() || "0");
       data.append("oldPrice", formData.oldPrice?.toString() || "0");
       data.append("discount", formData.discount?.toString() || "0");
+
+      // 🔥 CUSTOM NAME EKLENDİ
+      data.append("customName", formData.customName ? "true" : "false");
 
       // Ana görsel
       if (newFiles.mainImage) {
@@ -162,13 +171,9 @@ export default function UpdateProductDialog({ product, onUpdate }) {
 
   const getSubImagePreview = (index) => {
     const fieldName = `subImage${index + 1}`;
-
-    // Yeni dosya seçildiyse onu göster
     if (newFiles[fieldName]) {
       return URL.createObjectURL(newFiles[fieldName]);
     }
-
-    // Silinmediyse ve mevcut görsel varsa onu göster
     if (
       !removedImages.has(index) &&
       formData.subImages &&
@@ -176,7 +181,6 @@ export default function UpdateProductDialog({ product, onUpdate }) {
     ) {
       return formData.subImages[index].url;
     }
-
     return null;
   };
 
@@ -194,28 +198,28 @@ export default function UpdateProductDialog({ product, onUpdate }) {
         </DialogHeader>
 
         <div className="flex gap-6 mt-4 flex-col md:flex-row">
-          {/* Sol taraf: Form */}
           <div className="flex-1 grid grid-cols-2 gap-4">
+            {/* Ürün adı */}
             <div className="flex flex-col gap-1">
-              <Label className="text-sm font-medium">Ürün Adı</Label>
+              <Label>Ürün Adı</Label>
               <Input
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Ürün Adı"
-                className="bg-black border border-stone-700 text-white w-full"
+                className="bg-black border border-stone-700 text-white"
               />
             </div>
 
+            {/* Kategori */}
             <div className="flex flex-col gap-1">
-              <Label className="text-sm font-medium">Kategori</Label>
+              <Label>Kategori</Label>
               <Select
                 value={formData.category}
                 onValueChange={(val) =>
                   setFormData({ ...formData, category: val })
                 }
               >
-                <SelectTrigger className="bg-black border border-stone-700 text-white w-full">
+                <SelectTrigger className="bg-black border border-stone-700 text-white">
                   <SelectValue placeholder="Kategori Seç" />
                 </SelectTrigger>
                 <SelectContent className="bg-black text-white border border-stone-700">
@@ -230,20 +234,21 @@ export default function UpdateProductDialog({ product, onUpdate }) {
               </Select>
             </div>
 
+            {/* Açıklama */}
             <div className="flex flex-col gap-1 col-span-2">
-              <Label className="text-sm font-medium">Açıklama</Label>
+              <Label>Açıklama</Label>
               <Input
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Açıklama"
-                className="bg-black border border-stone-700 text-white p-2 rounded resize-none w-full"
+                className="bg-black border border-stone-700 text-white"
               />
             </div>
 
+            {/* Fiyat */}
             {["price", "oldPrice", "discount"].map((field) => (
               <div key={field} className="flex flex-col gap-1">
-                <Label className="text-sm font-medium">
+                <Label>
                   {field === "oldPrice"
                     ? "Eski Fiyat"
                     : field === "discount"
@@ -255,15 +260,30 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                   type="number"
                   value={formData[field]}
                   onChange={handleChange}
-                  placeholder={field}
-                  className="bg-black border border-stone-700 text-white w-full"
+                  className="bg-black border border-stone-700 text-white"
                 />
               </div>
             ))}
 
-            {/* Ana Görsel */}
+            {/* 🔥 CUSTOM NAME SWITCH */}
+            <div className="flex items-center gap-2 col-span-2 mt-2">
+              <Label className="text-sm font-medium">
+                Custom Name (İsim Yazılsın mı?)
+              </Label>
+
+              <input
+                type="checkbox"
+                checked={formData.customName}
+                onChange={(e) =>
+                  setFormData({ ...formData, customName: e.target.checked })
+                }
+                className="w-5 h-5"
+              />
+            </div>
+
+            {/* Ana görsel */}
             <div className="flex flex-col gap-1 col-span-2">
-              <Label className="text-sm font-medium">Ana Görsel</Label>
+              <Label>Ana Görsel</Label>
 
               {formData.mainImage || newFiles.mainImage ? (
                 <div className="flex items-center gap-2">
@@ -273,9 +293,7 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                       : "Mevcut görsel"}
                   </div>
                   <Button
-                    type="button"
                     size="sm"
-                    variant="destructive"
                     onClick={() => handleRemoveImage("mainImage")}
                     className="bg-red-600 hover:bg-red-700"
                   >
@@ -287,19 +305,19 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "mainImage")}
-                  className="bg-black border border-stone-700 text-white p-2 rounded w-full"
+                  className="bg-black border border-stone-700 text-white p-2 rounded"
                 />
               )}
             </div>
 
-            {/* Alt Görseller */}
+            {/* Alt görseller */}
             {[1, 2, 3, 4, 5, 6].map((i) => {
               const fieldName = `subImage${i}`;
               const hasImage = getSubImagePreview(i - 1);
 
               return (
                 <div key={i} className="flex flex-col gap-1">
-                  <Label className="text-sm font-medium">{`Alt Görsel ${i}`}</Label>
+                  <Label>{`Alt Görsel ${i}`}</Label>
 
                   {hasImage ? (
                     <div className="flex items-center gap-2">
@@ -307,9 +325,7 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                         {newFiles[fieldName] ? "Yeni görsel" : "Mevcut görsel"}
                       </div>
                       <Button
-                        type="button"
                         size="sm"
-                        variant="destructive"
                         onClick={() => handleRemoveImage(fieldName)}
                         className="bg-red-600 hover:bg-red-700"
                       >
@@ -321,7 +337,7 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                       type="file"
                       accept="image/*"
                       onChange={(e) => handleFileChange(e, fieldName)}
-                      className="bg-black border border-stone-700 text-white p-2 rounded w-full"
+                      className="bg-black border border-stone-700 text-white p-2 rounded"
                     />
                   )}
                 </div>
@@ -329,12 +345,12 @@ export default function UpdateProductDialog({ product, onUpdate }) {
             })}
           </div>
 
-          {/* Sağ taraf: Önizleme */}
+          {/* Sağ taraf – Önizleme */}
           <div className="hidden md:flex flex-1 border border-stone-700 p-4 rounded-xl bg-stone-900 flex-col">
             <h3 className="text-xl font-semibold mb-4">Önizleme</h3>
 
             <div className="flex gap-4 mb-4">
-              {/* Ana Görsel */}
+              {/* Ana görsel */}
               <div className="flex-shrink-0">
                 {formData.mainImage || newFiles.mainImage ? (
                   <img
@@ -381,17 +397,17 @@ export default function UpdateProductDialog({ product, onUpdate }) {
             </div>
 
             <CardContent className="p-4 flex flex-col gap-2 bg-stone-900 border-t border-stone-700 rounded-b-xl">
-              <div className="flex flex-col">
-                <h3 className="text-lg font-bold text-white">
+              <div>
+                <h3 className="text-lg font-bold">
                   {formData.name || "Ürün Adı"}
                 </h3>
                 <span className="text-sm text-stone-400">
                   {formData.category || "-"}
                 </span>
               </div>
-              <p className="text-sm text-stone-200">
-                {formData.description || "Açıklama"}
-              </p>
+
+              <p className="text-sm">{formData.description || "Açıklama"}</p>
+
               <div className="flex items-center justify-between">
                 <div className="flex items-baseline gap-2">
                   <span className="text-white font-semibold text-lg">
@@ -403,15 +419,22 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                     </span>
                   )}
                 </div>
+
                 <span className="bg-green-600 text-black text-xs font-semibold px-2 py-1 rounded">
                   %{formData.discount || 0} İndirim
                 </span>
+              </div>
+
+              {/* 🔥 Önizleme – Custom Name */}
+              <div className="mt-2 text-sm">
+                <strong>İsim Yazdır:</strong>{" "}
+                {formData.customName ? "Evet" : "Hayır"}
               </div>
             </CardContent>
           </div>
         </div>
 
-        <DialogFooter className="mt-4 flex justify-end gap-2">
+        <DialogFooter>
           <Button
             className="bg-green-600 hover:bg-green-500"
             onClick={handleSave}

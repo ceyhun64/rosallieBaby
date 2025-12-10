@@ -199,7 +199,7 @@ export default function CompletePurchase({ onClose }) {
                 {product.name || product.description}
               </h3>
               <span className="text-sm font-medium text-gray-900">
-                €{product.price.toFixed(2)}
+                ${product.price.toFixed(2)}
               </span>
             </div>
             <Switch

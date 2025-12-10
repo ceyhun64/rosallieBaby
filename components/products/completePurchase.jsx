@@ -261,11 +261,11 @@ export default function CompletePurchase() {
                   <div className="flex items-center gap-3 mb-4">
                     {product.oldPrice > product.price && (
                       <span className="line-through text-gray-400 text-sm">
-                        €{product.oldPrice.toFixed(2)}
+                        ${product.oldPrice.toFixed(2)}
                       </span>
                     )}
                     <span className="font-semibold text-xl text-black">
-                      €{product.price.toFixed(2)}
+                      ${product.price.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -317,13 +317,13 @@ export default function CompletePurchase() {
                   <div className="flex justify-between text-gray-500">
                     <span>Original Price:</span>
                     <span className="line-through">
-                      €{calculateOldTotal().toFixed(2)}
+                      ${calculateOldTotal().toFixed(2)}
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between text-2xl font-semibold text-black pt-2 border-t border-gray-200">
                   <span>Total:</span>
-                  <span>€{calculateTotal().toFixed(2)}</span>
+                  <span>${calculateTotal().toFixed(2)}</span>
                 </div>
               </div>
             </div>

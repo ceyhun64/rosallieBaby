@@ -117,12 +117,12 @@ export default function CartItem({
           <div className="text-right">
             {oldPrice > 0 && finalOldPrice > finalPrice && (
               <div className="text-[10px] line-through text-gray-400 mb-0.5">
-                €{finalOldPrice}
+                ${finalOldPrice}
               </div>
             )}
 
             <div className="text-lg font-light text-gray-900 tracking-tight">
-              €{finalPrice}
+              ${finalPrice}
             </div>
           </div>
         </div>

@@ -152,12 +152,11 @@ export default function ProductCard({ product }) {
             {/* Action Buttons */}
             {(isMobile || isHovered) && (
               <div className="absolute inset-x-0 bottom-0 p-0 md:p-4">
-                {product.category === "hospital_outfit_special_set" ? (
+                {product.customName ? (
                   <button
                     onClick={() =>
                       (window.location.href = `/all_products/${product.category}/${product.id}`)
                     }
-
                     className="w-full bg-white/80 text-black font-medium py-3 px-3 flex items-center justify-center gap-2 text-sm"
                     aria-label="Preview"
                   >

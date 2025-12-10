@@ -29,10 +29,10 @@ export async function GET(request, { params }) {
 
     const product = await prisma.product.findUnique({
       where: { id: parseInt(id) },
-      include: { 
+      include: {
         subImages: {
-          orderBy: { id: 'asc' }
-        } 
+          orderBy: { id: "asc" },
+        },
       },
     });
 
@@ -46,17 +46,20 @@ export async function GET(request, { params }) {
     // URL'leri kontrol et
     const productWithFixedUrls = {
       ...product,
-      mainImage: product.mainImage || '/placeholder.png',
-      subImages: product.subImages.map(img => ({
+      mainImage: product.mainImage || "/placeholder.png",
+      subImages: product.subImages.map((img) => ({
         ...img,
-        url: img.url || '/placeholder.png'
-      }))
+        url: img.url || "/placeholder.png",
+      })),
     };
 
-    return NextResponse.json({ 
-      success: true,
-      product: productWithFixedUrls 
-    }, { status: 200 });
+    return NextResponse.json(
+      {
+        success: true,
+        product: productWithFixedUrls,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Ürün getirirken hata:", error);
     return NextResponse.json(
@@ -74,7 +77,7 @@ export async function DELETE(request, { params }) {
     // Önce ürünün var olup olmadığını kontrol et
     const existingProduct = await prisma.product.findUnique({
       where: { id: parseInt(id) },
-      include: { subImages: true }
+      include: { subImages: true },
     });
 
     if (!existingProduct) {
@@ -113,7 +116,7 @@ export async function PUT(request, { params }) {
     // Önce ürünün var olup olmadığını kontrol et
     const existingProduct = await prisma.product.findUnique({
       where: { id: parseInt(id) },
-      include: { subImages: true }
+      include: { subImages: true },
     });
 
     if (!existingProduct) {
@@ -130,12 +133,17 @@ export async function PUT(request, { params }) {
     const price = parseFloat(formData.get("price")) || 0;
     const oldPrice = parseFloat(formData.get("oldPrice")) || 0;
     const discount = parseFloat(formData.get("discount")) || 0;
+    const customName = formData.get("customName") === "true";
 
     // Ana görsel kontrolü
     let mainImageUrl;
     const mainImageFile = formData.get("mainImage");
 
-    if (mainImageFile && mainImageFile instanceof File && mainImageFile.size > 0) {
+    if (
+      mainImageFile &&
+      mainImageFile instanceof File &&
+      mainImageFile.size > 0
+    ) {
       // Yeni dosya yüklendi
       console.log("Yeni ana görsel yükleniyor...");
       mainImageUrl = await uploadToCloudinary(mainImageFile, category);
@@ -165,7 +173,7 @@ export async function PUT(request, { params }) {
       try {
         const existing = JSON.parse(existingSubImagesStr);
         if (Array.isArray(existing)) {
-          subImageUrls.push(...existing.filter(url => url)); // Boş URL'leri filtrele
+          subImageUrls.push(...existing.filter((url) => url)); // Boş URL'leri filtrele
         }
       } catch (e) {
         console.error("existingSubImages parse hatası:", e);
@@ -186,6 +194,7 @@ export async function PUT(request, { params }) {
         description,
         oldPrice,
         price,
+        customName,
         discount,
         category,
         subImages:

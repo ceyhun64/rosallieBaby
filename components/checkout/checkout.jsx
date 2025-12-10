@@ -13,9 +13,11 @@ import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
 
 const cargoOptions = [
-  { id: "standart", name: "Standard Shipping", fee: 12.0 },
-  { id: "express", name: "Express Shipping", fee: 22.0 },
+  { id: "standart", name: "Standard Shipping", fee: 14.99 },
+  { id: "express", name: "Express Shipping", fee: 24.99 },
 ];
+
+const FREE_CARGO_THRESHOLD = 250;
 
 const initialAddressForm = {
   title: "",
@@ -125,10 +127,18 @@ export default function PaymentPage() {
     }, 0);
   }, [cartItems]);
 
+  // Ücretsiz kargo kontrolü ile kargo ücreti hesaplama
   const selectedCargoFee = useMemo(() => {
     const cargo = cargoOptions.find((c) => c.id === selectedCargo);
-    return cargo ? cargo.fee : 0.0;
-  }, [selectedCargo]);
+    if (!cargo) return 0.0;
+
+    // Eğer standart kargo seçili ve sepet tutarı 250'den fazlaysa ücretsiz
+    if (cargo.id === "standart" && subTotal >= FREE_CARGO_THRESHOLD) {
+      return 0.0;
+    }
+
+    return cargo.fee;
+  }, [selectedCargo, subTotal]);
 
   const totalPrice = useMemo(() => {
     return subTotal + selectedCargoFee;
@@ -458,7 +468,7 @@ export default function PaymentPage() {
       const paymentData = {
         price: basketTotal,
         paidPrice: basketTotal,
-        currency: "EUR",
+        currency: "USD",
         basketId: `B${Date.now()}`,
         paymentCard,
         buyer,
@@ -506,7 +516,7 @@ export default function PaymentPage() {
             billingAddress,
             totalPrice: basketTotal,
             paidPrice: basketTotal,
-            currency: "EUR",
+            currency: "USD",
             paymentMethod: "iyzipay",
             transactionId: result.paymentId,
             email: buyer.email,
@@ -700,6 +710,7 @@ export default function PaymentPage() {
                 selectedCargo={selectedCargo}
                 setSelectedCargo={setSelectedCargo}
                 setStep={setStep}
+                subTotal={subTotal}
               />
             )}
 

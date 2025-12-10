@@ -114,11 +114,11 @@ export default function Header() {
   // Main navigation items
   const menuItems = [
     {
-      label: "Hopital Special Sets",
+      label: "Personalized Hospital Special Set",
       href: "/all_products/hospital_outfit_special_set",
     },
     {
-      label: "Hospital Outfit Sets",
+      label: "Special Outfit Set",
       href: "/all_products/hospital_outfit_set",
     },
     { label: "Toys", href: "/all_products/toy" },

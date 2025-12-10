@@ -5,18 +5,18 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const categories = [
   {
-    title: "Hospital Outfit Special Sets",
-    imageUrl: "/categories/category1.webp",
+    title: "Personalized Hospital Special Set",
+    imageUrl: "/categories/special.webp",
     href: "/all_products/hospital_outfit_special_set",
   },
   {
     title: "Hospital Outfit Sets",
-    imageUrl: "/categories/category2.webp",
+    imageUrl: "/categories/hospital.webp",
     href: "/all_products/hospital_outfit_set",
   },
   {
     title: "Toys",
-    imageUrl: "/categories/category3.webp",
+    imageUrl: "/categories/toys.webp",
     href: "/all_products/toy",
   },
 ];

@@ -111,12 +111,12 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
             <div className="flex flex-col items-start sm:items-end gap-1 mt-2 sm:mt-0">
               {oldPrice > 0 && finalOldPrice > finalPrice && (
                 <span className="text-gray-400 line-through text-sm font-sans">
-                  €{finalOldPrice.toFixed(2)}
+                  ${finalOldPrice.toFixed(2)}
                 </span>
               )}
 
               <span className="text-2xl font-medium text-gray-900 font-sans">
-                €{finalPrice.toFixed(2)}
+                ${finalPrice.toFixed(2)}
               </span>
 
               {product?.id && (

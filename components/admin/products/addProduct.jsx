@@ -43,7 +43,6 @@ export default function AddProductDialog({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Önizleme için blob URL oluştur
     const previewUrl = URL.createObjectURL(file);
 
     if (isMain) {
@@ -70,8 +69,8 @@ export default function AddProductDialog({
 
     try {
       const formData = new FormData();
-      
-      // Form alanlarını ekle
+
+      // Form alanları
       formData.append("name", newProduct.name);
       formData.append("description", newProduct.description);
       formData.append("oldPrice", newProduct.oldPrice);
@@ -79,10 +78,13 @@ export default function AddProductDialog({
       formData.append("discount", newProduct.discount);
       formData.append("category", newProduct.category);
 
-      // Ana görseli ekle
+      // ✔️ CUSTOMNAME EKLENDİ
+      formData.append("customName", newProduct.customName ? "true" : "false");
+
+      // Ana görsel
       formData.append("mainImage", files.mainImage);
 
-      // Alt görselleri ekle
+      // Alt görseller
       files.subImages.forEach((file, index) => {
         if (file) {
           formData.append(`subImage${index}`, file);
@@ -94,7 +96,6 @@ export default function AddProductDialog({
         {
           method: "POST",
           body: formData,
-          // Content-Type header'ı EKLEMEYİN! Browser otomatik ekler
         }
       );
 
@@ -105,10 +106,8 @@ export default function AddProductDialog({
 
       const data = await res.json();
 
-      // Parent'a bildir
       handleAddProduct(data.product);
 
-      // Formu temizle
       setNewProduct({
         name: "",
         mainImage: "",
@@ -117,8 +116,10 @@ export default function AddProductDialog({
         price: "",
         discount: "",
         category: "",
+        customName: false, // ✔️ reset
         subImages: Array(6).fill(""),
       });
+
       setFiles({
         mainImage: null,
         subImages: Array(6).fill(null),
@@ -151,33 +152,33 @@ export default function AddProductDialog({
           </DialogHeader>
 
           <div className="flex gap-6 mt-4 flex-col md:flex-row">
-            {/* Sol taraf: Form */}
+            {/* Form */}
             <div className="flex-1 grid grid-cols-2 gap-4">
               {/* Ürün Adı */}
               <div className="flex flex-col gap-1">
-                <Label className="text-sm font-medium">Ürün Adı</Label>
+                <Label>Ürün Adı</Label>
                 <Input
                   name="name"
                   value={newProduct.name}
                   onChange={handleChange}
                   placeholder="Ürün Adı"
-                  className="bg-black border border-stone-700 text-white w-full"
+                  className="bg-black border border-stone-700 text-white"
                 />
               </div>
 
               {/* Kategori */}
               <div className="flex flex-col gap-1">
-                <Label className="text-sm font-medium">Kategori</Label>
+                <Label>Kategori</Label>
                 <Select
                   value={newProduct.category}
-                  onValueChange={(val) =>
-                    setNewProduct({ ...newProduct, category: val })
+                  onValueChange={(v) =>
+                    setNewProduct({ ...newProduct, category: v })
                   }
                 >
                   <SelectTrigger className="bg-black border border-stone-700 text-white w-full">
                     <SelectValue placeholder="Kategori Seç" />
                   </SelectTrigger>
-                  <SelectContent className="bg-black text-white border border-stone-700">
+                  <SelectContent className="bg-black border border-stone-700 text-white">
                     <SelectItem value="hospital_outfit_special_set">
                       Hospital Outfit Special Set
                     </SelectItem>
@@ -191,85 +192,99 @@ export default function AddProductDialog({
 
               {/* Açıklama */}
               <div className="flex flex-col gap-1 col-span-2">
-                <Label className="text-sm font-medium">Açıklama</Label>
+                <Label>Açıklama</Label>
                 <Input
                   name="description"
                   value={newProduct.description}
                   onChange={handleChange}
                   placeholder="Açıklama"
-                  className="bg-black border border-stone-700 text-white p-2 rounded resize-none w-full"
+                  className="bg-black border border-stone-700 text-white"
                 />
+              </div>
+
+              {/* ✔️ CUSTOMNAME (True / False) */}
+              <div className="flex flex-col gap-1">
+                <Label>İsim Özelleştirme</Label>
+                <Select
+                  value={newProduct.customName ? "true" : "false"}
+                  onValueChange={(v) =>
+                    setNewProduct({ ...newProduct, customName: v === "true" })
+                  }
+                >
+                  <SelectTrigger className="bg-black border border-stone-700 text-white w-full">
+                    <SelectValue placeholder="Seç" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-black border border-stone-700 text-white">
+                    <SelectItem value="true">Aktif</SelectItem>
+                    <SelectItem value="false">Pasif</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Ana Görsel */}
               <div className="flex flex-col gap-1">
-                <Label className="text-sm font-medium">Ana Görsel *</Label>
+                <Label>Ana Görsel *</Label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, null, true)}
                   disabled={uploading}
-                  className="bg-black border border-stone-700 text-white p-2 rounded w-full disabled:opacity-50"
+                  className="bg-black border border-stone-700 p-2 rounded"
                 />
               </div>
 
               {/* Alt Görseller */}
               {[...Array(6)].map((_, idx) => (
                 <div key={idx} className="flex flex-col gap-1">
-                  <Label className="text-sm font-medium">{`Alt Görsel ${
-                    idx + 1
-                  }`}</Label>
+                  <Label>Alt Görsel {idx + 1}</Label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => handleFileChange(e, idx)}
                     disabled={uploading}
-                    className="bg-black border border-stone-700 text-white p-2 rounded w-full disabled:opacity-50"
+                    className="bg-black border border-stone-700 p-2 rounded"
                   />
                 </div>
               ))}
 
               {/* Fiyat */}
               <div className="flex flex-col gap-1">
-                <Label className="text-sm font-medium">Fiyat</Label>
+                <Label>Fiyat</Label>
                 <Input
                   name="price"
                   type="number"
                   value={newProduct.price}
                   onChange={handleChange}
-                  placeholder="Fiyat"
-                  className="bg-black border border-stone-700 text-white w-full"
+                  className="bg-black border border-stone-700 text-white"
                 />
               </div>
 
               {/* Eski Fiyat */}
               <div className="flex flex-col gap-1">
-                <Label className="text-sm font-medium">Eski Fiyat</Label>
+                <Label>Eski Fiyat</Label>
                 <Input
                   name="oldPrice"
                   type="number"
                   value={newProduct.oldPrice}
                   onChange={handleChange}
-                  placeholder="Eski Fiyat"
-                  className="bg-black border border-stone-700 text-white w-full"
+                  className="bg-black border border-stone-700 text-white"
                 />
               </div>
 
               {/* İndirim */}
               <div className="flex flex-col gap-1">
-                <Label className="text-sm font-medium">İndirim (%)</Label>
+                <Label>İndirim (%)</Label>
                 <Input
                   name="discount"
                   type="number"
                   value={newProduct.discount}
                   onChange={handleChange}
-                  placeholder="İndirim (%)"
-                  className="bg-black border border-stone-700 text-white w-full"
+                  className="bg-black border border-stone-700 text-white"
                 />
               </div>
             </div>
 
-            {/* Sağ taraf: Ürün önizlemesi */}
+            {/* Sağ Önizleme */}
             <div className="hidden md:flex flex-1 border border-stone-700 p-4 rounded-xl bg-stone-900 flex-col">
               <h3 className="text-xl font-semibold mb-4">Önizleme</h3>
 
@@ -285,17 +300,16 @@ export default function AddProductDialog({
                   {newProduct.mainImage ? (
                     <img
                       src={newProduct.mainImage}
-                      alt={newProduct.name}
                       className="w-40 h-64 object-cover rounded"
                     />
                   ) : (
-                    <div className="w-40 h-64 flex items-center justify-center bg-stone-800 rounded">
+                    <div className="w-40 h-64 bg-stone-800 rounded flex items-center justify-center">
                       Ana Görsel
                     </div>
                   )}
                 </div>
 
-                {/* Küçük görseller */}
+                {/* Alt görseller */}
                 <div className="grid grid-cols-3 grid-rows-2 gap-2 flex-1">
                   {newProduct.subImages.map((img, idx) => (
                     <div
@@ -303,11 +317,7 @@ export default function AddProductDialog({
                       className="w-20 h-32 bg-stone-800 rounded flex items-center justify-center overflow-hidden"
                     >
                       {img ? (
-                        <img
-                          src={img}
-                          alt={`Alt Görsel ${idx + 1}`}
-                          className="w-full h-full object-cover"
-                        />
+                        <img src={img} className="w-full h-full object-cover" />
                       ) : (
                         <span className="text-xs text-stone-400">
                           Alt Görsel
@@ -318,21 +328,19 @@ export default function AddProductDialog({
                 </div>
               </div>
 
-              <CardContent className="p-4 flex flex-col gap-2 bg-stone-900 border-t border-stone-700 rounded-b-xl">
-                <div className="flex flex-col">
-                  <h3 className="text-lg font-bold text-white">
-                    {newProduct.name || "Ürün Adı"}
-                  </h3>
-                  <span className="text-sm text-stone-400">
-                    {newProduct.category || "-"}
-                  </span>
-                </div>
+              <CardContent className="p-4 bg-stone-900 border-t border-stone-700 rounded-b-xl">
+                <h3 className="text-lg font-bold">
+                  {newProduct.name || "Ürün Adı"}
+                </h3>
+                <span className="text-sm text-stone-400">
+                  {newProduct.category || "-"}
+                </span>
 
-                <p className="text-sm text-stone-200">
+                <p className="text-sm mt-2">
                   {newProduct.description || "Açıklama"}
                 </p>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mt-3">
                   <div className="flex items-baseline gap-2">
                     <span className="text-white font-semibold text-lg">
                       ${newProduct.price || "-"}
@@ -348,14 +356,20 @@ export default function AddProductDialog({
                   </span>
                 </div>
               </CardContent>
+
+              {/* ✔️ CUSTOMNAME ÖNİZLEME */}
+              <div className="mt-4 text-sm">
+                İsim Özelleştirme:{" "}
+                <span className="font-bold">
+                  {newProduct.customName ? "Aktif" : "Pasif"}
+                </span>
+              </div>
             </div>
           </div>
 
-          <DialogFooter className="mt-4 flex justify-end gap-2">
+          <DialogFooter>
             <Button
-              className={
-                "bg-orange-400 border border-stone-700 text-white hover:bg-orange-400"
-              }
+              className="bg-orange-400 text-white"
               onClick={handleSubmit}
               disabled={uploading}
             >

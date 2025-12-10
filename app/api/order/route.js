@@ -97,7 +97,7 @@ export async function POST(req) {
       shippingAddress: shipping,
       billingAddress: billing,
       basketItems: basketItemsFormatted,
-      currency: currency ?? "EUR",
+      currency: currency ?? "USD",
       basketId: "B" + Date.now(),
     };
 
@@ -159,7 +159,7 @@ export async function POST(req) {
         status: "paid",
         totalPrice: Number(totalPrice),
         paidPrice: Number(paidPrice),
-        currency: currency || "EUR",
+        currency: currency || "USD",
         paymentMethod: paymentMethod || "iyzipay",
         transactionId: paymentResult?.paymentId || null,
         items: {
@@ -233,8 +233,8 @@ Sayın ${firstName || ""} ${lastName || ""},
 **Sipariş Detayları:**
 * **Sipariş Numarası:** #${order.id}
 * **Sipariş Tarihi:** ${new Date().toLocaleDateString("tr-TR")}
-* **Toplam Tutar (KDV Dahil):** ${formatPrice(totalPrice)} ${currency || "EUR"}
-* **Ödenen Tutar (KDV Dahil):** ${formatPrice(paidPrice)} ${currency || "EUR"}
+* **Toplam Tutar (KDV Dahil):** ${formatPrice(totalPrice)} ${currency || "USD"}
+* **Ödenen Tutar (KDV Dahil):** ${formatPrice(paidPrice)} ${currency || "USD"}
 * **Ödeme Yöntemi:** ${paymentMethod || "Kredi Kartı"}
 
 **Sipariş Edilen Ürünler:**
@@ -278,7 +278,7 @@ Web sitesi üzerinden yeni bir sipariş başarıyla alınmış ve ödemesi onayl
 * **Sipariş Numarası:** #${order.id}
 * **Müşteri ID:** ${userId}
 * **Müşteri E-posta:** ${buyer.email || "Belirtilmemiş"}
-* **Ödenen Tutar:** ${formatPrice(paidPrice)} ${currency || "EUR"}
+* **Ödenen Tutar:** ${formatPrice(paidPrice)} ${currency || "USD"}
 * **Ödeme Yöntemi:** ${paymentMethod || "Kredi Kartı"}
 
 **Sipariş Kalemleri:**

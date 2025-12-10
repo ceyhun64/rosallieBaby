@@ -185,6 +185,7 @@ export default function ProductDetail() {
           throw new Error("Failed to fetch product data.");
         }
         const data = await res.json();
+        console.log("data:", data);
         setProduct(data.product);
 
         // 2. Check user login status (Example API endpoint)
@@ -559,7 +560,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Custom Name Input */}
-          {product.customName === 1 && (
+          {product.customName  && (
             <div className="flex flex-col gap-2 pt-4 border-t border-gray-200">
               <Label
                 htmlFor="customName"

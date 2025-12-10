@@ -492,10 +492,10 @@ export default function ProductDetail() {
             </span>
             <div className="flex flex-col">
               <span className="text-lg line-through text-gray-400">
-                €{product.oldPrice.toFixed(2)}
+                ${product.oldPrice.toFixed(2)}
               </span>
               <span className="font-semibold text-3xl text-black">
-                €{product.price.toFixed(2)}
+                ${product.price.toFixed(2)}
               </span>
             </div>
           </div>
@@ -533,7 +533,7 @@ export default function ProductDetail() {
               <Gift size={28} className="text-gray-700" />
               <div>
                 <p className="font-medium text-sm">Free Shipping</p>
-                <p className="text-xs text-gray-600">Over €250</p>
+                <p className="text-xs text-gray-600">Over $250</p>
               </div>
             </div>
           </div>

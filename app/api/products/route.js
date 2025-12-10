@@ -45,19 +45,18 @@ export async function POST(request) {
   try {
     const formData = await request.formData();
 
-    // Dosyaları al
+    // Dosyalar
     const mainImageFile = formData.get("mainImage");
     const subImageFiles = [];
-    
-    // Alt görselleri topla (subImage0, subImage1, ...)
+
     for (let i = 0; i < 6; i++) {
       const subFile = formData.get(`subImage${i}`);
-      if (subFile) {
+      if (subFile && subFile instanceof File && subFile.size > 0) {
         subImageFiles.push(subFile);
       }
     }
 
-    // Form alanlarını al
+    // Form alanları
     const name = formData.get("name");
     const description = formData.get("description");
     const oldPrice = parseFloat(formData.get("oldPrice"));
@@ -65,8 +64,16 @@ export async function POST(request) {
     const discount = parseFloat(formData.get("discount"));
     const category = formData.get("category");
 
+    // ✔️ CUSTOMNAME EKLENDİ
+    const customNameString = formData.get("customName");
+    const customName = customNameString === "true" ? true : false;
+
     // Validasyon
-    const validCategories = ["hospital_outfit_special_set", "hospital_outfit_set", "toy"];
+    const validCategories = [
+      "hospital_outfit_special_set",
+      "hospital_outfit_set",
+      "toy",
+    ];
     if (!validCategories.includes(category)) {
       return NextResponse.json(
         { success: false, error: "Geçersiz kategori" },
@@ -74,7 +81,11 @@ export async function POST(request) {
       );
     }
 
-    if (!mainImageFile) {
+    if (
+      !mainImageFile ||
+      !(mainImageFile instanceof File) ||
+      mainImageFile.size === 0
+    ) {
       return NextResponse.json(
         { success: false, error: "Ana görsel zorunludur" },
         { status: 400 }
@@ -91,7 +102,7 @@ export async function POST(request) {
       subImageUrls.push(url);
     }
 
-    // Ürünü veritabanına kaydet
+    // Ürün oluştur
     const product = await prisma.product.create({
       data: {
         name,
@@ -101,9 +112,14 @@ export async function POST(request) {
         price,
         discount,
         category,
-        subImages: subImageUrls.length > 0
-          ? { create: subImageUrls.map((url) => ({ url })) }
-          : undefined,
+
+        // ✔️ CUSTOMNAME BURAYA EKLENDİ
+        customName,
+
+        subImages:
+          subImageUrls.length > 0
+            ? { create: subImageUrls.map((url) => ({ url })) }
+            : undefined,
       },
       include: { subImages: true },
     });

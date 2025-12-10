@@ -60,8 +60,9 @@ export default function StepPaymentCard({
   };
 
   const validateExpiry = (month, year) => {
-    if (!month || !year || month.length !== 2 || year.length !== 2) return false;
-    
+    if (!month || !year || month.length !== 2 || year.length !== 2)
+      return false;
+
     const monthNum = parseInt(month, 10);
     const yearNum = parseInt(year, 10);
 
@@ -76,7 +77,7 @@ export default function StepPaymentCard({
 
     // Year check
     if (yearNum < currentYear) return false;
-    
+
     // Check if the card is expired within the current year
     if (yearNum === currentYear && monthNum < currentMonth) return false;
 
@@ -113,7 +114,6 @@ export default function StepPaymentCard({
     }
   };
 
-
   return (
     <div className="space-y-6">
       {/* Security Notice */}
@@ -122,8 +122,8 @@ export default function StepPaymentCard({
         <div className="text-sm">
           <p className="text-blue-900 font-medium mb-1">Secure Payment</p>
           <p className="text-blue-700">
-            Your card details are protected with 256-bit SSL encryption. 
-            Your information is never stored or shared.
+            Your card details are protected with 256-bit SSL encryption. Your
+            information is never stored or shared.
           </p>
         </div>
       </div>
@@ -145,7 +145,7 @@ export default function StepPaymentCard({
                   cardType === "visa" ? "opacity-100" : "opacity-30"
                 } transition-opacity`}
                 // Fallback for image loading error
-                onError={(e) => (e.currentTarget.style.display = "none")} 
+                onError={(e) => (e.currentTarget.style.display = "none")}
               />
               <img
                 src="https://placehold.co/50x32/303030/ffffff?text=MC"
@@ -187,7 +187,9 @@ export default function StepPaymentCard({
               onChange={handleNameChange} // Use adapted handler
             />
             {holderName && holderName.trim().length < 3 && (
-              <p className="text-xs text-amber-600">Please enter at least 3 characters</p>
+              <p className="text-xs text-amber-600">
+                Please enter at least 3 characters
+              </p>
             )}
           </div>
 
@@ -327,7 +329,7 @@ export default function StepPaymentCard({
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">Amount Due:</span>
               <span className="text-2xl font-bold text-gray-900">
-                € {totalPrice.toFixed(2)}
+                $ {totalPrice.toFixed(2)}
               </span>
             </div>
           </div>
@@ -355,7 +357,7 @@ export default function StepPaymentCard({
             ) : (
               <span className="flex items-center justify-center gap-2">
                 <Lock className="w-5 h-5" />
-                {`Pay € ${totalPrice.toFixed(2)}`}
+                {`Pay $ ${totalPrice.toFixed(2)}`}
               </span>
             )}
           </Button>

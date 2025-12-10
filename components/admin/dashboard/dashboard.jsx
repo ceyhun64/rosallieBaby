@@ -161,7 +161,7 @@ export default function AdminDashboard() {
                         Sipariş #{order.id}
                       </span>
                       <span className="text-teal-400 font-bold">
-                        {order.currency || "EUR"} {order.totalPrice}
+                        {order.currency || "USD"} {order.totalPrice}
                       </span>
                     </div>
 
@@ -201,7 +201,7 @@ export default function AdminDashboard() {
                               {item.product?.name} x{item.quantity}
                             </span>
                             <span>
-                              {item.totalPrice} {order.currency || "EUR"}
+                              {item.totalPrice} {order.currency || "USD"}
                             </span>
                           </li>
                         ))}

@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   Package,
+  Gift,
 } from "lucide-react";
 
 export default function StepCargo({
@@ -24,7 +25,11 @@ export default function StepCargo({
   selectedCargo,
   setSelectedCargo,
   setStep,
+  subTotal, // Alt toplam prop olarak alınmalı
 }) {
+  const FREE_CARGO_THRESHOLD = 250;
+  const isFreeCargoEligible = subTotal >= FREE_CARGO_THRESHOLD;
+
   const getCargoIcon = (id) => {
     if (id === "express") {
       return <Zap className="w-5 h-5 text-orange-600" />;
@@ -32,20 +37,47 @@ export default function StepCargo({
     return <Truck className="w-5 h-5 text-blue-600" />;
   };
 
+  // Kargo ücretini hesapla
+  const getCargoFee = (cargo) => {
+    if (cargo.id === "standart" && isFreeCargoEligible) {
+      return 0;
+    }
+    return cargo.fee;
+  };
+
   const selectedOption = cargoOptions.find((c) => c.id === selectedCargo);
 
   return (
     <div className="space-y-6">
-      {/* Information Banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
-        <Package className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-        <div className="text-sm">
-          <p className="text-blue-900 font-medium mb-1">Shipping Selection</p>
-          <p className="text-blue-700">
-            Choose the appropriate shipping option for your order
-          </p>
+      {/* Ücretsiz Kargo Uyarısı */}
+      {isFreeCargoEligible && (
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg p-4 flex items-start gap-3">
+          <Gift className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm">
+            <p className="text-green-900 font-bold mb-1">
+              🎉 Congratulations! You've earned FREE Standard Shipping!
+            </p>
+            <p className="text-green-700">
+              Your order total of ${subTotal.toFixed(2)} qualifies for free
+              standard delivery
+            </p>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Eşik Altı Bilgilendirme */}
+      {!isFreeCargoEligible && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+          <Package className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm">
+            <p className="text-blue-900 font-medium mb-1">Shipping Selection</p>
+            <p className="text-blue-700">
+              Add ${(FREE_CARGO_THRESHOLD - subTotal).toFixed(2)} more to your
+              cart to get FREE Standard Shipping!
+            </p>
+          </div>
+        </div>
+      )}
 
       <Card className={"p-4 py-8"}>
         <CardHeader className="space-y-1">
@@ -64,53 +96,82 @@ export default function StepCargo({
             onValueChange={setSelectedCargo}
             className="space-y-3"
           >
-            {cargoOptions.map((cargo) => (
-              <div
-                key={cargo.id}
-                className={`relative flex items-center space-x-3 rounded-lg border-2 p-4 transition-all cursor-pointer ${
-                  selectedCargo === cargo.id
-                    ? "border-blue-500 bg-blue-50 shadow-md"
-                    : "border-gray-200 hover:border-blue-300 hover:shadow-sm"
-                }`}
-                onClick={() => setSelectedCargo(cargo.id)}
-              >
-                <div className="flex items-start gap-3 flex-1">
-                  {/* Icon */}
-                  <div className="flex-shrink-0 mt-1">
-                    {getCargoIcon(cargo.id)}
-                  </div>
+            {cargoOptions.map((cargo) => {
+              const cargoFee = getCargoFee(cargo);
+              const isFree = cargo.id === "standart" && isFreeCargoEligible;
 
-                  {/* Cargo Information */}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <Label
-                        htmlFor={cargo.id}
-                        className="text-base font-semibold cursor-pointer"
-                      >
-                        {cargo.name}
-                      </Label>
+              return (
+                <div
+                  key={cargo.id}
+                  className={`relative flex items-center space-x-3 rounded-lg border-2 p-4 transition-all cursor-pointer ${
+                    selectedCargo === cargo.id
+                      ? "border-blue-500 bg-blue-50 shadow-md"
+                      : "border-gray-200 hover:border-blue-300 hover:shadow-sm"
+                  } ${isFree ? "ring-2 ring-green-400" : ""}`}
+                  onClick={() => setSelectedCargo(cargo.id)}
+                >
+                  {/* Ücretsiz Badge */}
+                  {isFree && (
+                    <div className="absolute -top-3 -right-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+                      <Gift className="w-3 h-3" />
+                      FREE
                     </div>
-                    <p className="text-sm text-gray-600">
-                      {cargo.id === "express"
-                        ? "Delivery within 1-2 business days"
-                        : "Delivery within 3-5 business days"}
-                    </p>
-                  </div>
+                  )}
 
-                  {/* Price */}
-                  <div className="text-right flex flex-col items-end">
-                    <p className="text-lg font-bold text-gray-900">
-                      € {cargo.fee.toFixed(2)}
-                    </p>
-                    <RadioGroupItem
-                      value={cargo.id}
-                      id={cargo.id}
-                      className="mt-2"
-                    />
+                  <div className="flex items-start gap-3 flex-1">
+                    {/* Icon */}
+                    <div className="flex-shrink-0 mt-1">
+                      {getCargoIcon(cargo.id)}
+                    </div>
+
+                    {/* Cargo Information */}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <Label
+                          htmlFor={cargo.id}
+                          className="text-base font-semibold cursor-pointer"
+                        >
+                          {cargo.name}
+                        </Label>
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        {cargo.id === "express"
+                          ? "Delivery within 4-5 business days"
+                          : "Delivery within 7-10 business days"}
+                      </p>
+                      {isFree && (
+                        <p className="text-xs text-green-600 font-medium mt-1">
+                          ✨ Free for orders over ${FREE_CARGO_THRESHOLD}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Price */}
+                    <div className="text-right flex flex-col items-end">
+                      {isFree ? (
+                        <>
+                          <p className="text-sm text-gray-400 line-through">
+                            ${cargo.fee.toFixed(2)}
+                          </p>
+                          <p className="text-lg font-bold text-green-600">
+                            FREE
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-lg font-bold text-gray-900">
+                          ${cargoFee.toFixed(2)}
+                        </p>
+                      )}
+                      <RadioGroupItem
+                        value={cargo.id}
+                        id={cargo.id}
+                        className="mt-2"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </RadioGroup>
 
           {/* Selected Summary */}
@@ -121,7 +182,12 @@ export default function StepCargo({
                 <div className="flex-1">
                   <p className="font-medium">Selected: {selectedOption.name}</p>
                   <p className="text-sm">
-                    Shipping Fee: € {selectedOption.fee.toFixed(2)}
+                    Shipping Fee:{" "}
+                    {getCargoFee(selectedOption) === 0 ? (
+                      <span className="font-bold text-green-600">FREE</span>
+                    ) : (
+                      `$${getCargoFee(selectedOption).toFixed(2)}`
+                    )}
                   </p>
                 </div>
               </div>
@@ -168,10 +234,16 @@ export default function StepCargo({
           </li>
           <li className="flex items-start gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 flex-shrink-0" />
-            <span>Tracking number will be sent via email</span>
+            <span>
+              FREE Standard Shipping on orders over ${FREE_CARGO_THRESHOLD}
+            </span>
           </li>
           <li className="flex items-start gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-1.5 flex-shrink-0" />
+            <span>Tracking number will be sent via email</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 flex-shrink-0" />
             <span>All shipments are insured</span>
           </li>
         </ul>
