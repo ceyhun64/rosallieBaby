@@ -114,26 +114,27 @@ export default function Header() {
   // Main navigation items
   const menuItems = [
     {
-      label: "Personalized Hospital Special Set",
+      label: "Personalized Hospital Sets",
       href: "/all_products/hospital_outfit_special_set",
     },
     {
-      label: "Special Outfit Set",
+      label: "Coming Home Outfits",
       href: "/all_products/hospital_outfit_set",
     },
-    { label: "Toys", href: "/all_products/toy" },
-    // { label: "All Products", href: "/all_products" },
+    { label: "Personalized Blankets", href: "/all_products/blanket" },
+    { label: "Baby Toys", href: "/all_products/toy" },
+    { label: "Blog", href: "/blog" },
+    { label: "About", href: "/about" },
   ];
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-500 ${
-        scrolled
-          ? "bg-white/60 backdrop-blur-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] border-b border-white/40"
-          : "bg-white/40 backdrop-blur-xl border-b border-white/20"
-      }`} // Dynamic styling based on scroll state
+      className={`sticky top-0 z-50 w-full transition-all duration-500 ${scrolled
+        ? "bg-white/60 backdrop-blur-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] border-b border-white/40"
+        : "bg-white/40 backdrop-blur-xl border-b border-white/20"
+        }`} // Dynamic styling based on scroll state
     >
-      <div className="container mx-auto flex h-24 items-center justify-between px-6 sm:px-8 lg:px-12 max-w-6xl">
+      <div className="container mx-auto flex h-24 items-center justify-between px-6 sm:px-8 lg:px-12">
         {/* Logo */}
         <Link
           href="/"
@@ -180,9 +181,8 @@ export default function Header() {
                 variant="ghost"
                 size="icon-sm"
                 aria-label="Profile"
-                className={`text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full ${
-                  userMenuOpen ? "bg-white/50" : ""
-                }`}
+                className={`text-gray-600 hover:text-gray-900 hover:bg-white/50 transition rounded-full ${userMenuOpen ? "bg-white/50" : ""
+                  }`}
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
               >
                 <User className="h-[20px] w-[20px]" strokeWidth={1.4} />

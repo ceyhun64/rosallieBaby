@@ -80,7 +80,7 @@ export default function HospitalOutfitSpecialSet() {
             </div>
 
             <h1 className="text-5xl md:text-7xl font-light text-white tracking-tight drop-shadow-lg">
-              Personalized Hospital Special Set
+              Personalized Hospital Sets
             </h1>
 
             <p className="text-xl text-white/90 max-w-2xl font-light drop-shadow-sm">

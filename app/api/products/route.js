@@ -73,6 +73,7 @@ export async function POST(request) {
       "hospital_outfit_special_set",
       "hospital_outfit_set",
       "toy",
+      "blanket"
     ];
     if (!validCategories.includes(category)) {
       return NextResponse.json(

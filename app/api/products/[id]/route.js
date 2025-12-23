@@ -129,6 +129,8 @@ export async function PUT(request, { params }) {
     // Form alanlarını al
     const name = formData.get("name")?.trim();
     const description = formData.get("description")?.trim();
+    const hookQuote = formData.get("hookQuote")?.trim() || null;
+    const highlightBox = formData.get("highlightBox")?.trim() || null;
     const category = formData.get("category")?.trim();
     const price = parseFloat(formData.get("price")) || 0;
     const oldPrice = parseFloat(formData.get("oldPrice")) || 0;
@@ -192,6 +194,8 @@ export async function PUT(request, { params }) {
         name,
         mainImage: mainImageUrl,
         description,
+        hookQuote,
+        highlightBox,
         oldPrice,
         price,
         customName,

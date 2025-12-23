@@ -338,9 +338,16 @@ export default function PaymentPage() {
 
     return true;
   };
+  // ✅ handlePayment fonksiyonunu düzelt
 
   const handlePayment = async (e) => {
     if (e) e.preventDefault();
+
+    // ✅ ÇÖZÜM 1: Çift tıklamayı önle
+    if (processingPayment) {
+      console.log("⏳ Ödeme zaten işleniyor, lütfen bekleyin...");
+      return;
+    }
 
     if (!validatePaymentInfo()) {
       return;
@@ -397,6 +404,7 @@ export default function PaymentPage() {
       return;
     }
 
+    // ✅ ÇÖZÜM 2: Hemen state'i kilitle
     setProcessingPayment(true);
 
     try {
@@ -440,6 +448,7 @@ export default function PaymentPage() {
       };
       const billingAddress = { ...shippingAddress };
 
+      // ✅ ÇÖZÜM 3: Her ürünün fiyatını miktar ile çarp
       const basketItems = cartItems.map((item) => {
         const productId = item.product?.id || item.productId;
 
@@ -450,26 +459,33 @@ export default function PaymentPage() {
           );
         }
 
+        const unitPrice = item.product?.price || item.price || 0;
+        const quantity = item.quantity || 1;
+
         return {
           id: productId.toString(),
           name: item.product?.name || item.title || "Product",
           category1: item.product?.category || item.category || "Category",
           itemType: "PHYSICAL",
-          price: (item.product?.price || item.price || 0).toFixed(2),
-          quantity: item.quantity || 1,
+          price: unitPrice.toFixed(2), // ✅ Birim fiyat
+          quantity: quantity, // ✅ Miktarı gönder
           customName: item.customName || null,
         };
       });
 
-      const basketTotal = basketItems
-        .reduce((sum, item) => sum + parseFloat(item.price) * item.quantity, 0)
-        .toFixed(2);
+      // ✅ ÇÖZÜM 4: Sepet toplamını doğru hesapla
+      const basketTotal = basketItems.reduce(
+        (sum, item) => sum + parseFloat(item.price) * item.quantity,
+        0
+      );
 
+      // ✅ ÇÖZÜM 5: Kargo ücretini backend'e gönder
       const paymentData = {
-        price: basketTotal,
-        paidPrice: basketTotal,
+        price: (basketTotal + selectedCargoFee).toFixed(2),
+        paidPrice: (basketTotal + selectedCargoFee).toFixed(2),
         currency: "USD",
         basketId: `B${Date.now()}`,
+        cargoFee: selectedCargoFee, // ✅ Kargo ücretini ekle
         paymentCard,
         buyer,
         shippingAddress,
@@ -481,7 +497,9 @@ export default function PaymentPage() {
         addressId: selectedAddr.id,
         buyerName: `${buyer.name} ${buyer.surname}`,
         totalItems: basketItems.length,
-        totalPrice: basketTotal,
+        basketTotal: basketTotal.toFixed(2),
+        cargoFee: selectedCargoFee.toFixed(2),
+        totalPrice: (basketTotal + selectedCargoFee).toFixed(2),
       });
 
       const res = await fetch("/api/payment", {
@@ -499,11 +517,12 @@ export default function PaymentPage() {
             result.errorMessage || result.error
           }. Please check your card information.`
         );
-        setProcessingPayment(false);
+        setProcessingPayment(false); // ✅ Hatada kilidi kaldır
         return;
       }
 
       if (result.status === "success") {
+        // ✅ Sipariş oluştur
         const orderRes = await fetch("/api/order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -514,8 +533,9 @@ export default function PaymentPage() {
             basketItems,
             shippingAddress,
             billingAddress,
-            totalPrice: basketTotal,
-            paidPrice: basketTotal,
+            totalPrice: (basketTotal + selectedCargoFee).toFixed(2),
+            paidPrice: (basketTotal + selectedCargoFee).toFixed(2),
+            cargoFee: selectedCargoFee,
             currency: "USD",
             paymentMethod: "iyzipay",
             transactionId: result.paymentId,
@@ -538,6 +558,9 @@ export default function PaymentPage() {
           }
 
           toast.success("Payment successful! Redirecting...");
+
+          // ✅ ÇÖZÜM 6: Yönlendirmeden önce kilidi kaldırma
+          // (başarılı ödeme sonrası kilidi kaldırmaya gerek yok)
           router.push("/checkout/success");
         } else {
           console.error("❌ Order creation failed:", orderResult);

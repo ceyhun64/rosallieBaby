@@ -186,6 +186,7 @@ export default function AddProductDialog({
                       Hospital Outfit Set
                     </SelectItem>
                     <SelectItem value="toy">Toy</SelectItem>
+                    <SelectItem value="blanket">Blanket</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

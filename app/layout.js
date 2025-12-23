@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import Providers from "./providers";
+import GoogleAnalytics from "@/components/seo/GoogleAnalytics";
+import MetaPixel from "@/components/seo/MetaPixel";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -87,7 +89,7 @@ export const metadata = {
     },
   },
   verification: {
-    google: "your-google-verification-code", // Google Search Console'dan alın
+    google: "Whu8YVivwCAUbHNyBzJK4JzXIQsvEiKudmPuC66lU6A", // Google Search Console'dan alın
     // yandex: "your-yandex-verification-code",
     // bing: "your-bing-verification-code",
   },
@@ -101,6 +103,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
+        {/* Analytics */}
+        <GoogleAnalytics />
+        <MetaPixel />
+
         {/* Structured Data - Product Schema */}
         <script
           type="application/ld+json"

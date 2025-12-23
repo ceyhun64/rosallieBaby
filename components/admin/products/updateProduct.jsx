@@ -106,6 +106,8 @@ export default function UpdateProductDialog({ product, onUpdate }) {
       // Text alanları ekle
       data.append("name", formData.name);
       data.append("description", formData.description);
+      data.append("hookQuote", formData.hookQuote || "");
+      data.append("highlightBox", formData.highlightBox || "");
       data.append("category", formData.category);
       data.append("price", formData.price?.toString() || "0");
       data.append("oldPrice", formData.oldPrice?.toString() || "0");
@@ -237,11 +239,39 @@ export default function UpdateProductDialog({ product, onUpdate }) {
             {/* Açıklama */}
             <div className="flex flex-col gap-1 col-span-2">
               <Label>Açıklama</Label>
-              <Input
+              <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                className="bg-black border border-stone-700 text-white"
+                rows={3}
+                className="bg-black border border-stone-700 text-white p-2 rounded resize-none"
+                placeholder="Ürün açıklaması..."
+              />
+            </div>
+
+            {/* Hook Quote - Duygusal Alıntı */}
+            <div className="flex flex-col gap-1 col-span-2">
+              <Label>Duygusal Alıntı (Hook Quote)</Label>
+              <textarea
+                name="hookQuote"
+                value={formData.hookQuote || ""}
+                onChange={handleChange}
+                rows={2}
+                className="bg-black border border-stone-700 text-white p-2 rounded resize-none italic"
+                placeholder="Örn: The outfit they will wear in those first precious photos..."
+              />
+            </div>
+
+            {/* Highlight Box - Öne Çıkan Bilgi */}
+            <div className="flex flex-col gap-1 col-span-2">
+              <Label>Öne Çıkan Bilgi (Highlight Box)</Label>
+              <textarea
+                name="highlightBox"
+                value={formData.highlightBox || ""}
+                onChange={handleChange}
+                rows={2}
+                className="bg-black border border-stone-700 text-white p-2 rounded resize-none"
+                placeholder="Örn: Perfect for newborn photoshoots, hospital coming-home moments..."
               />
             </div>
 
@@ -252,8 +282,8 @@ export default function UpdateProductDialog({ product, onUpdate }) {
                   {field === "oldPrice"
                     ? "Eski Fiyat"
                     : field === "discount"
-                    ? "İndirim (%)"
-                    : "Fiyat"}
+                      ? "İndirim (%)"
+                      : "Fiyat"}
                 </Label>
                 <Input
                   name={field}

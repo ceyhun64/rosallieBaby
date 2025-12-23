@@ -27,6 +27,7 @@ export default function StepPaymentCard({
   handlePayment,
   totalPrice,
   setStep,
+  processingPayment,
   isProcessing: externalProcessing,
 }) {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -346,7 +347,7 @@ export default function StepPaymentCard({
           </Button>
           <Button
             onClick={onClickPayment}
-            disabled={!isFormValid || processing}
+            disabled={processingPayment}
             className="w-full sm:flex-1 h-12 bg-green-600 hover:bg-green-700 text-white font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {processing ? (
