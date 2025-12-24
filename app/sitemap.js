@@ -3,7 +3,6 @@ import prisma from "@/lib/db";
 export default async function sitemap() {
   const baseUrl = "https://rosalliebaby.com";
 
-  // Get all products from database
   let products = [];
   try {
     products = await prisma.product.findMany({
@@ -17,7 +16,6 @@ export default async function sitemap() {
     console.error("Error fetching products for sitemap:", error);
   }
 
-  // Static pages
   const staticPages = [
     {
       url: baseUrl,
@@ -45,7 +43,6 @@ export default async function sitemap() {
     },
   ];
 
-  // Category pages
   const categories = [
     "hospital_outfit_special_set",
     "hospital_outfit_set",
@@ -60,7 +57,6 @@ export default async function sitemap() {
     priority: 0.9,
   }));
 
-  // Product pages
   const productPages = products.map((product) => ({
     url: `${baseUrl}/all_products/${product.category}/${product.id}`,
     lastModified: product.updatedAt || new Date(),

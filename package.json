@@ -52,7 +52,7 @@
     "iyzipay": "^2.0.64",
     "lucide-react": "^0.544.0",
     "motion": "^12.23.25",
-    "next": "^15.5.7",
+    "next": "^15.5.9",
     "next-auth": "^4.24.11",
     "next-cloudinary": "^6.17.5",
     "next-session": "^4.0.5",
