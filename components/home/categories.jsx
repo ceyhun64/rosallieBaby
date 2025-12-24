@@ -5,17 +5,22 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const categories = [
   {
-    title: "Personalized Hospital Special Set",
+    title: "Personalized Hospital Sets",
     imageUrl: "/categories/special.webp",
     href: "/all_products/hospital_outfit_special_set",
   },
   {
-    title: "Special Outfit Sets",
+    title: "Coming Home Outfits",
     imageUrl: "/categories/hospital.webp",
     href: "/all_products/hospital_outfit_set",
   },
   {
-    title: "Toys",
+    title: "Personalized Blankets",
+    imageUrl: "/categories/blanket.webp",
+    href: "/all_products/blanket",
+  },
+  {
+    title: "Baby Toys",
     imageUrl: "/categories/toys.webp",
     href: "/all_products/toy",
   },
@@ -67,7 +72,7 @@ export default function Categories() {
       {/* Categories Grid/Carousel */}
       <div
         ref={containerRef}
-        className="md:grid md:grid-cols-3 md:gap-6 flex md:flex-none overflow-x-auto snap-x snap-mandatory relative scroll-smooth scrollbar-hide"
+        className="md:grid md:grid-cols-4 md:gap-6 flex md:flex-none overflow-x-auto snap-x snap-mandatory relative scroll-smooth scrollbar-hide"
       >
         {categories.map((category, index) => (
           <div
@@ -86,11 +91,10 @@ export default function Categories() {
                 {categories.map((_, dotIndex) => (
                   <span
                     key={dotIndex}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                      dotIndex === activeIndex
-                        ? "w-8 bg-white"
-                        : "w-1.5 bg-white/50"
-                    }`}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${dotIndex === activeIndex
+                      ? "w-8 bg-white"
+                      : "w-1.5 bg-white/50"
+                      }`}
                   />
                 ))}
               </div>
@@ -101,3 +105,4 @@ export default function Categories() {
     </section>
   );
 }
+

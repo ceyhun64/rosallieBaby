@@ -226,8 +226,7 @@ export async function POST(req) {
           `
 Sayın ${firstName || ""} ${lastName || ""},
 
-**MODA PERDE** üzerinden vermiş olduğunuz **#${
-            order.id
+**Rosallie Baby** üzerinden vermiş olduğunuz **#${order.id
           }** numaralı siparişiniz başarıyla oluşturulmuş ve ödemesi onaylanmıştır. Siparişiniz, en kısa sürede titizlikle hazırlanmaya başlanacaktır.
 
 **Sipariş Detayları:**
@@ -239,17 +238,16 @@ Sayın ${firstName || ""} ${lastName || ""},
 
 **Sipariş Edilen Ürünler:**
 ${basketItems
-  .map(
-    (item) =>
-      `• ${item.name} (${item.quantity} Adet) — Birim Fiyat: ${formatPrice(
-        item.unitPrice || item.totalPrice
-      )} ${currency}`
-  )
-  .join("\n")}
+            .map(
+              (item) =>
+                `• ${item.name} (${item.quantity} Adet) — Birim Fiyat: ${formatPrice(
+                  item.unitPrice || item.totalPrice
+                )} ${currency}`
+            )
+            .join("\n")}
 
 **Teslimat Adresi:**
-* **Alıcı Adı:** ${shippingAddress.firstName || firstName || ""} ${
-            shippingAddress.lastName || lastName || ""
+* **Alıcı Adı:** ${shippingAddress.firstName || firstName || ""} ${shippingAddress.lastName || lastName || ""
           }
 * **Adres:** ${shippingAddress.address}
 * **İl/İlçe:** ${shippingAddress.city} / ${shippingAddress.district}
@@ -260,14 +258,14 @@ Siparişinizin tüm aşamaları hakkında e-posta ile bilgilendirileceksiniz.
 Bizi tercih ettiğiniz için teşekkür eder, iyi günler dileriz.
 
 Saygılarımızla, 
-**MODA PERDE Ekibi**
+**Rosallie Baby Ekibi**
 `
         );
       }
 
       // 1B. Admin bilgilendirme maili
       await sendMail(
-        ["modaperdeofficial@gmail.com"],
+        ["rosalliebaby@gmail.com"],
         `🔔 Yeni Sipariş Kaydı - Acil İşlem Gerekiyor: #${order.id}`,
         `
 Sayın Yönetici,
@@ -283,13 +281,12 @@ Web sitesi üzerinden yeni bir sipariş başarıyla alınmış ve ödemesi onayl
 
 **Sipariş Kalemleri:**
 ${basketItems
-  .map(
-    (item) =>
-      `• ${item.name} — Miktar: ${
-        item.quantity
-      } Adet — Toplam Fiyat: ${formatPrice(item.totalPrice)} ${currency}`
-  )
-  .join("\n")}
+          .map(
+            (item) =>
+              `• ${item.name} — Miktar: ${item.quantity
+              } Adet — Toplam Fiyat: ${formatPrice(item.totalPrice)} ${currency}`
+          )
+          .join("\n")}
 
 **Teslimat Bilgileri:**
 * **Adres:** ${shippingAddress.address}
@@ -423,7 +420,7 @@ Güncel sipariş bilgilerinizi web sitemizdeki hesabınız üzerinden de takip e
 Her türlü soru ve destek talebiniz için Müşteri Hizmetlerimiz ile iletişime geçebilirsiniz.
 
 Saygılarımızla,
-**MODA PERDE Ekibi**
+**Rosallie Baby Ekibi**
 [Web Sitenizin Adresi veya İletişim Bilgileri]
 `;
 
@@ -439,9 +436,8 @@ Saygılarımızla,
     /* ... PATCH fonksiyonu içinde ... */
     // 2B. Admin bilgilendirme maili (Güncellenmiş)
     const adminMessage = `
-**#${
-      updatedOrder.id
-    }** numaralı siparişin durumu başarılı bir şekilde güncellenmiştir.
+**#${updatedOrder.id
+      }** numaralı siparişin durumu başarılı bir şekilde güncellenmiştir.
 
 **Yeni Durum:** **${turkishStatus}** (${updatedOrder.status})
 **Güncelleyen Kullanıcı/Sistem:** Admin Panel / Otomatik Sistem
@@ -451,7 +447,7 @@ Gerekli operasyonel adımların tamamlandığından emin olunuz.
 `;
 
     await sendMail(
-      ["modaperdeofficial@gmail.com"],
+      ["rosalliebaby@gmail.com"],
       `✅ Sipariş Durumu Değişikliği: #${updatedOrder.id}`,
       adminMessage
     );

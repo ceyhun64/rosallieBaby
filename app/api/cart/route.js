@@ -6,11 +6,11 @@ import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function GET(req) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json([], { status: 200 }); // Giriş yok, boş liste dön
+  if (!session) return NextResponse.json([], { status: 200 });
 
   try {
     const cartItems = await prisma.cartItem.findMany({
-      where: { userId: session.user.id },
+      where: { userId: Number(session.user.id) }, // ✅ Number'a çevir
       include: { product: true },
     });
     return NextResponse.json(cartItems);
@@ -25,19 +25,19 @@ export async function GET(req) {
 
 export async function POST(req) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json([], { status: 200 }); // Giriş yok, boş liste dön
+  if (!session) return NextResponse.json([], { status: 200 });
 
   const body = await req.json();
   const { productId, quantity, customName } = body;
 
   try {
-    // aynı ürün + aynı customName varsa quantity artır
     const fixedName = customName?.trim() || "";
+    const userId = Number(session.user.id); // ✅ Number'a çevir
 
     const existing = await prisma.cartItem.findUnique({
       where: {
         userId_productId_customName: {
-          userId: session.user.id,
+          userId, // ✅ Number olarak kullan
           productId,
           customName: fixedName,
         },
@@ -54,7 +54,7 @@ export async function POST(req) {
 
     const cartItem = await prisma.cartItem.create({
       data: {
-        userId: session.user.id,
+        userId, // ✅ Number olarak kullan
         productId,
         quantity: quantity || 1,
         customName,
@@ -78,7 +78,7 @@ export async function DELETE(req) {
 
   try {
     await prisma.cartItem.deleteMany({
-      where: { userId: session.user.id },
+      where: { userId: Number(session.user.id) }, // ✅ Number'a çevir
     });
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,4 +1,4 @@
-// ProductDetail.jsx
+// ProductDetail.jsx - Updated Design based on product_example_johnp.html
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -7,18 +7,7 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { X } from "lucide-react";
-
-import {
-  ShoppingCart,
-  Heart,
-  Truck,
-  Gift,
-  ChevronUp,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { X, Check, Info, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, ShoppingCart, Heart, Truck, Zap, Clock, Leaf, Camera } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumb from "@/components/layout/breadcrumb";
 import Bestseller from "@/components/products/bestseller";
@@ -26,117 +15,35 @@ import CompletePurchase from "@/components/products/completePurchase";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useRouter } from "next/navigation";
 import ReviewSection from "@/components/products/review";
-// import { useCart } from "@/contexts/cartContext"; // Removed/Replaced external hook used only for API call
 import { useFavorite } from "@/contexts/favoriteContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import ProductSchema from "@/components/seo/ProductSchema";
+import { addToGuestCart } from "@/utils/cart";
 
-// Importing the guest cart function
-import { addToGuestCart } from "@/utils/cart"; // assuming it's in utils/cart by default
-
-// Skeleton Component (UNCHANGED)
+// Skeleton Component
 function ProductDetailSkeleton({ isMobile }) {
   return (
-    <div className="container mx-auto px-4 md:px-8 py-0 md:py-8">
-      {/* Breadcrumb Skeleton */}
+    <div className="max-w-[1200px] mx-auto px-4 md:px-[60px] py-10">
       <div className="mb-6">
         <Skeleton className="h-5 w-64" />
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 mb-16">
-        {/* Image Gallery Skeleton */}
-        {isMobile ? (
-          <div className="flex justify-center items-center">
-            <Skeleton className="w-full h-[300px] rounded-xs" />
-          </div>
-        ) : (
-          <div className="flex gap-6">
-            {/* Thumbnails Skeleton */}
-            <div className="flex flex-col items-center gap-3 w-24">
-              <Skeleton className="w-10 h-10 rounded-full" />
-              <div className="flex flex-col gap-3">
-                {[...Array(4)].map((_, i) => (
-                  <Skeleton key={i} className="w-20 h-28 rounded-xs" />
-                ))}
-              </div>
-              <Skeleton className="w-10 h-10 rounded-full" />
-            </div>
-
-            {/* Main Image Skeleton */}
-            <div className="flex-1">
-              <Skeleton className="w-full h-[600px] rounded-xs" />
-            </div>
-          </div>
-        )}
-
-        {/* Product Info Skeleton */}
-        <div className="flex flex-col gap-6">
-          {/* Title and Heart Skeleton */}
-          <div className="flex justify-between items-start pb-6 border-b border-gray-200">
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="w-12 h-12 rounded-full" />
-          </div>
-
-          {/* Price Section Skeleton */}
-          <div className="flex items-center gap-6 py-4">
-            <Skeleton className="h-8 w-16" />
-            <div className="flex flex-col gap-2">
-              <Skeleton className="h-5 w-24" />
-              <Skeleton className="h-9 w-32" />
-            </div>
-          </div>
-
-          {/* Name Input Skeleton */}
-          <div className="flex flex-col gap-2 pt-4 border-t border-gray-200">
-            <Skeleton className="h-5 w-32" />
-            <Skeleton className="h-12 w-full rounded-md" />
-          </div>
-
-          {/* Buttons Skeleton */}
-          <div className="flex flex-col gap-4 mt-4">
-            <Skeleton className="h-14 w-full rounded-none" />
-            <Skeleton className="h-14 w-full rounded-none" />
-          </div>
-
-          {/* Info Cards Skeleton */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-200">
-            <Skeleton className="h-20 w-full rounded-lg" />
-            <Skeleton className="h-20 w-full rounded-lg" />
+      <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-[60px]">
+        <div>
+          <Skeleton className="w-full aspect-square rounded-lg" />
+          <div className="flex gap-3 mt-4">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="w-20 h-20 rounded-md" />
+            ))}
           </div>
         </div>
-      </div>
-
-      {/* Description Skeleton */}
-      <div className="mt-16 mb-16 max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <Skeleton className="h-9 w-64 mx-auto mb-4" />
-          <Skeleton className="h-px w-24 mx-auto" />
-        </div>
-        <div className="space-y-3">
-          <Skeleton className="h-5 w-full" />
-          <Skeleton className="h-5 w-full" />
-          <Skeleton className="h-5 w-3/4 mx-auto" />
-          <Skeleton className="h-5 w-full" />
-          <Skeleton className="h-5 w-5/6 mx-auto" />
-        </div>
-      </div>
-
-      {/* Reviews Skeleton */}
-      <div className="mb-16">
-        <Skeleton className="h-8 w-48 mb-6" />
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="border rounded-lg p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <Skeleton className="w-10 h-10 rounded-full" />
-                <div className="flex-1">
-                  <Skeleton className="h-5 w-32 mb-2" />
-                  <Skeleton className="h-4 w-24" />
-                </div>
-              </div>
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-3/4" />
-            </div>
-          ))}
+        <div className="space-y-6">
+          <Skeleton className="h-4 w-48" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-12 w-64" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-14 w-full" />
         </div>
       </div>
     </div>
@@ -148,9 +55,8 @@ export default function ProductDetail() {
   const { id } = useParams();
   const completePurchaseRef = useRef(null);
 
-  // const { addToCart } = useCart(); // Manual state and API/Local Storage control instead of useCart
-  const [isAddingToCart, setIsAddingToCart] = useState(false); // Loading status for adding to cart
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // User login status
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const {
     isFavorited,
@@ -166,12 +72,15 @@ export default function ProductDetail() {
   const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [customName, setCustomName] = useState("");
-  const [previewName, setPreviewName] = useState("");
+  const [charCount, setCharCount] = useState(0);
 
   // Zoom states
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
   const imageRef = useRef(null);
+
+  // Accordion states
+  const [openAccordion, setOpenAccordion] = useState("details");
 
   useEffect(() => {
     async function fetchProductAndUserStatus() {
@@ -179,22 +88,19 @@ export default function ProductDetail() {
       setIsLoading(true);
       setError(null);
       try {
-        // 1. Fetch product data
         const res = await fetch(`/api/products/${id}`);
         if (!res.ok) {
           throw new Error("Failed to fetch product data.");
         }
         const data = await res.json();
-        console.log("data:", data);
         setProduct(data.product);
 
-        // 2. Check user login status (Example API endpoint)
         const userRes = await fetch("/api/account/check", {
           method: "GET",
-          credentials: "include", // To send cookies
+          credentials: "include",
         });
         const userData = await userRes.json();
-        setIsLoggedIn(!!userData.user); // true if user object exists
+        setIsLoggedIn(!!userData.user);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -203,6 +109,11 @@ export default function ProductDetail() {
     }
     fetchProductAndUserStatus();
   }, [id]);
+
+  // Update char count when customName changes
+  useEffect(() => {
+    setCharCount(customName.length);
+  }, [customName]);
 
   if (isLoading || favLoading)
     return <ProductDetailSkeleton isMobile={isMobile} />;
@@ -221,7 +132,8 @@ export default function ProductDetail() {
       </div>
     );
 
-  const total = product?.subImages.length || 0;
+  const allImages = [product.mainImage, ...(product.subImages?.map(img => img.url) || [])];
+  const total = allImages.length;
   const isFavorite = isFavorited(product.id);
 
   const handleThumbUp = () => {
@@ -232,50 +144,30 @@ export default function ProductDetail() {
     if (activeIndex < total - 1) setActiveIndex(activeIndex + 1);
   };
 
-  const handlePrevImage = () => {
-    setActiveIndex((prev) => (prev === 0 ? total - 1 : prev - 1));
-  };
-
-  const handleNextImage = () => {
-    setActiveIndex((prev) => (prev === total - 1 ? 0 : prev + 1));
-  };
-
   const handleMouseMove = (e) => {
     if (!imageRef.current) return;
-
     const rect = imageRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-
     setZoomPosition({ x, y });
   };
 
-  const handleMouseEnter = () => {
-    setIsZoomed(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsZoomed(false);
-  };
-
-  // 🚀 UPDATED: Add to Cart Function
   const handleAddToCart = async () => {
     if (!product) return;
 
     const trimmedName = customName.trim();
 
-    // Name field validation
-    if (!trimmedName) {
+    if (product.customName && !trimmedName) {
       toast.error("Please enter your name!");
       return;
     }
 
-    setIsAddingToCart(true); // Start loading status
+    setIsAddingToCart(true);
 
     const productDetails = {
       productId: product.id,
       quantity: 1,
-      customName: trimmedName,
+      customName: trimmedName || "none",
       image: product.mainImage,
       price: product.price,
       title: product.name,
@@ -286,7 +178,6 @@ export default function ProductDetail() {
 
     try {
       if (isLoggedIn) {
-        // --- FOR LOGGED-IN USER: USE API ---
         const res = await fetch("/api/cart", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -296,20 +187,17 @@ export default function ProductDetail() {
 
         if (!res.ok) {
           const errorData = await res.json();
-          throw new Error(
-            errorData.message || "Failed to add product to cart via API."
-          );
+          throw new Error(errorData.message || "Failed to add product to cart via API.");
         }
-        toast.success(`Product '${trimmedName}' added to your cart!`);
+        window.dispatchEvent(new CustomEvent("cartUpdated"));
+        toast.success(`Product '${trimmedName || product.name}' added to your cart!`);
       } else {
-        // --- FOR GUEST USER: USE LOCAL STORAGE ---
         addToGuestCart(productDetails, 1);
-        toast.success(`Product '${trimmedName}' added to your guest cart!`);
+        window.dispatchEvent(new CustomEvent("cartUpdated"));
+        toast.success(`Product '${trimmedName || product.name}' added to your cart!`);
       }
 
-      // Clear form on success
       setCustomName("");
-      setPreviewName("");
 
       if (completePurchaseRef.current) {
         completePurchaseRef.current.scrollIntoView({
@@ -319,34 +207,14 @@ export default function ProductDetail() {
       }
     } catch (error) {
       console.error("Add to cart error:", error);
-      toast.error(
-        `Error adding to cart: ${error.message || "Please try again."}`
-      );
+      toast.error(`Error adding to cart: ${error.message || "Please try again."}`);
     } finally {
-      setIsAddingToCart(false); // Stop loading status
+      setIsAddingToCart(false);
     }
   };
 
   const handleWhatsapp = () => {
     window.open("https://wa.me/905432266322", "_blank");
-  };
-
-  const formatDescription = (desc) => {
-    return desc.split("\n").map((line, index) => {
-      const isBold = line.includes("Set contents:");
-      if (isBold) {
-        return (
-          <p key={index} className="font-semibold mt-6 text-lg">
-            {line}
-          </p>
-        );
-      }
-      return (
-        <p key={index} className="leading-relaxed">
-          {line}
-        </p>
-      );
-    });
   };
 
   const handleFavoriteToggle = async () => {
@@ -364,311 +232,450 @@ export default function ProductDetail() {
     }
   };
 
-  const handlePreview = () => {
-    const trimmedName = customName.trim();
-    if (trimmedName) {
-      setPreviewName(trimmedName);
-    } else {
-      toast.error("Please enter a name to preview!");
-    }
-  };
+  const saveAmount = product.oldPrice ? (product.oldPrice - product.price).toFixed(2) : 0;
 
   return (
-    <div className="container mx-auto px-4 md:px-8 py-0 md:py-8">
-      <Breadcrumb />
+    <div className="bg-white">
+      {/* Product Schema for SEO */}
+      {product && <ProductSchema product={product} reviews={product.reviews || []} />}
 
-      {/* Premium Product Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 mb-16">
-        {/* Image Gallery - Premium Style */}
-        {isMobile ? (
-          <div className="flex justify-center items-center">
-            <div className="flex overflow-x-auto snap-x snap-mandatory pb-6 md:pb-4 w-full gap-4">
-              {[
-                product.mainImage,
-                ...product.subImages.map((img) => img.url),
-              ].map((imgUrl, index) => (
-                <div
-                  key={index}
-                  className="w-full flex-shrink-0 snap-center flex justify-center bg-white rounded-xs overflow-hidden"
-                >
-                  <Image
-                    src={imgUrl}
-                    alt={`Image ${index + 1}`}
-                    width={300}
-                    height={300}
-                    className="h-[300px] w-full object-contain cursor-pointer transition-transform hover:scale-105"
-                    onClick={() => {
-                      setActiveIndex(index);
-                      setIsImageModalOpen(true);
-                    }}
-                    unoptimized
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="flex gap-6">
-            {/* Thumbnails */}
-            <div className="flex flex-col items-center gap-3 w-24">
-              <button
-                onClick={handleThumbUp}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                <ChevronUp size={20} />
-              </button>
+      {/* Breadcrumb */}
+      <div className="border-b border-gray-200 bg-white">
+        <div className="max-w-[1200px] mx-auto px-4 md:px-[60px]">
+          <Breadcrumb />
+        </div>
+      </div>
 
-              {/* Thumbnail List */}
-              <div className="flex flex-col gap-3 max-h-[500px] overflow-y-hidden overflow-x-hidden">
-                {/* Main Image Thumbnail */}
-                <div
-                  className={`flex justify-center items-center cursor-pointer border-2 p-2 duration-300 rounded-xs overflow-hidden ${
-                    activeIndex === 0
-                      ? "border-black shadow-lg scale-105"
-                      : "border-transparent"
-                  }`}
-                  onClick={() => setActiveIndex(0)}
-                >
-                  <Image
-                    src={product.mainImage}
-                    alt="Main thumbnail"
-                    width={80}
-                    height={80}
-                    className="h-28 w-auto object-contain"
-                    unoptimized
-                  />
-                </div>
+      {/* Main Container */}
+      <div className="max-w-[1200px] mx-auto px-4 md:px-[60px] py-6 md:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-[60px]">
 
-                {/* Sub Images Thumbnails */}
-                {product.subImages.map((img, index) => {
-                  const realIndex = index + 1;
-                  return (
-                    <div
-                      key={realIndex}
-                      className={`flex justify-center items-center cursor-pointer border-2 p-2 duration-300 rounded-xs overflow-hidden ${
-                        activeIndex === realIndex
-                          ? "border-black shadow-lg scale-105"
-                          : "border-transparent"
-                      }`}
-                      onClick={() => setActiveIndex(realIndex)}
-                    >
-                      <Image
-                        src={img.url}
-                        alt={`Thumbnail ${realIndex}`}
-                        width={80}
-                        height={80}
-                        className="h-28 w-auto object-contain"
-                        unoptimized
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-
-              <button
-                onClick={handleThumbDown}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                <ChevronDown size={20} />
-              </button>
-            </div>
-
-            {/* Main Image with Zoom */}
-            <div className="relative flex-1 flex justify-center items-center bg-white rounded-xs overflow-hidden">
-              <button
-                onClick={handlePrevImage}
-                className="absolute left-4 bg-white/90 backdrop-blur-sm p-3 shadow-lg hover:bg-white border border-gray-200 z-10 rounded-full transition-all"
-              >
-                <ChevronLeft size={24} />
-              </button>
-
+          {/* ===== GALLERY SECTION ===== */}
+          <div className="lg:sticky lg:top-[120px] self-start">
+            {/* Main Image Container with Navigation */}
+            <div className="relative group">
               <div
                 ref={imageRef}
-                className="relative h-[600px] w-[600px] cursor-crosshair"
+                className="relative w-full aspect-square rounded-lg overflow-hidden bg-[#f5f1eb] cursor-crosshair"
                 onMouseMove={handleMouseMove}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
+                onMouseEnter={() => !isMobile && setIsZoomed(true)}
+                onMouseLeave={() => setIsZoomed(false)}
                 onClick={() => setIsImageModalOpen(true)}
               >
                 <Image
-                  src={
-                    activeIndex === 0
-                      ? product.mainImage
-                      : product.subImages[activeIndex - 1]?.url
-                  }
-                  alt={`Image ${activeIndex + 1}`}
+                  src={allImages[activeIndex]}
+                  alt={product.name}
                   fill
+                  className={`object-cover transition-transform duration-200 ${isZoomed ? "scale-150" : "scale-100"}`}
+                  style={isZoomed ? { transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%` } : {}}
+                  priority
                   unoptimized
-                  className={`object-contain rounded-xs transition-transform duration-200 ${
-                    isZoomed ? "scale-150" : "scale-100"
-                  }`}
-                  style={
-                    isZoomed
-                      ? {
-                          transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                        }
-                      : {}
-                  }
                 />
               </div>
 
-              <button
-                onClick={handleNextImage}
-                className="absolute right-4 bg-white/90 backdrop-blur-sm p-3 shadow-lg hover:bg-white border border-gray-200 z-10 rounded-full transition-all"
-              >
-                <ChevronRight size={24} />
-              </button>
+              {/* Navigation Arrows - Hover'da görünür */}
+              {total > 1 && (
+                <>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleThumbUp(); }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 hover:bg-black hover:text-white z-10"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleThumbDown(); }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 hover:bg-black hover:text-white z-10"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Thumbnails */}
+            <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
+              {allImages.map((img, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveIndex(index)}
+                  className={`w-20 h-20 flex-shrink-0 rounded-md overflow-hidden border-2 transition-all ${activeIndex === index ? "border-black" : "border-transparent hover:border-gray-300"
+                    }`}
+                >
+                  <Image
+                    src={img}
+                    alt={`Thumbnail ${index + 1}`}
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                </button>
+              ))}
             </div>
           </div>
-        )}
 
-        {/* Product Info - Premium Style */}
-        <div className="flex flex-col gap-6">
-          <div className="flex justify-between items-start pb-6 border-b border-gray-200">
-            <h1 className="text-2xl font-light tracking-wide text-gray-800">
+          {/* ===== PRODUCT INFO SECTION ===== */}
+          <div className="pt-2">
+            {/* Category */}
+            <p className="text-[#8b7355] text-[11px] uppercase tracking-[2px] font-semibold mb-3">
+              {product.category?.replace(/_/g, " ")}
+            </p>
+
+            {/* Title */}
+            <h1 className="font-serif text-[28px] md:text-[32px] font-medium mb-4 leading-tight">
               {product.name}
             </h1>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleFavoriteToggle}
-              className="hover:bg-gray-100 rounded-full transition-all"
-            >
-              <Heart
-                size={28}
-                strokeWidth={1.5}
-                fill={isFavorite ? "black" : "none"}
-                color={isFavorite ? "black" : "currentColor"}
-                className="transition-all"
-              />
-            </Button>
-          </div>
 
-          {/* Price Section - Premium */}
-          <div className="flex items-center gap-6 py-4">
-            <span className="bg-black text-white px-4 py-2 text-sm font-medium tracking-wider">
-              -{product.discount}%
-            </span>
-            <div className="flex flex-col">
-              <span className="text-lg line-through text-gray-400">
-                ${product.oldPrice.toFixed(2)}
-              </span>
-              <span className="font-semibold text-3xl text-black">
-                ${product.price.toFixed(2)}
-              </span>
-            </div>
-          </div>
-
-          {/* Custom Name Input */}
-          {product.customName  && (
-            <div className="flex flex-col gap-2 pt-4 border-t border-gray-200">
-              <Label
-                htmlFor="customName"
-                className="text-sm font-medium text-gray-700"
-              >
-                Enter Your Name <span className="text-red-500">*</span>
-              </Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="customName"
-                  placeholder="Enter your name"
-                  maxLength={16}
-                  value={customName}
-                  onChange={(e) => setCustomName(e.target.value)}
-                  className="flex-1 rounded-md border-gray-300 focus:border-black focus:ring-black"
-                />
+            {/* Rating */}
+            {product.reviews?.length > 0 ? (
+              <div className="flex items-center gap-3 mb-5">
+                <span className="text-[#d4a853] text-sm">
+                  {"★".repeat(Math.round(product.reviews.reduce((a, r) => a + r.rating, 0) / product.reviews.length))}
+                  {"☆".repeat(5 - Math.round(product.reviews.reduce((a, r) => a + r.rating, 0) / product.reviews.length))}
+                </span>
+                <span className="text-gray-500 text-[13px]">
+                  {(product.reviews.reduce((a, r) => a + r.rating, 0) / product.reviews.length).toFixed(1)} ({product.reviews.length} reviews)
+                </span>
               </div>
+            ) : (
+              <div className="flex items-center gap-3 mb-5">
+                <span className="text-gray-300 text-sm">★★★★★</span>
+                <span className="text-gray-400 text-[13px]">Be the first to review</span>
+              </div>
+            )}
+
+            {/* Price Section */}
+            <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-200">
+              <span className="text-[28px] font-semibold">${product.price.toFixed(2)}</span>
+              {product.oldPrice > product.price && (
+                <>
+                  <span className="text-lg text-gray-400 line-through">${product.oldPrice.toFixed(2)}</span>
+                  <span className="bg-[#f0e6d8] text-[#8b7355] px-3 py-1.5 rounded text-xs font-semibold">
+                    Save ${saveAmount}
+                  </span>
+                </>
+              )}
             </div>
-          )}
 
-          {/* Premium Buttons */}
-          <div className="flex flex-col gap-4 mt-4">
-            <Button
-              className="w-full py-7 text-base font-medium bg-black hover:bg-gray-800 transition-all duration-300 rounded-none tracking-wider"
-              onClick={handleAddToCart}
-              disabled={isAddingToCart} // Disable button
-            >
-              <ShoppingCart size={20} className="mr-3" />
-              {isAddingToCart ? "Adding to Cart..." : "ADD TO CART"}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full py-7 text-base font-medium border-2 border-black text-black hover:bg-black hover:text-white transition-all duration-300 rounded-none tracking-wider"
-              onClick={handleWhatsapp}
-            >
-              CONTACT VIA WHATSAPP
-            </Button>
-          </div>
+            {/* Hook / Emotional Quote */}
+            {(product.hookQuote || true) && (
+              <p className="font-serif text-xl italic text-[#8b7355] mb-4 leading-relaxed">
+                "{product.hookQuote || "The outfit they'll wear in those first precious photos — the ones you'll treasure for a lifetime."}"
+              </p>
+            )}
 
-          {/* Premium Info Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-200">
-            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-              <Truck size={28} className="text-gray-700" />
-              <div>
-                <p className="font-medium text-sm">Fast Shipping</p>
-                <p className="text-xs text-gray-600">
-                  Ships in 4-5 Business Days
+            {/* Description */}
+            <p className="text-gray-500 text-sm leading-[1.8] mb-4">
+              {product.description || "Your baby's arrival is a moment like no other. The first time you hold them, the first photo in the hospital, the journey home — these are memories that deserve to be wrapped in something truly special."}
+            </p>
+
+            {/* Highlight Box */}
+            {(product.highlightBox || true) && (
+              <div className="bg-[#faf8f5] p-4 rounded-lg border-l-4 border-[#8b7355] mb-6">
+                <p className="text-sm text-gray-600 italic flex items-start gap-2">
+                  <Camera className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  {product.highlightBox || "Perfect for newborn photoshoots, hospital coming-home moments, and that very first \"hello world\" announcement."}
                 </p>
               </div>
+            )}
+
+            {/* Set Includes */}
+            <div className="bg-[#faf8f5] rounded-lg p-5 mb-6">
+              <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                🎁 This Complete Set Includes:
+              </h3>
+              <ul className="grid grid-cols-2 gap-2.5">
+                {[
+                  "Personalized Romper with embroidered name",
+                  "Matching Bonnet Hat with ruffles",
+                  "Personalized Muslin Blanket with ruffles",
+                  "Personalized Star Pillow",
+                  "Soft Cotton Mittens",
+                  "Matching Bib"
+                ].map((item, index) => (
+                  <li key={index} className="text-gray-600 text-[13px] flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-              <Gift size={28} className="text-gray-700" />
-              <div>
-                <p className="font-medium text-sm">Free Shipping</p>
-                <p className="text-xs text-gray-600">Over $250</p>
+
+            {/* Details Box */}
+            <div className="border border-gray-200 rounded-lg p-5 mb-6">
+              {(() => {
+                // Kategori bazlı detaylar
+                const categoryDetails = {
+                  hospital_outfit_special_set: [
+                    { label: "📏 Size", value: "0-6 Months (One Size)" },
+                    { label: "🧵 Material", value: "100% Organic Muslin Cotton" },
+                    { label: "✨ Embroidery Style", value: "Custom Hand Embroidery" },
+                    { label: "🎨 Thread Color", value: "As Shown in Photos" }
+                  ],
+                  hospital_outfit_set: [
+                    { label: "📏 Size", value: "3-9 Months (One Size)" },
+                    { label: "🧵 Material", value: "100% Organic Muslin Cotton" },
+                    { label: "💎 Design", value: "Premium Ready-to-Wear" },
+                    { label: "📸 Perfect For", value: "Photoshoots & Special Occasions" }
+                  ],
+                  blanket: [
+                    { label: "📐 Dimensions", value: "90x100 cm" },
+                    { label: "🧵 Material", value: "100% Organic Muslin Cotton" },
+                    { label: "✨ Embroidery Style", value: "Custom Hand Embroidery" },
+                    { label: "🎨 Thread Color", value: "As Shown in Photos" }
+                  ],
+                  toy: [
+                    { label: "📏 Size", value: "Suitable for 0+ Months" },
+                    { label: "🧵 Material", value: "100% Organic Cotton" },
+                    { label: "🛡️ Safety", value: "CE Certified, Baby Safe" },
+                    { label: "🎨 Color", value: "As Shown in Photos" }
+                  ]
+                };
+
+                const details = categoryDetails[product.category] || categoryDetails.hospital_outfit_special_set;
+
+                return details.map((detail, index, arr) => (
+                  <div
+                    key={index}
+                    className={`flex justify-between py-2.5 text-[13px] ${index !== arr.length - 1 ? "border-b border-gray-200" : ""}`}
+                  >
+                    <span className="text-gray-500">{detail.label}</span>
+                    <span className="font-medium">{detail.value}</span>
+                  </div>
+                ));
+              })()}
+            </div>
+
+            {/* Personalization Input */}
+            {product.customName && (
+              <div className="bg-[#f5f1eb] rounded-lg p-5 mb-6">
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  ✍️ Enter Baby's Name for Personalization
+                </h3>
+                <Input
+                  type="text"
+                  placeholder="Enter name (max 12 characters)"
+                  maxLength={12}
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  className="w-full py-3.5 px-4 border border-gray-200 rounded-md text-[15px] focus:border-black focus:ring-0"
+                />
+                <p className="text-right text-[11px] text-gray-400 mt-1.5">
+                  <span>{charCount}</span>/12 characters
+                </p>
+                <div className="bg-white p-3 rounded-md mt-3 flex gap-2 text-xs text-gray-500">
+                  <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <p>The name will be embroidered exactly as you enter it. Please double-check the spelling.</p>
+                </div>
+              </div>
+            )}
+
+            {/* Buttons */}
+            <div className="space-y-3 mb-6">
+              <Button
+                onClick={handleAddToCart}
+                disabled={isAddingToCart}
+                className="w-full py-[18px] h-auto bg-black hover:bg-[#8b7355] text-white font-medium rounded-md transition-all"
+              >
+                {isAddingToCart ? "Adding..." : `Add to Cart — $${product.price.toFixed(2)}`}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleWhatsapp}
+                className="w-full py-[18px] h-auto border-2 border-black hover:bg-black hover:text-white font-medium rounded-md transition-all"
+              >
+                CONTACT VIA WHATSAPP
+              </Button>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="grid grid-cols-2 gap-4 py-6 border-t border-b border-gray-200 mb-6">
+              <div className="flex items-center gap-2.5 text-xs">
+                <Truck className="w-5 h-5 text-gray-700" />
+                <div>
+                  <strong className="block">Standard Shipping $12.99</strong>
+                  <span className="text-gray-400 text-[11px]">FREE over $250</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs">
+                <Zap className="w-5 h-5 text-gray-700" />
+                <div>
+                  <strong className="block">Express Shipping $24.99</strong>
+                  <span className="text-gray-400 text-[11px]">Always $24.99</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs">
+                <Clock className="w-5 h-5 text-gray-700" />
+                <div>
+                  <strong className="block">Ships in 3-5 Days</strong>
+                  <span className="text-gray-400 text-[11px]">Hand-embroidered</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs">
+                <Leaf className="w-5 h-5 text-gray-700" />
+                <div>
+                  <strong className="block">100% Organic Cotton</strong>
+                  <span className="text-gray-400 text-[11px]">GOTS Certified</span>
+                </div>
               </div>
             </div>
+
+            {/* Accordions */}
+            <div className="space-y-0">
+              {/* Product Details Accordion */}
+              <details open className="border-b border-gray-200">
+                <summary className="py-4 cursor-pointer font-medium text-sm flex justify-between items-center list-none">
+                  Product Details
+                  <span className="text-lg">+</span>
+                </summary>
+                <div className="pb-5 text-gray-500 text-[13px] leading-[1.8]">
+                  <ul className="space-y-2">
+                    <li><strong>Material:</strong> 100% GOTS Certified Organic Muslin Cotton</li>
+                    <li><strong>Certifications:</strong> Oeko-Tex Standard 100, CPSC Compliant</li>
+                    <li><strong>Embroidery:</strong> Hand-stitched with baby-safe brown thread</li>
+                    <li><strong>Size:</strong> 0-3 Months (fits babies up to 14 lbs)</li>
+                    <li><strong>Made In:</strong> Handcrafted with love</li>
+                  </ul>
+                </div>
+              </details>
+
+              {/* Shipping Accordion */}
+              <details className="border-b border-gray-200">
+                <summary className="py-4 cursor-pointer font-medium text-sm flex justify-between items-center list-none">
+                  Shipping Information
+                  <span className="text-lg">+</span>
+                </summary>
+                <div className="pb-5 text-gray-500 text-[13px] leading-[1.8]">
+                  <p><strong>Production Time:</strong> 3-5 business days (each piece is hand-embroidered)</p>
+                  <p className="mt-3"><strong>Standard:</strong> 5-7 days - $12.99 (FREE over $250)</p>
+                  <p><strong>Express:</strong> 2-3 days - $24.99</p>
+                </div>
+              </details>
+
+              {/* Care Instructions Accordion */}
+              <details className="border-b border-gray-200">
+                <summary className="py-4 cursor-pointer font-medium text-sm flex justify-between items-center list-none">
+                  Care Instructions
+                  <span className="text-lg">+</span>
+                </summary>
+                <div className="pb-5 text-gray-500 text-[13px] leading-[1.8]">
+                  <ul className="space-y-2">
+                    <li>✓ Machine wash cold, gentle cycle</li>
+                    <li>✓ Use mild, fragrance-free detergent</li>
+                    <li>✓ Tumble dry low or lay flat to dry</li>
+                    <li>✗ Do not bleach</li>
+                    <li>✓ Iron on low (avoid embroidered areas)</li>
+                  </ul>
+                </div>
+              </details>
+            </div>
           </div>
+        </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="bg-[#faf8f5] py-[60px]">
+        <div className="max-w-[900px] mx-auto px-4 md:px-10">
+          <ReviewSection productId={product.id} productName={product.name} />
         </div>
       </div>
 
       {/* Complete Purchase Section */}
-      <div ref={completePurchaseRef}>
+      <div ref={completePurchaseRef} className="py-[60px]">
         <CompletePurchase />
       </div>
 
-      {/* Premium Description Section */}
-      <div className="mt-16 mb-16 max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-light tracking-wide text-gray-800 mb-4">
-            Product Description
-          </h2>
-          <div className="w-24 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent mx-auto"></div>
-        </div>
-        <div className="text-gray-700 leading-relaxed space-y-4 text-center">
-          {formatDescription(product.description)}
-        </div>
-      </div>
-
-      {/* Review Section */}
-      <ReviewSection productId={product.id} productName={product.name} />
-
+      {/* Bestseller */}
       <Bestseller />
 
-      {/* Premium Image Modal */}
+      {/* Image Modal / Lightbox */}
       {isImageModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm outline-none"
+          onClick={() => setIsImageModalOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setIsImageModalOpen(false);
+            } else if (e.key === 'ArrowLeft') {
+              e.preventDefault();
+              setActiveIndex((prev) => (prev - 1 + total) % total);
+            } else if (e.key === 'ArrowRight') {
+              e.preventDefault();
+              setActiveIndex((prev) => (prev + 1) % total);
+            }
+          }}
+          tabIndex={0}
+          ref={(el) => el && el.focus()}
+        >
           <div className="relative w-full h-full flex items-center justify-center">
+            {/* Close Button */}
             <button
               onClick={() => setIsImageModalOpen(false)}
-              className="absolute top-4 right-4 md:top-8 md:right-8 text-white bg-black/50 rounded-full p-3 hover:bg-black/70 transition-all z-50"
+              className="absolute top-4 right-4 md:top-8 md:right-8 text-white bg-black/50 rounded-full p-3 hover:bg-black/70 transition-all z-[10000] hover:scale-110"
+              aria-label="Close modal"
             >
-              <X className="h-5 w-5" />
+              <X className="h-6 w-6" />
             </button>
 
+            {/* Navigation Arrows in Modal */}
+            {total > 1 && (
+              <>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setActiveIndex((prev) => (prev - 1 + total) % total); }}
+                  className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center transition-all duration-300 hover:bg-black hover:text-white hover:scale-110 z-[10000]"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setActiveIndex((prev) => (prev + 1) % total); }}
+                  className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center transition-all duration-300 hover:bg-black hover:text-white hover:scale-110 z-[10000]"
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </>
+            )}
+
+            {/* Main Image */}
             <Image
-              src={
-                activeIndex === 0
-                  ? product.mainImage
-                  : product.subImages[activeIndex - 1]?.url
-              }
+              src={allImages[activeIndex]}
               alt="Product Image"
               width={0}
               height={0}
               sizes="100vw"
               unoptimized
-              className="max-h-screen w-auto object-contain"
+              className="max-h-[85vh] max-w-[85vw] w-auto object-contain rounded-lg animate-in fade-in zoom-in-95 duration-300"
+              onClick={(e) => e.stopPropagation()}
             />
+
+            {/* Image Counter */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm">
+              {activeIndex + 1} / {total}
+            </div>
+
+            {/* Thumbnail Strip in Modal */}
+            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-2 max-w-[80vw] overflow-x-auto pb-2">
+              {allImages.map((img, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => { e.stopPropagation(); setActiveIndex(index); }}
+                  className={`w-16 h-16 flex-shrink-0 rounded-md overflow-hidden border-2 transition-all ${activeIndex === index ? "border-white scale-110" : "border-transparent opacity-60 hover:opacity-100"
+                    }`}
+                >
+                  <Image
+                    src={img}
+                    alt={`Thumbnail ${index + 1}`}
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}

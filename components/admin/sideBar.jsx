@@ -11,6 +11,7 @@ import {
   LogOut,
   Menu,
   X,
+  FileText,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -36,6 +37,12 @@ export default function AdminSidebar() {
       label: "Ürünler",
       icon: <Package size={20} />,
       href: "/admin/products",
+    },
+    {
+      id: "blog",
+      label: "Blog",
+      icon: <FileText size={20} />,
+      href: "/admin/blog",
     },
     {
       id: "orders",
@@ -108,9 +115,8 @@ export default function AdminSidebar() {
           <Link
             key={item.id}
             href={item.href}
-            className={`flex items-center px-4 py-3 rounded-lg transition-colors relative ${
-              active === item.id ? "bg-stone-900" : "hover:bg-stone-700"
-            }`}
+            className={`flex items-center px-4 py-3 rounded-lg transition-colors relative ${active === item.id ? "bg-stone-900" : "hover:bg-stone-700"
+              }`}
             aria-current={active === item.id ? "page" : undefined}
           >
             {active === item.id && (
@@ -183,9 +189,8 @@ export default function AdminSidebar() {
               <Link
                 key={item.id}
                 href={item.href}
-                className={`flex items-center px-4 py-3 rounded-lg transition-colors relative ${
-                  active === item.id ? "bg-stone-900" : "hover:bg-stone-700"
-                }`}
+                className={`flex items-center px-4 py-3 rounded-lg transition-colors relative ${active === item.id ? "bg-stone-900" : "hover:bg-stone-700"
+                  }`}
                 aria-current={active === item.id ? "page" : undefined}
                 onClick={() => setIsOpen(false)} // Navigasyon öğesine tıklayınca menüyü kapat
               >

@@ -155,11 +155,10 @@ export default function Footer() {
                   </div>
                 </button>
                 <div
-                  className={`overflow-hidden transition-all duration-300 ${
-                    openIndex === index
-                      ? "max-h-96 opacity-100 mt-2"
-                      : "max-h-0 opacity-0"
-                  }`}
+                  className={`overflow-hidden transition-all duration-300 ${openIndex === index
+                    ? "max-h-96 opacity-100 mt-2"
+                    : "max-h-0 opacity-0"
+                    }`}
                 >
                   <ul className="space-y-3 text-slate-600 pl-1">
                     {section.links.map((link, i) => (
@@ -196,7 +195,7 @@ export default function Footer() {
                 />
               </Link>
               <Link
-                href="https://www.instagram.com/rosalliebaby/?utm_source=ig_web_button_share_sheet"
+                href="https://www.instagram.com/rosalliebabyy?igsh=ZXlmZHdiaWlkZGNw&utm_source=qr"
                 aria-label="Instagram"
                 className="group relative w-10 h-10 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 hover:from-purple-600 hover:to-pink-600 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
               >
@@ -208,7 +207,7 @@ export default function Footer() {
 
               {/* SVG Bazlı TikTok İkonu */}
               <Link
-                href="#"
+                href="https://www.tiktok.com/@rosalliebaby?_r=1&_t=ZS-92PXM84pUaw"
                 aria-label="TikTok"
                 className="group relative w-10 h-10 rounded-full bg-slate-100 hover:bg-black flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
               >
@@ -220,7 +219,7 @@ export default function Footer() {
 
               {/* SVG Bazlı Pinterest İkonu */}
               <Link
-                href="#"
+                href="https://pinterest.com/rosalliebaby/"
                 aria-label="Pinterest"
                 className="group relative w-10 h-10 rounded-full bg-slate-100 hover:bg-red-600 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
               >
